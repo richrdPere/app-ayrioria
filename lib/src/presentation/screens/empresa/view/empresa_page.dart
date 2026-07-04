@@ -1,117 +1,61 @@
+import 'package:app_aryoria/src/domain/utils/Resource.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class EmpresaPage extends StatelessWidget {
+import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_bloc.dart';
+import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_state.dart';
+import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_event.dart';
+
+import 'empresa_content.dart';
+
+class EmpresaPage extends StatefulWidget {
   const EmpresaPage({super.key});
 
   @override
+  State<EmpresaPage> createState() => _EmpresaPageState();
+}
+
+class _EmpresaPageState extends State<EmpresaPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    /// Cargar empresas al entrar
+    Future.microtask(() {
+      context.read<EmpresaBloc>().add(const GetEmpresasEvent());
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xffF5F7FA),
-      
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        icon: const Icon(Icons.add),
-        label: const Text("Nueva"),
-      ),
+    return BlocListener<EmpresaBloc, EmpresaState>(
+      listener: (context, state) {
+        /// CREATE
+        final create = state.createResponse;
+        if (create != null && create is Success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Empresa creada correctamente")),
+          );
+        }
 
-      body: Padding(
-        padding: const EdgeInsets.all(20),
+        /// DELETE
+        final delete = state.deleteResponse;
+        if (delete != null && delete is Success) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text("Empresa eliminada")));
+        }
 
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        /// UPDATE
+        final update = state.updateResponse;
+        if (update != null && update is Success) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text("Empresa actualizada")));
+        }
+      },
 
-          children: [
-            // const Text(
-            //   "Empresas",
-            //   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            // ),
-
-            // const SizedBox(height: 5),
-
-            // Text(
-            //   "Administra las empresas registradas",
-            //   style: TextStyle(color: Colors.grey.shade700),
-            // ),
-
-            // const SizedBox(height: 25),
-
-            TextField(
-              decoration: InputDecoration(
-                hintText: "Buscar empresa...",
-                prefixIcon: const Icon(Icons.search),
-
-                filled: true,
-                fillColor: Colors.white,
-
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            Expanded(
-              child: ListView.builder(
-                itemCount: 5,
-
-                itemBuilder: (_, index) {
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 15),
-
-                    elevation: 3,
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        radius: 28,
-                        backgroundColor: Colors.blue.shade100,
-
-                        child: Icon(
-                          Icons.business,
-                          color: Colors.blue.shade700,
-                        ),
-                      ),
-
-                      title: Text(
-                        "Empresa ${index + 1}",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-
-                      subtitle: const Text("RUC: 20123456789"),
-
-                      trailing: PopupMenuButton<String>(
-                        onSelected: (value) {
-                          switch (value) {
-                            case "editar":
-                              break;
-
-                            case "eliminar":
-                              break;
-                          }
-                        },
-
-                        itemBuilder: (_) => const [
-                          PopupMenuItem(value: "editar", child: Text("Editar")),
-
-                          PopupMenuItem(
-                            value: "eliminar",
-                            child: Text("Eliminar"),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+      child: const EmpresaContent(),
     );
   }
 }
