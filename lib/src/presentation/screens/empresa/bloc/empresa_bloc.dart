@@ -14,6 +14,7 @@ class EmpresaBloc extends Bloc<EmpresaEvent, EmpresaState> {
     on<GetEmpresaByIdEvent>(_getEmpresaById);
     on<UpdateEmpresaEvent>(_updateEmpresa);
     on<DeleteEmpresaEvent>(_deleteEmpresa);
+    on<SelectEmpresaEvent>(_selectEmpresa);
     on<EmpresaResetEvent>(_reset);
   }
 
@@ -92,6 +93,20 @@ class EmpresaBloc extends Bloc<EmpresaEvent, EmpresaState> {
     final response = await empresaUseCases.deleteEmpresa.run(event.idEmpresa);
 
     emit(state.copyWith(isLoading: false, deleteResponse: response));
+  }
+
+  //-------------------------------------------------------
+  // Seleccionar empresa
+  //-------------------------------------------------------
+  Future<void> _selectEmpresa(
+    SelectEmpresaEvent event,
+    Emitter<EmpresaState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final response = await empresaUseCases.selectEmpresa.run(event.idEmpresa);
+
+    emit(state.copyWith(isLoading: false, selectResponse: response));
   }
 
   //-------------------------------------------------------

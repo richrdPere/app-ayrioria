@@ -2,9 +2,9 @@ import 'package:app_aryoria/src/data/models/empresa/empresa_paginated.dart';
 import 'package:app_aryoria/src/data/models/empresa/empresa_request.dart';
 import 'package:app_aryoria/src/data/models/empresa/empresa_response.dart';
 import 'package:app_aryoria/src/data/models/common/base_response.dart';
+import 'package:app_aryoria/src/data/models/login/auth_response.dart';
 
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
-
 
 abstract class EmpresaRepository {
   /// Crear empresa
@@ -28,4 +28,9 @@ abstract class EmpresaRepository {
 
   /// Eliminar empresa
   Future<Resource<BaseResponse>> deleteEmpresa(int idEmpresa);
+
+  /// Seleccionar empresa
+  Future<Resource<AuthResponse>> selectEmpresa(
+    int idEmpresa,
+  );
 }

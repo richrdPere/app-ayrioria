@@ -27,7 +27,7 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
       final session = await authUsesCases.getUserSession.run();
 
       if (session != null) {
-        emit(const SplashAuthenticated());
+        emit(SplashAuthenticated(session));
       } else {
         emit(const SplashUnauthenticated());
       }

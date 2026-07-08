@@ -1,6 +1,7 @@
 // Environment
 import 'dart:convert';
 import 'package:app_aryoria/src/data/models/common/base_response.dart';
+import 'package:app_aryoria/src/data/models/login/auth_response.dart';
 import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'package:app_aryoria/src/config/constants/environment.dart'
@@ -21,6 +22,7 @@ class EmpresaService {
   String get API_GET_EMPRESA_BY_ID => '$API_BASE/detalle/';
   String get API_UPDATE_EMPRESA => '$API_BASE/editar/';
   String get API_DELETE_EMPRESA => '$API_BASE/eliminar/';
+  String get API_SELECT_EMPRESA => '$API_BASE/seleccionar';
 
   // *********************************************************
   // 1.- Crear Empresa
@@ -216,6 +218,46 @@ class EmpresaService {
       );
     } catch (e) {
       debugPrint("ERROR ELIMINAR EMPRESA: $e");
+
+      return ErrorData("No fue posible conectarse con el servidor.");
+    }
+  }
+
+  // *********************************************************
+  // 6.- Seleccionar Empresa
+  // *********************************************************
+  Future<Resource<AuthResponse>> selectEmpresa({
+    required String token,
+    required int idEmpresa,
+  }) async {
+    try {
+      // 1.- URL
+      final url = Uri.parse(API_SELECT_EMPRESA);
+
+      // 2.- Headers
+      final headers = <String, String>{
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      };
+
+      // 3.- Body
+      final body = jsonEncode({"id_empresa": idEmpresa});
+
+      // 4.- Request
+      final resp = await http.post(url, headers: headers, body: body);
+
+      final Map<String, dynamic> data = jsonDecode(resp.body);
+
+      // 5.- Response
+      if (resp.statusCode == 200 || resp.statusCode == 201) {
+        return Success(AuthResponse.fromJson(data));
+      } else {
+        return ErrorData(
+          data["message"] ?? "No fue posible seleccionar la empresa.",
+        );
+      }
+    } catch (e) {
+      debugPrint("ERROR SELECT EMPRESA: $e");
 
       return ErrorData("No fue posible conectarse con el servidor.");
     }

@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/data/models/login/auth_response.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class SplashState extends Equatable {
@@ -19,7 +20,9 @@ class SplashLoading extends SplashState {
 
 /// Existe una sesión almacenada
 class SplashAuthenticated extends SplashState {
-  const SplashAuthenticated();
+  final AuthResponse session;
+
+  const SplashAuthenticated(this.session);
 }
 
 /// No existe una sesión

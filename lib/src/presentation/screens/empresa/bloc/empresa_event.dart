@@ -42,6 +42,13 @@ class DeleteEmpresaEvent extends EmpresaEvent {
   const DeleteEmpresaEvent(this.idEmpresa);
 }
 
+/// Eliminar empresa
+class SelectEmpresaEvent extends EmpresaEvent {
+  final int idEmpresa;
+
+  const SelectEmpresaEvent(this.idEmpresa);
+}
+
 /// Limpiar estados
 class EmpresaResetEvent extends EmpresaEvent {
   const EmpresaResetEvent();

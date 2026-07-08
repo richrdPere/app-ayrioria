@@ -2,11 +2,13 @@
 
 import 'package:app_aryoria/src/config/core/main_shell.dart';
 import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
+// import 'package:app_aryoria/src/config/router/go_router_refresh_stream.dart';
 import 'package:app_aryoria/src/presentation/screens/auth/login/view/login_page.dart';
 import 'package:app_aryoria/src/presentation/screens/auth/register/view/register_page.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/view/categoria_page.dart';
 import 'package:app_aryoria/src/presentation/screens/configuracion/view/configuracion_page.dart';
-import 'package:app_aryoria/src/presentation/screens/empresa/view/empresa_page.dart';
+import 'package:app_aryoria/src/presentation/screens/empresa/view/create_empresa/empresa_create_page.dart';
+import 'package:app_aryoria/src/presentation/screens/empresa/view/selected_empresa/empresa_page.dart';
 import 'package:app_aryoria/src/presentation/screens/home/view/home_page.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/view/movimiento_page.dart';
 import 'package:app_aryoria/src/presentation/screens/reportes/view/reportes_page.dart';
@@ -17,21 +19,35 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 String? authRedirect(BuildContext context, GoRouterState state) {
-  final loggedIn = context.read<SessionBloc>().state.isAuthenticated;
+  final session = context.read<SessionBloc>().state;
+
+  final loggedIn = session.isAuthenticated;
+  final hasEmpresa = session.empresaActiva != null;
 
   const publicRoutes = {'/login', '/register', '/splash'};
 
+  final location = state.matchedLocation;
   final isPublic = publicRoutes.contains(state.matchedLocation);
 
-  if (!loggedIn && !isPublic) {
-    return '/login';
+  // 1. USUARIO NO AUTENTICADO
+  if (!loggedIn) {
+    return isPublic ? null : '/login';
   }
 
-  if (loggedIn && state.matchedLocation == '/login') {
-    return '/home';
+  // 2. USUARIO AUTENTICADO PERO SIN EMPRESA
+  if (!hasEmpresa) {
+    final isEmpresaFlow = location.startsWith('/empresas');
+    return isEmpresaFlow ? null : '/empresas';
   }
 
-  return null;
+  // 3. USUARIO AUTENTICADO + EMPRESA ACTIVA
+  if (location == '/home') {
+    return null;
+  }
+
+  // Si intenta entrar a Login, Splash, Empresas o cualquier
+  // otra ruta inicial, siempre lo enviamos al Home.
+  return '/home';
 }
 
 // ===================================
@@ -42,7 +58,7 @@ final GoRouter appRouter = GoRouter(
   // initialLocation: '/login',
   initialLocation: '/splash',
   debugLogDiagnostics: true,
-
+  // refreshListenable: GoRouterRefreshStream(SessionBloc().stream),
   redirect: authRedirect,
 
   routes: [
@@ -70,6 +86,19 @@ final GoRouter appRouter = GoRouter(
       builder: (_, __) => const LoadingPage(),
     ),
 
+    GoRoute(
+      path: '/empresas',
+      name: 'empresas',
+      builder: (_, __) => const EmpresaPage(),
+      routes: [
+        GoRoute(
+          path: 'create',
+          name: 'crear_empresa',
+          builder: (context, state) => const EmpresaCreatePage(),
+        ),
+      ],
+    ),
+
     // APP
     ShellRoute(
       builder: (context, state, child) {
@@ -82,13 +111,6 @@ final GoRouter appRouter = GoRouter(
           path: '/home',
           name: 'home',
           builder: (_, __) => const HomePage(),
-        ),
-
-        // 2. EMPRESA
-        GoRoute(
-          path: '/empresas',
-          name: 'empresas',
-          builder: (_, __) => const EmpresaPage(),
         ),
 
         // 3. PERIODOS CONTABLE

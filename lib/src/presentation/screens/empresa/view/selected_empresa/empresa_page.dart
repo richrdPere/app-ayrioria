@@ -1,10 +1,16 @@
-import 'package:app_aryoria/src/domain/utils/Resource.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+// Models
+import 'package:app_aryoria/src/data/models/login/auth_response.dart';
+import 'package:app_aryoria/src/domain/utils/Resource.dart';
+
+// Bloc's
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_state.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_event.dart';
+
 
 import 'empresa_content.dart';
 
@@ -29,29 +35,23 @@ class _EmpresaPageState extends State<EmpresaPage> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<EmpresaBloc, EmpresaState>(
+      listenWhen: (previous, current) =>
+          previous.selectResponse != current.selectResponse,
+
       listener: (context, state) {
-        /// CREATE
-        final create = state.createResponse;
-        if (create != null && create is Success) {
+        if (state.selectResponse is Success<AuthResponse>) {
+          context.goNamed('home');
+        }
+
+        if (state.selectResponse is ErrorData) {
+          final error = state.selectResponse as ErrorData;
+
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Empresa creada correctamente")),
+            SnackBar(
+              content: Text(error.error),
+              backgroundColor: Colors.redAccent,
+            ),
           );
-        }
-
-        /// DELETE
-        final delete = state.deleteResponse;
-        if (delete != null && delete is Success) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text("Empresa eliminada")));
-        }
-
-        /// UPDATE
-        final update = state.updateResponse;
-        if (update != null && update is Success) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text("Empresa actualizada")));
         }
       },
 

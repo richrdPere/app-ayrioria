@@ -1,6 +1,7 @@
 import 'package:app_aryoria/src/data/datasources/remote/services/empresa_service.dart';
 import 'package:app_aryoria/src/data/models/common/base_response.dart';
 import 'package:app_aryoria/src/data/models/empresa/empresa_paginated.dart';
+import 'package:app_aryoria/src/data/models/login/auth_response.dart';
 import 'package:app_aryoria/src/domain/repositories/auth_repository.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
@@ -91,5 +92,31 @@ class EmpresaRepositoryImpl implements EmpresaRepository {
     }
 
     return empresaService.deleteEmpresa(token: token, idEmpresa: idEmpresa);
+  }
+
+  @override
+  Future<Resource<AuthResponse>> selectEmpresa(
+    int idEmpresa,
+  ) async {
+    final token = await authRepository.getToken();
+
+    if (token == null) {
+      return ErrorData("No existe sesión.");
+    }
+
+    final response = await empresaService.selectEmpresa(
+      token: token,
+      idEmpresa: idEmpresa,
+    );
+
+    if (response is Success<AuthResponse>) {
+      try {
+        await authRepository.saveUserSession(response.data);
+      } catch (_) {
+        return ErrorData("No fue posible guardar la sesión.");
+      }
+    }
+
+    return response;
   }
 }

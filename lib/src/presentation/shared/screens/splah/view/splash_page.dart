@@ -1,7 +1,7 @@
+import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 
 import '../bloc/splash_bloc.dart';
 import '../bloc/splash_state.dart';
@@ -14,22 +14,23 @@ class SplashPage extends StatelessWidget {
     return BlocListener<SplashBloc, SplashState>(
       listener: (context, state) {
         if (state is SplashAuthenticated) {
+          context.read<SessionBloc>().updateSession(state.session);
           context.go('/loading');
         }
-    
+
         if (state is SplashUnauthenticated) {
           context.go('/login');
         }
-    
+
         if (state is SplashFailure) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(state.message)));
-    
+
           context.go('/login');
         }
       },
-    
+
       child: const _SplashView(),
     );
   }

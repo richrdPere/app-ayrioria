@@ -1,6 +1,7 @@
 import 'package:app_aryoria/src/data/models/common/base_response.dart';
 import 'package:app_aryoria/src/data/models/empresa/empresa_paginated.dart';
 import 'package:app_aryoria/src/data/models/empresa/empresa_response.dart';
+import 'package:app_aryoria/src/data/models/login/auth_response.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 class EmpresaState {
@@ -16,6 +17,8 @@ class EmpresaState {
 
   final Resource<BaseResponse>? deleteResponse;
 
+  final Resource<AuthResponse>? selectResponse;
+
   const EmpresaState({
     this.isLoading = false,
     this.createResponse,
@@ -23,6 +26,7 @@ class EmpresaState {
     this.empresaResponse,
     this.updateResponse,
     this.deleteResponse,
+    this.selectResponse,
   });
 
   factory EmpresaState.initial() {
@@ -36,6 +40,7 @@ class EmpresaState {
     Resource<EmpresaResponse>? empresaResponse,
     Resource<EmpresaResponse>? updateResponse,
     Resource<BaseResponse>? deleteResponse,
+    Resource<AuthResponse>? selectResponse,
   }) {
     return EmpresaState(
       isLoading: isLoading ?? this.isLoading,
@@ -44,6 +49,7 @@ class EmpresaState {
       empresaResponse: empresaResponse ?? this.empresaResponse,
       updateResponse: updateResponse ?? this.updateResponse,
       deleteResponse: deleteResponse ?? this.deleteResponse,
+      selectResponse: selectResponse ?? this.selectResponse,
     );
   }
 }

@@ -15,6 +15,7 @@ import 'package:app_aryoria/src/domain/use_cases/empresa/EmpresaUseCases.dart';
 import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/DeleteEmpresaUseCase.dart';
 import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/GetEmpresaByIdUseCase.dart';
 import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/GetEmpresasUseCase.dart';
+import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/SelectEmpresaUseCase.dart';
 import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/UpdateEmpresaUseCase.dart';
 import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/createEmpresaUseCase.dart';
 import 'package:injectable/injectable.dart';
@@ -59,5 +60,6 @@ abstract class AppModule {
     getEmpresaById: GetEmpresaByIdUseCase(empresaRepository),
     getEmpresas: GetEmpresasUseCase(empresaRepository),
     updateEmpresa: UpdateEmpresaUseCase(empresaRepository),
+    selectEmpresa: SelectEmpresaUseCase(empresaRepository),
   );
 }
