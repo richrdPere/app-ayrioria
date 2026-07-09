@@ -5,7 +5,7 @@ import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
 // import 'package:app_aryoria/src/config/router/go_router_refresh_stream.dart';
 import 'package:app_aryoria/src/presentation/screens/auth/login/view/login_page.dart';
 import 'package:app_aryoria/src/presentation/screens/auth/register/view/register_page.dart';
-import 'package:app_aryoria/src/presentation/screens/categorias/view/categoria_page.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/page/categoria_page.dart';
 import 'package:app_aryoria/src/presentation/screens/configuracion/view/configuracion_page.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/view/create_empresa/empresa_create_page.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/view/selected_empresa/empresa_page.dart';
