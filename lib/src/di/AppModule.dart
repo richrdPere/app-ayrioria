@@ -1,10 +1,13 @@
 import 'package:app_aryoria/src/data/datasources/local/sharefPref.dart';
 import 'package:app_aryoria/src/data/datasources/remote/services/auth_service.dart';
 import 'package:app_aryoria/src/data/datasources/remote/services/empresa_service.dart';
+import 'package:app_aryoria/src/data/datasources/remote/services/movimiento_service.dart';
 import 'package:app_aryoria/src/data/repositories/auth_repository_impl.dart';
 import 'package:app_aryoria/src/data/repositories/empresa_repository_impl.dart';
+import 'package:app_aryoria/src/data/repositories/movimiento_repository_impl.dart';
 import 'package:app_aryoria/src/domain/repositories/auth_repository.dart';
 import 'package:app_aryoria/src/domain/repositories/empresa_repository.dart';
+import 'package:app_aryoria/src/domain/repositories/movimiento_repository.dart';
 import 'package:app_aryoria/src/domain/use_cases/auth/AuthUseCases.dart';
 import 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/GetUserSessionUseCase.dart';
 import 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/LoginUseCase.dart';
@@ -18,6 +21,12 @@ import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/GetEm
 import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/SelectEmpresaUseCase.dart';
 import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/UpdateEmpresaUseCase.dart';
 import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/createEmpresaUseCase.dart';
+import 'package:app_aryoria/src/domain/use_cases/movimiento/MovimientoUsesCases.dart';
+import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/CreateMovimientoUseCase.dart';
+import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/DeleteMovimientoUseCase.dart';
+import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/GetMovimientoByIdUseCase.dart';
+import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/GetMovimientosUseCase.dart';
+import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/UpdateMovimientoUseCase.dart';
 import 'package:injectable/injectable.dart';
 
 @module
@@ -32,6 +41,9 @@ abstract class AppModule {
   @injectable
   EmpresaService get empresaService => EmpresaService();
 
+  @injectable
+  MovimientoService get movimientoService => MovimientoService();
+
   // REPOSITORY
   @injectable
   AuthRepository get authRepository =>
@@ -40,6 +52,12 @@ abstract class AppModule {
   @injectable
   EmpresaRepository get empresaRepository => EmpresaRepositoryImpl(
     empresaService: empresaService,
+    authRepository: authRepository,
+  );
+
+  @injectable
+  MovimientoRepository get movimientoRepository => MovimientoRepositoryImpl(
+    movimientoService: movimientoService,
     authRepository: authRepository,
   );
 
@@ -61,5 +79,14 @@ abstract class AppModule {
     getEmpresas: GetEmpresasUseCase(empresaRepository),
     updateEmpresa: UpdateEmpresaUseCase(empresaRepository),
     selectEmpresa: SelectEmpresaUseCase(empresaRepository),
+  );
+
+  @injectable
+  MovimientoUsesCases get movimientoUseCases => MovimientoUsesCases(
+    createMovimiento: CreateMovimientoUseCase(movimientoRepository),
+    deleteMovimiento: DeleteMovimientoUseCase(movimientoRepository),
+    getMovimientoById: GetMovimientoByIdUseCase(movimientoRepository),
+    getMovimientos: GetMovimientosUseCase(movimientoRepository),
+    updateMovimiento: UpdateMovimientoUseCase(movimientoRepository),
   );
 }

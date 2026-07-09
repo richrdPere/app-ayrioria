@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool isHome;
   final String nombreUsuario;
+  final String empresaNombre;
   final String title;
   final VoidCallback? onMenuPressed;
 
@@ -12,6 +13,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
     super.key,
     required this.isHome,
     required this.nombreUsuario,
+    required this.empresaNombre,
     required this.title,
     this.onMenuPressed,
   });
@@ -48,8 +50,8 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
                     fontSize: 18,
                   ),
                 ),
-                const Text(
-                  "Sistema Aryoria",
+                Text(
+                  "Empresa, $empresaNombre",
                   style: TextStyle(fontSize: 13, color: Colors.black54),
                 ),
               ],

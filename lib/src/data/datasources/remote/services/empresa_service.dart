@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, unnecessary_this
+
 // Environment
 import 'dart:convert';
 import 'package:app_aryoria/src/data/models/common/base_response.dart';

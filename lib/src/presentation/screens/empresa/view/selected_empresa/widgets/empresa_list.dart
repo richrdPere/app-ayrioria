@@ -8,7 +8,6 @@ import 'empresa_card.dart';
 
 class EmpresaList extends StatelessWidget {
   final List<EmpresaData> empresas;
-
   final TextEditingController searchCtrl;
 
   const EmpresaList({

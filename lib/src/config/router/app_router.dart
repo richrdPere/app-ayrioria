@@ -10,7 +10,7 @@ import 'package:app_aryoria/src/presentation/screens/configuracion/view/configur
 import 'package:app_aryoria/src/presentation/screens/empresa/view/create_empresa/empresa_create_page.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/view/selected_empresa/empresa_page.dart';
 import 'package:app_aryoria/src/presentation/screens/home/view/home_page.dart';
-import 'package:app_aryoria/src/presentation/screens/movimiento/view/movimiento_page.dart';
+import 'package:app_aryoria/src/presentation/screens/movimiento/page/movimiento_page.dart';
 import 'package:app_aryoria/src/presentation/screens/reportes/view/reportes_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/loading/view/loading_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/splah/view/splash_page.dart';
@@ -24,41 +24,39 @@ String? authRedirect(BuildContext context, GoRouterState state) {
   final loggedIn = session.isAuthenticated;
   final hasEmpresa = session.empresaActiva != null;
 
-  const publicRoutes = {'/login', '/register', '/splash'};
-
   final location = state.matchedLocation;
-  final isPublic = publicRoutes.contains(state.matchedLocation);
 
-  // 1. USUARIO NO AUTENTICADO
+  const publicRoutes = {'/splash', '/login', '/register', '/loading'};
+
+  final isPublic = publicRoutes.contains(location);
+  final isEmpresaFlow = location.startsWith('/empresas');
+
+  // 1. Usuario NO autenticado
   if (!loggedIn) {
     return isPublic ? null : '/login';
   }
 
-  // 2. USUARIO AUTENTICADO PERO SIN EMPRESA
+  // 2. Usuario autenticado intentando ir a Login/Register/Splash
+  if (isPublic) {
+    return hasEmpresa ? '/home' : '/empresas';
+  }
+
+  // 3. Usuario autenticado pero SIN empresa activa
   if (!hasEmpresa) {
-    final isEmpresaFlow = location.startsWith('/empresas');
     return isEmpresaFlow ? null : '/empresas';
   }
 
-  // 3. USUARIO AUTENTICADO + EMPRESA ACTIVA
-  if (location == '/home') {
-    return null;
-  }
-
-  // Si intenta entrar a Login, Splash, Empresas o cualquier
-  // otra ruta inicial, siempre lo enviamos al Home.
-  return '/home';
+  // 4. Usuario autenticado + empresa activa
+  // Puede navegar libremente por las rutas privadas
+  return null;
 }
 
 // ===================================
 // RUTAS
 // ===================================
-
 final GoRouter appRouter = GoRouter(
-  // initialLocation: '/login',
   initialLocation: '/splash',
   debugLogDiagnostics: true,
-  // refreshListenable: GoRouterRefreshStream(SessionBloc().stream),
   redirect: authRedirect,
 
   routes: [
@@ -68,6 +66,7 @@ final GoRouter appRouter = GoRouter(
       name: 'splash',
       builder: (_, __) => const SplashPage(),
     ),
+
     GoRoute(
       path: '/login',
       name: 'login',
@@ -86,6 +85,7 @@ final GoRouter appRouter = GoRouter(
       builder: (_, __) => const LoadingPage(),
     ),
 
+    // EMPRESAS
     GoRoute(
       path: '/empresas',
       name: 'empresas',
@@ -94,47 +94,41 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: 'create',
           name: 'crear_empresa',
-          builder: (context, state) => const EmpresaCreatePage(),
+          builder: (_, __) => const EmpresaCreatePage(),
         ),
       ],
     ),
 
-    // APP
+    // APP PRINCIPAL
     ShellRoute(
       builder: (context, state, child) {
         return MainShell(state: state, child: child);
       },
-
       routes: [
-        // 1. HOME
         GoRoute(
           path: '/home',
           name: 'home',
           builder: (_, __) => const HomePage(),
         ),
 
-        // 3. PERIODOS CONTABLE
         GoRoute(
           path: '/categorias',
           name: 'categorias',
           builder: (_, __) => const CategoriaPage(),
         ),
 
-        // 4. MOVIMIENTOS
         GoRoute(
           path: '/movimientos',
           name: 'movimientos',
           builder: (_, __) => const MovimientoPage(),
         ),
 
-        // 5. REPORTES
         GoRoute(
           path: '/reportes',
           name: 'reportes',
           builder: (_, __) => const ReportesPage(),
         ),
 
-        // 6. CONFIGURACION
         GoRoute(
           path: '/configuracion',
           name: 'configuracion',

@@ -102,7 +102,6 @@ class _EmpresaContentState extends State<EmpresaContent> {
                     Expanded(
                       child: EmpresaList(
                         empresas: empresas,
-
                         searchCtrl: searchCtrl,
                       ),
                     ),

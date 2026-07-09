@@ -1,8 +1,10 @@
 import 'package:app_aryoria/injection.dart';
 import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
 import 'package:app_aryoria/src/domain/use_cases/empresa/EmpresaUseCases.dart';
+import 'package:app_aryoria/src/domain/use_cases/movimiento/MovimientoUsesCases.dart';
 import 'package:app_aryoria/src/presentation/screens/auth/register/bloc/register_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_bloc.dart';
+import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_bloc.dart';
 // import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_event.dart';
 // import 'package:app_aryoria/src/presentation/screens/auth/register/bloc/register_event.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/loading/bloc/loading_bloc.dart';
@@ -57,7 +59,16 @@ List<BlocProvider> blocProviders = [
   // EMPRESA
   // ======================================================
   BlocProvider<EmpresaBloc>(
+    create: (BuildContext context) => EmpresaBloc(
+      locator<EmpresaUseCases>(),
+    ), //..add(const GetEmpresasEvent(page: 1, limit: 5, search: '')),
+  ),
+
+  // ======================================================
+  // MOVIMIENTOS
+  // ======================================================
+  BlocProvider<MovimientoBloc>(
     create: (BuildContext context) =>
-        EmpresaBloc(locator<EmpresaUseCases>()), //..add(const GetEmpresasEvent(page: 1, limit: 5, search: '')),
+        MovimientoBloc(locator<MovimientoUsesCases>()),
   ),
 ];

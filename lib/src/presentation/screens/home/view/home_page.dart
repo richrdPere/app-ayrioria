@@ -23,7 +23,7 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 20),
 
             DashboardCard(
-              titulo: "Tus Negocios",
+              titulo: "Tus Empresas",
               icon: Icons.business,
               onTap: () => context.pushNamed("empresas"),
             ),

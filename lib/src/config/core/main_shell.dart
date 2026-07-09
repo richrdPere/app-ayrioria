@@ -21,7 +21,7 @@ class MainShell extends StatelessWidget {
   String get title {
     switch (state.fullPath) {
       case "/empresas":
-        return "Tus Negocios";
+        return "Tus Empresas";
 
       case "/categorias":
         return "Categorías";
@@ -46,6 +46,7 @@ class MainShell extends StatelessWidget {
     final auth = session.user;
 
     final persona = auth?.data.usuario.persona;
+    final empresaNombre = session.empresaActiva?.nombreComercial ?? '';
 
     String formatNombreUsuario(Persona? persona) {
       if (persona == null) return '';
@@ -67,6 +68,7 @@ class MainShell extends StatelessWidget {
       appBar: MainAppBar(
         isHome: isHome,
         nombreUsuario: nombreUsuario,
+        empresaNombre: empresaNombre,
         title: title,
       ),
 

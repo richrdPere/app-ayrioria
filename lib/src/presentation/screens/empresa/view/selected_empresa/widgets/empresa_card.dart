@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
 import 'package:app_aryoria/src/data/models/empresa/empresa_data.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_event.dart';
@@ -9,19 +10,30 @@ class EmpresaCard extends StatelessWidget {
 
   const EmpresaCard({super.key, required this.empresa});
 
+  void _selectEmpresa(BuildContext context) {
+    context.read<EmpresaBloc>().add(SelectEmpresaEvent(empresa.idEmpresa));
+  }
+
   @override
   Widget build(BuildContext context) {
+    final sessionState = context.watch<SessionBloc>().state;
+    final empresaActivaId = sessionState.empresaActiva?.idEmpresa;
+    final isSelected = empresaActivaId == empresa.idEmpresa;
+
     return GestureDetector(
-      onTap: () {
-        context.read<EmpresaBloc>().add(SelectEmpresaEvent(empresa.idEmpresa));
-      },
+      onTap: () => _selectEmpresa(context),
 
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(15),
+
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? const Color(0xff2563EB) : Colors.transparent,
+            width: 1.4,
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.06),
@@ -33,7 +45,6 @@ class EmpresaCard extends StatelessWidget {
 
         child: Row(
           children: [
-            // ICONO
             Container(
               width: 50,
               height: 50,
@@ -46,11 +57,9 @@ class EmpresaCard extends StatelessWidget {
 
             const SizedBox(width: 12),
 
-            // INFORMACION
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-
                 children: [
                   Text(
                     empresa.nombreComercial,
@@ -81,27 +90,11 @@ class EmpresaCard extends StatelessWidget {
               ),
             ),
 
-            // MENU
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert, color: Colors.grey),
-
-              onSelected: (value) {
-                switch (value) {
-                  case 'edit':
-                    // TODO editar empresa
-                    break;
-
-                  case 'delete':
-                    // TODO eliminar empresa
-                    break;
-                }
-              },
-
-              itemBuilder: (context) => [
-                const PopupMenuItem(value: 'edit', child: Text('Editar')),
-
-                const PopupMenuItem(value: 'delete', child: Text('Eliminar')),
-              ],
+            Radio<int>(
+              value: empresa.idEmpresa,
+              groupValue: empresaActivaId,
+              activeColor: const Color(0xff2563EB),
+              onChanged: (_) => _selectEmpresa(context),
             ),
           ],
         ),
