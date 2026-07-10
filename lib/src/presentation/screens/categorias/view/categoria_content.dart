@@ -1,15 +1,30 @@
 import 'dart:async';
 
-import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
-import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_bloc.dart';
-import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_event.dart';
-import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:app_aryoria/src/data/models/categoria/categoria_data.dart';
+import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
+
+// Models
+import 'package:app_aryoria/src/data/models/categoria/categoria_paginated.dart';
 import 'package:app_aryoria/src/data/models/categoria/categoria_response.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
+
+// Bloc
+import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_bloc.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_event.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_state.dart';
+
+// Views
+import 'package:app_aryoria/src/presentation/screens/categorias/view/categoria_form_dialog.dart';
+
+// Widgets
+import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_card.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_empty_state.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_error_state.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_loading_more.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_search_field.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_summary.dart';
 
 class CategoriaContent extends StatefulWidget {
   const CategoriaContent({super.key});
@@ -24,8 +39,9 @@ class _CategoriaContentState extends State<CategoriaContent> {
 
   Timer? _debounce;
 
-  int? get idEmpresa =>
-      context.read<SessionBloc>().state.empresaActiva?.idEmpresa;
+  int? get idEmpresa {
+    return context.read<SessionBloc>().state.empresaActiva?.idEmpresa;
+  }
 
   @override
   void initState() {
@@ -35,125 +51,217 @@ class _CategoriaContentState extends State<CategoriaContent> {
 
   @override
   void dispose() {
-    searchCtrl.dispose();
-    scrollCtrl.dispose();
     _debounce?.cancel();
+    searchCtrl.dispose();
+
+    scrollCtrl
+      ..removeListener(_onScroll)
+      ..dispose();
+
     super.dispose();
   }
 
   void _onSearchChanged(String value) {
-    _debounce?.cancel();
+    setState(() {});
 
+    _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      context.read<CategoriaBloc>().add(
+      if (!mounted) return;
+      final empresaId = idEmpresa;
+
+      if (empresaId == null) {
+        _showEmpresaError();
+        return;
+      }
+
+      final categoriaBloc = context.read<CategoriaBloc>();
+      final state = categoriaBloc.state;
+
+      categoriaBloc.add(
         GetCategoriasEvent(
           page: 1,
-          limit: 10,
-          idCategoria: idEmpresa!,
+          limit: state.limit,
+          idEmpresa: empresaId,
           search: value.trim(),
         ),
       );
     });
   }
 
+  void _clearSearch() {
+    searchCtrl.clear();
+    _onSearchChanged('');
+  }
+
   void _onScroll() {
+    if (!scrollCtrl.hasClients) return;
+
     final state = context.read<CategoriaBloc>().state;
 
-    if (scrollCtrl.position.pixels >=
-            scrollCtrl.position.maxScrollExtent - 200 &&
-        state.hasMore &&
-        !state.isLoading &&
-        !state.isLoadingMore) {
-      context.read<CategoriaBloc>().add(
-        GetCategoriasEvent(
-          page: state.page + 1,
-          limit: state.limit,
-          idCategoria: idEmpresa!,
-          search: state.search,
-        ),
-      );
+    final isNearBottom =
+        scrollCtrl.position.pixels >= scrollCtrl.position.maxScrollExtent - 200;
+
+    if (!isNearBottom) return;
+
+    if (!state.hasMore || state.isLoading || state.isLoadingMore) {
+      return;
     }
+
+    final empresaId = idEmpresa;
+
+    if (empresaId == null) return;
+
+    context.read<CategoriaBloc>().add(
+      GetCategoriasEvent(
+        page: state.page + 1,
+        limit: state.limit,
+        idEmpresa: empresaId,
+        search: state.search,
+      ),
+    );
   }
 
   Future<void> _onRefresh() async {
-    context.read<CategoriaBloc>().add(
+    final empresaId = idEmpresa;
+
+    if (empresaId == null) {
+      _showEmpresaError();
+      return;
+    }
+
+    final categoriaBloc = context.read<CategoriaBloc>();
+
+    categoriaBloc.add(
       GetCategoriasEvent(
         page: 1,
-        limit: 10,
-        idCategoria: idEmpresa!,
+        limit: categoriaBloc.state.limit,
+        idEmpresa: empresaId,
+        search: searchCtrl.text.trim(),
+      ),
+    );
+
+    await categoriaBloc.stream.firstWhere(
+      (state) => !state.isLoading && !state.isLoadingMore,
+    );
+  }
+
+  void _reloadCategorias() {
+    final empresaId = idEmpresa;
+
+    if (empresaId == null) {
+      _showEmpresaError();
+      return;
+    }
+
+    final categoriaBloc = context.read<CategoriaBloc>();
+
+    categoriaBloc.add(
+      GetCategoriasEvent(
+        page: 1,
+        limit: categoriaBloc.state.limit,
+        idEmpresa: empresaId,
         search: searchCtrl.text.trim(),
       ),
     );
   }
 
+  void _deleteCategoria(int idCategoria) {
+    context.read<CategoriaBloc>().add(
+      DeleteCategoriaEvent(idCategoria: idCategoria),
+    );
+  }
+
+  void _showEmpresaError() {
+    if (!mounted) return;
+
+    _showError('No existe una empresa activa seleccionada.');
+  }
+
+  void _showSuccess(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.green),
+      );
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocListener<CategoriaBloc, CategoriaState>(
-      listenWhen: (previous, current) =>
-          previous.actionResponse != current.actionResponse,
-      listener: (context, state) {
-        final response = state.actionResponse;
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<CategoriaBloc, CategoriaState>(
+          listenWhen: (previous, current) =>
+              previous.actionResponse != current.actionResponse,
+          listener: (context, state) {
+            final response = state.actionResponse;
 
-        if (response is Success<CategoriaResponse>) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.data.message),
-              backgroundColor: Colors.green,
-            ),
-          );
+            if (response is Success<CategoriaResponse>) {
+              _showSuccess(response.data.message);
+              _reloadCategorias();
+            }
 
-          context.read<CategoriaBloc>().add(
-            GetCategoriasEvent(
-              page: 1,
-              limit: state.limit,
-              idCategoria: idEmpresa!,
-              search: state.search,
-            ),
-          );
-        }
+            if (response is ErrorData<CategoriaResponse>) {
+              _showError(response.error);
+            }
+          },
+        ),
 
-        if (response is ErrorData<CategoriaResponse>) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.error),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      },
+        BlocListener<CategoriaBloc, CategoriaState>(
+          listenWhen: (previous, current) =>
+              previous.categoriaResponse != current.categoriaResponse,
+          listener: (context, state) {
+            final response = state.categoriaResponse;
+
+            if (response is ErrorData<CategoriaPaginatedResponse>) {
+              _showError(response.error);
+            }
+          },
+        ),
+      ],
       child: Scaffold(
         backgroundColor: const Color(0xffF7F8FA),
-        // appBar: AppBar(title: const Text('Categorías'), centerTitle: true),
         body: BlocBuilder<CategoriaBloc, CategoriaState>(
           builder: (context, state) {
             return Column(
               children: [
-                _buildSearch(),
+                // Search
+                CategoriaSearchField(
+                  controller: searchCtrl,
+                  enabled: !state.isLoading,
+                  onChanged: _onSearchChanged,
+                  onClear: _clearSearch,
+                ),
+
+                // Nro de categorias
+                CategoriaSummary(
+                  total: state.categorias.length,
+                  isSearching: state.search.trim().isNotEmpty,
+                  search: state.search,
+                ),
+
+                // Lista de Categorias
                 Expanded(child: _buildBody(state)),
               ],
             );
           },
         ),
-      ),
-    );
-  }
-
-  Widget _buildSearch() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
-      child: TextField(
-        controller: searchCtrl,
-        onChanged: _onSearchChanged,
-        decoration: InputDecoration(
-          hintText: 'Buscar categoría...',
-          prefixIcon: const Icon(Icons.search),
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            CategoriaFormDialog.show(context);
+          },
+          child: const Icon(Icons.add),
         ),
       ),
     );
@@ -164,24 +272,19 @@ class _CategoriaContentState extends State<CategoriaContent> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (state.categorias.isEmpty) {
-      return RefreshIndicator(
+    final response = state.categoriaResponse;
+
+    if (response is ErrorData<CategoriaPaginatedResponse> &&
+        state.categorias.isEmpty) {
+      return CategoriaErrorState(
+        message: response.error,
         onRefresh: _onRefresh,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: const [
-            SizedBox(height: 160),
-            Icon(Icons.category_outlined, size: 70, color: Colors.grey),
-            SizedBox(height: 16),
-            Center(
-              child: Text(
-                'No hay categorías registradas.',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            ),
-          ],
-        ),
+        onRetry: _reloadCategorias,
       );
+    }
+
+    if (state.categorias.isEmpty) {
+      return CategoriaEmptyState(search: state.search, onRefresh: _onRefresh);
     }
 
     return RefreshIndicator(
@@ -191,119 +294,24 @@ class _CategoriaContentState extends State<CategoriaContent> {
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 25),
         physics: const AlwaysScrollableScrollPhysics(),
         itemCount: state.categorias.length + (state.isLoadingMore ? 1 : 0),
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, __) {
+          return const SizedBox(height: 12);
+        },
         itemBuilder: (context, index) {
           if (index >= state.categorias.length) {
-            return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 18),
-              child: Center(child: CircularProgressIndicator()),
-            );
+            return const CategoriaLoadingMore();
           }
 
-          return _CategoriaCard(categoria: state.categorias[index]);
+          final categoria = state.categorias[index];
+
+          return CategoriaCard(
+            categoria: categoria,
+            onDelete: () {
+              _deleteCategoria(categoria.idCategoria);
+            },
+          );
         },
       ),
     );
-  }
-}
-
-class _CategoriaCard extends StatelessWidget {
-  final CategoriaData categoria;
-
-  const _CategoriaCard({required this.categoria});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = _parseColor(categoria.color);
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: color.withOpacity(0.12),
-            child: Icon(_getIcon(categoria.icono), color: color),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  categoria.nombre,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  categoria.descripcion ?? 'Sin descripción',
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: categoria.tipo == 'INGRESO'
-                  ? Colors.green.withOpacity(0.12)
-                  : Colors.red.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              categoria.tipo,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: categoria.tipo == 'INGRESO' ? Colors.green : Colors.red,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Color _parseColor(String? hexColor) {
-    if (hexColor == null || hexColor.isEmpty) {
-      return Colors.blue;
-    }
-
-    final cleanColor = hexColor.replaceAll('#', '');
-
-    return Color(int.parse('FF$cleanColor', radix: 16));
-  }
-
-  IconData _getIcon(String? icono) {
-    switch (icono) {
-      case 'wifi':
-        return Icons.wifi;
-      case 'home':
-        return Icons.home_outlined;
-      case 'food':
-        return Icons.restaurant_outlined;
-      case 'money':
-        return Icons.attach_money;
-      case 'car':
-        return Icons.directions_car_outlined;
-      case 'shopping':
-        return Icons.shopping_bag_outlined;
-      default:
-        return Icons.category_outlined;
-    }
   }
 }

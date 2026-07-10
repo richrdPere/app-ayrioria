@@ -64,7 +64,7 @@ class CategoriaRepositoryImpl implements CategoriaRepository {
   Future<Resource<CategoriaPaginatedResponse>> getCategorias({
     int page = 1,
     int limit = 10,
-    required int idCategoria,
+    required int idEmpresa,
     String search = '',
   }) async {
     final token = await authRepository.getToken();
@@ -75,7 +75,7 @@ class CategoriaRepositoryImpl implements CategoriaRepository {
 
     return categoriaService.getCategorias(
       token: token,
-      idCategoria: idCategoria,
+      idEmpresa: idEmpresa,
       page: page,
       limit: limit,
       search: search,

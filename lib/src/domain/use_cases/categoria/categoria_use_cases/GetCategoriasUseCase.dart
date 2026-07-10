@@ -8,11 +8,11 @@ class GetCategoriasUseCase {
     int page = 1,
     int limit = 10,
     String search = '',
-    required int idCategoria,
+    required int idEmpresa,
   }) => categoriaRepository.getCategorias(
     page: page,
     limit: limit,
     search: search,
-    idCategoria: idCategoria,
+    idEmpresa: idEmpresa,
   );
 }

@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/data/models/categoria/categoria_paginated.dart';
 import 'package:app_aryoria/src/domain/use_cases/categoria/CategoriaUsesCases.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -43,26 +44,28 @@ class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState> {
     final response = await categoriaUsesCases.getCategorias.run(
       page: event.page,
       limit: event.limit,
-      idCategoria: event.idCategoria,
+      idEmpresa: event.idEmpresa,
       search: event.search,
     );
 
-    if (response is Success) {
-      final data = response.data;
+    if (response is Success<CategoriaPaginatedResponse>) {
+      final paginatedResponse = response.data;
 
       final nuevasCategorias = isFirstPage
-          ? data.data
-          : [...state.categorias, ...data.data];
+          ? paginatedResponse.data
+          : [...state.categorias, ...paginatedResponse.data];
 
       emit(
         state.copyWith(
-          categoriaResponse: response.data,
+          categoriaResponse: response,
           categorias: nuevasCategorias,
-          page: data.pagination.page,
-          limit: data.pagination.limit,
-          totalPages: data.pagination.totalPages,
-          total: data.pagination.total,
-          hasMore: data.pagination.page < data.pagination.totalPages,
+          page: paginatedResponse.pagination.page,
+          limit: paginatedResponse.pagination.limit,
+          totalPages: paginatedResponse.pagination.totalPages,
+          total: paginatedResponse.pagination.total,
+          hasMore:
+              paginatedResponse.pagination.page <
+              paginatedResponse.pagination.totalPages,
           isLoading: false,
           isLoadingMore: false,
         ),
@@ -121,6 +124,7 @@ class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState> {
           limit: data.pagination.limit,
           totalPages: data.pagination.totalPages,
           total: data.pagination.total,
+          search: event.search,
           hasMore: data.pagination.page < data.pagination.totalPages,
           isLoading: false,
           isLoadingMore: false,
@@ -161,7 +165,7 @@ class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState> {
       event.idCategoria,
     );
 
-    emit(state.copyWith(actionResponse: response));
+    emit(state.copyWith(isLoading: false, actionResponse: response));
   }
 
   void _onResetCategoriaState(

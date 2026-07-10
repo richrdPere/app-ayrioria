@@ -61,16 +61,35 @@ class CategoriaService {
   // *********************************************************
   Future<Resource<CategoriaPaginatedResponse>> getCategorias({
     required String token,
-    required int idCategoria,
+    required int idEmpresa,
     int page = 1,
     int limit = 10,
     String search = '',
+    String? tipo,
+    bool? estado,
   }) async {
     try {
-      final url = Uri.parse(
-        '$API_GET_CATEGORIAS_PAGINATED'
-        '?page=$page&limit=$limit&search=${Uri.encodeQueryComponent(search)}',
-      );
+      final queryParameters = <String, String>{
+        'id_empresa': idEmpresa.toString(),
+        'page': page.toString(),
+        'limit': limit.toString(),
+      };
+
+      if (search.trim().isNotEmpty) {
+        queryParameters['search'] = search.trim();
+      }
+
+      if (tipo != null && tipo.trim().isNotEmpty) {
+        queryParameters['tipo'] = tipo.trim().toUpperCase();
+      }
+
+      if (estado != null) {
+        queryParameters['estado'] = estado.toString();
+      }
+
+      final baseUri = Uri.parse(API_GET_CATEGORIAS_PAGINATED);
+
+      final url = baseUri.replace(queryParameters: queryParameters);
 
       final headers = <String, String>{
         'Content-Type': 'application/json',
@@ -80,16 +99,20 @@ class CategoriaService {
       final resp = await http.get(url, headers: headers);
       final Map<String, dynamic> data = jsonDecode(resp.body);
 
+      debugPrint(resp.body);
+
       if (resp.statusCode == 200) {
         final response = CategoriaPaginatedResponse.fromJson(data);
+
         return Success(response);
-      } else {
-        return ErrorData(
-          data['message'] ?? 'No fue posible obtener las categorías.',
-        );
       }
+
+      return ErrorData(
+        data['message'] ?? 'No fue posible obtener las categorías.',
+      );
     } catch (e) {
       debugPrint('ERROR GET CATEGORIAS: $e');
+
       return ErrorData('No fue posible conectarse con el servidor.');
     }
   }
@@ -219,7 +242,7 @@ class CategoriaService {
 
       if (resp.statusCode == 200) {
         final response = CategoriaResponse.fromJson(data);
-        return Success(response);
+        return Success<CategoriaResponse>(response);
       } else {
         return ErrorData(
           data["message"] ?? "No fue posible eliminar la categoría.",

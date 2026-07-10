@@ -15,11 +15,22 @@ class CategoriaPaginatedResponse {
   });
 
   factory CategoriaPaginatedResponse.fromJson(Map<String, dynamic> json) {
+    final categoriasJson = json['data'];
+
     return CategoriaPaginatedResponse(
-      success: json["success"],
-      message: json["message"],
-      data: (json["data"] as List).map((e) => CategoriaData.fromJson(e)).toList(),
-      pagination: Pagination.fromJson(json["pagination"]),
+      success: json['success'] as bool? ?? false,
+      message: json['message']?.toString() ?? '',
+      data: categoriasJson is List
+          ? categoriasJson
+                .whereType<Map<String, dynamic>>()
+                .map(CategoriaData.fromJson)
+                .toList()
+          : const [],
+      pagination: Pagination.fromJson(
+        json['pagination'] is Map<String, dynamic>
+            ? json['pagination'] as Map<String, dynamic>
+            : <String, dynamic>{},
+      ),
     );
   }
 }

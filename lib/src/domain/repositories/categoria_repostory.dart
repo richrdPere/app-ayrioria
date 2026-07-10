@@ -11,7 +11,7 @@ abstract class CategoriaRepository {
   Future<Resource<CategoriaPaginatedResponse>> getCategorias({
     int page = 1,
     int limit = 10,
-    required int idCategoria,
+    required int idEmpresa,
     String search = '',
   });
 

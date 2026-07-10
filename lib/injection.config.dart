@@ -38,7 +38,7 @@ import 'package:app_aryoria/src/domain/use_cases/movimiento/MovimientoUsesCases.
     as _i683;
 import 'package:app_aryoria/src/presentation/shared/screens/loading/bloc/loading_bloc.dart'
     as _i43;
-import 'package:app_aryoria/src/presentation/shared/screens/splah/bloc/splash_bloc.dart'
+import 'package:app_aryoria/src/presentation/shared/screens/splash/bloc/splash_bloc.dart'
     as _i653;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;

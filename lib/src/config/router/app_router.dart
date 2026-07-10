@@ -13,7 +13,8 @@ import 'package:app_aryoria/src/presentation/screens/home/view/home_page.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/page/movimiento_page.dart';
 import 'package:app_aryoria/src/presentation/screens/reportes/view/reportes_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/loading/view/loading_page.dart';
-import 'package:app_aryoria/src/presentation/shared/screens/splah/view/splash_page.dart';
+import 'package:app_aryoria/src/presentation/shared/screens/logout/view/logout_page.dart';
+import 'package:app_aryoria/src/presentation/shared/screens/splash/view/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -83,6 +84,12 @@ final GoRouter appRouter = GoRouter(
       path: '/loading',
       name: 'loading',
       builder: (_, __) => const LoadingPage(),
+    ),
+
+    GoRoute(
+      path: '/logout',
+      name: "logout",
+      builder: (_, __) => const LogoutLoadingPage(),
     ),
 
     // EMPRESAS

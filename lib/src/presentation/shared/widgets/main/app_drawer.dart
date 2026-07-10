@@ -1,14 +1,16 @@
 import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
   void go(BuildContext context, String routeName) {
-    Navigator.pop(context);
-    context.goNamed(routeName);
+    final router = GoRouter.of(context);
+
+    Navigator.of(context).pop();
+    router.goNamed(routeName);
   }
 
   @override
@@ -33,46 +35,42 @@ class AppDrawer extends StatelessWidget {
           children: [
             const SizedBox(height: 20),
 
-            // 👤 Avatar
             const CircleAvatar(radius: 40, child: Icon(Icons.person, size: 40)),
 
             const SizedBox(height: 10),
 
-            // Nombre dinámico
             Text(
-              nombre.isEmpty ? "Usuario" : nombre,
+              nombre.isEmpty ? 'Usuario' : nombre,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
 
-            // 🛡 Rol dinámico
             Text(rol, style: const TextStyle(color: Colors.grey)),
 
             const Divider(),
 
-            // MENU
             Expanded(
               child: ListView(
                 children: [
-                  _item(context, Icons.home, "Inicio", "home"),
-                  _item(context, Icons.business, "Empresas", "empresas"),
+                  _item(context, Icons.home, 'Inicio', 'home'),
+                  _item(context, Icons.business, 'Empresas', 'empresas'),
                   _item(
                     context,
-                    Icons.calendar_month,
-                    "Periodos Contables",
-                    "categorias",
+                    Icons.category_outlined,
+                    'Categorías',
+                    'categorias',
                   ),
                   _item(
                     context,
                     Icons.swap_horiz,
-                    "Movimientos",
-                    "movimientos",
+                    'Movimientos',
+                    'movimientos',
                   ),
-                  _item(context, Icons.assessment, "Reportes", "reportes"),
+                  _item(context, Icons.assessment, 'Reportes', 'reportes'),
                   _item(
                     context,
                     Icons.settings,
-                    "Configuración",
-                    "configuracion",
+                    'Configuración',
+                    'configuracion',
                   ),
                 ],
               ),
@@ -80,14 +78,20 @@ class AppDrawer extends StatelessWidget {
 
             const Divider(),
 
-            // LOGOUT
             ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text("Cerrar sesión"),
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text(
+                'Cerrar sesión',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               onTap: () {
-                context.read<SessionBloc>().logout();
-                Navigator.pop(context);
-                context.goNamed("login");
+                final router = GoRouter.of(context);
+
+                Navigator.of(context).pop();
+                router.goNamed('logout');
               },
             ),
 
@@ -107,10 +111,7 @@ class AppDrawer extends StatelessWidget {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
-      onTap: () {
-        Navigator.pop(context);
-        context.goNamed(routeName);
-      },
+      onTap: () => go(context, routeName),
     );
   }
 }

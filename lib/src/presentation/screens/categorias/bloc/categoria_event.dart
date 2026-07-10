@@ -13,13 +13,13 @@ class CreateCategoriaEvent extends CategoriaEvent {
 class GetCategoriasEvent extends CategoriaEvent {
   final int page;
   final int limit;
-  final int idCategoria;
+  final int idEmpresa;
   final String search;
 
   const GetCategoriasEvent({
     this.page = 1,
     this.limit = 10,
-    required this.idCategoria,
+    required this.idEmpresa,
     this.search = '',
   });
 }

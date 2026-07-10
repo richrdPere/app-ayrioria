@@ -10,8 +10,9 @@ import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_
 // import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_event.dart';
 // import 'package:app_aryoria/src/presentation/screens/auth/register/bloc/register_event.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/loading/bloc/loading_bloc.dart';
-import 'package:app_aryoria/src/presentation/shared/screens/splah/bloc/splash_bloc.dart';
-import 'package:app_aryoria/src/presentation/shared/screens/splah/bloc/splash_event.dart';
+import 'package:app_aryoria/src/presentation/shared/screens/logout/bloc/logout_bloc.dart';
+import 'package:app_aryoria/src/presentation/shared/screens/splash/bloc/splash_bloc.dart';
+import 'package:app_aryoria/src/presentation/shared/screens/splash/bloc/splash_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -42,11 +43,15 @@ List<BlocProvider> blocProviders = [
   ),
 
   // ======================================================
-  // LOADING
+  // LOADING Y LOGOUT
   // ======================================================
   BlocProvider<LoadingBloc>(
     create: (BuildContext context) =>
         LoadingBloc(locator<AuthUsesCases>()), //..add(const LoadingStarted()),
+  ),
+
+  BlocProvider<LogoutBloc>(
+    create: (BuildContext context) => LogoutBloc(locator<AuthUsesCases>()),
   ),
 
   // ======================================================

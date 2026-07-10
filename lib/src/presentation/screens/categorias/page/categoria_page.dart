@@ -17,15 +17,22 @@ class _CategoriaPageState extends State<CategoriaPage> {
   void initState() {
     super.initState();
 
-    Future.microtask(() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
       final session = context.read<SessionBloc>().state;
       final idEmpresa = session.empresaActiva?.idEmpresa;
 
-      if (idEmpresa != null) {
-        context.read<CategoriaBloc>().add(
-          GetCategoriasEvent(page: 1, limit: 10, idCategoria: idEmpresa),
-        );
+      debugPrint('ID EMPRESA: $idEmpresa');
+
+      if (idEmpresa == null) {
+        debugPrint('No existe una empresa activa.');
+        return;
       }
+
+      context.read<CategoriaBloc>().add(
+        GetCategoriasEvent(page: 1, limit: 10, idEmpresa: idEmpresa),
+      );
     });
   }
 
