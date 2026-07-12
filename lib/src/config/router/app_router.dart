@@ -11,6 +11,7 @@ import 'package:app_aryoria/src/presentation/screens/empresa/view/create_empresa
 import 'package:app_aryoria/src/presentation/screens/empresa/view/selected_empresa/empresa_page.dart';
 import 'package:app_aryoria/src/presentation/screens/home/view/home_page.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/page/movimiento_page.dart';
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/page/periodo_contable_page.dart';
 import 'package:app_aryoria/src/presentation/screens/reportes/view/reportes_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/loading/view/loading_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/logout/view/logout_page.dart';
@@ -122,6 +123,12 @@ final GoRouter appRouter = GoRouter(
           path: '/categorias',
           name: 'categorias',
           builder: (_, __) => const CategoriaPage(),
+        ),
+
+        GoRoute(
+          path: '/periodos_contables',
+          name: 'periodos_contables',
+          builder: (_, __) => const PeriodoContablePage(),
         ),
 
         GoRoute(

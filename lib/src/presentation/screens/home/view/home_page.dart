@@ -23,21 +23,21 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 20),
 
             DashboardCard(
-              titulo: "Tus Empresas",
-              icon: Icons.business,
-              onTap: () => context.pushNamed("empresas"),
+              titulo: "Movimientos",
+              icon: Icons.swap_horiz,
+              onTap: () => context.pushNamed("movimientos"),
+            ),
+
+            DashboardCard(
+              titulo: "Periodos Contables",
+              icon: Icons.history,
+              onTap: () => context.pushNamed("periodos_contables"),
             ),
 
             DashboardCard(
               titulo: "Categorías",
               icon: Icons.category,
               onTap: () => context.pushNamed("categorias"),
-            ),
-
-            DashboardCard(
-              titulo: "Movimientos",
-              icon: Icons.swap_horiz,
-              onTap: () => context.pushNamed("movimientos"),
             ),
 
             const SizedBox(height: 15),
@@ -48,6 +48,12 @@ class HomePage extends StatelessWidget {
             ),
 
             const SizedBox(height: 20),
+
+            DashboardCard(
+              titulo: "Tus Empresas",
+              icon: Icons.business,
+              onTap: () => context.pushNamed("empresas"),
+            ),
 
             DashboardCard(
               titulo: "Reportes",

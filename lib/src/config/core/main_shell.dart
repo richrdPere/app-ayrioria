@@ -26,6 +26,9 @@ class MainShell extends StatelessWidget {
       case "/categorias":
         return "Categorías";
 
+      case "/periodos_contables":
+        return "Periodos Contable";
+
       case "/movimientos":
         return "Movimientos";
 

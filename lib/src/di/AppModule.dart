@@ -1,43 +1,15 @@
-import 'package:app_aryoria/src/data/datasources/local/sharefPref.dart';
-import 'package:app_aryoria/src/data/datasources/remote/services/auth_service.dart';
-import 'package:app_aryoria/src/data/datasources/remote/services/categoria_service.dart';
-import 'package:app_aryoria/src/data/datasources/remote/services/empresa_service.dart';
-import 'package:app_aryoria/src/data/datasources/remote/services/movimiento_service.dart';
-import 'package:app_aryoria/src/data/repositories/auth_repository_impl.dart';
-import 'package:app_aryoria/src/data/repositories/categoria_repository_impl.dart';
-import 'package:app_aryoria/src/data/repositories/empresa_repository_impl.dart';
-import 'package:app_aryoria/src/data/repositories/movimiento_repository_impl.dart';
-import 'package:app_aryoria/src/domain/repositories/auth_repository.dart';
-import 'package:app_aryoria/src/domain/repositories/categoria_repostory.dart';
-import 'package:app_aryoria/src/domain/repositories/empresa_repository.dart';
-import 'package:app_aryoria/src/domain/repositories/movimiento_repository.dart';
-import 'package:app_aryoria/src/domain/use_cases/auth/AuthUseCases.dart';
-import 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/GetUserSessionUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/LoginUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/LogoutUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/RegisterUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/SaveUserSessionUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/categoria/CategoriaUsesCases.dart';
-import 'package:app_aryoria/src/domain/use_cases/categoria/categoria_use_cases/CreateCategoriaUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/categoria/categoria_use_cases/DeleteCategoriaUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/categoria/categoria_use_cases/GetCategoriaByIdUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/categoria/categoria_use_cases/GetCategoriaByTipoUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/categoria/categoria_use_cases/GetCategoriasUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/categoria/categoria_use_cases/UpdateCategoriaUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/empresa/EmpresaUseCases.dart';
-import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/DeleteEmpresaUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/GetEmpresaByIdUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/GetEmpresasUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/SelectEmpresaUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/UpdateEmpresaUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/empresa/empresa_use_cases/createEmpresaUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/movimiento/MovimientoUsesCases.dart';
-import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/CreateMovimientoUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/DeleteMovimientoUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/GetMovimientoByIdUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/GetMovimientosUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/UpdateMovimientoUseCase.dart';
 import 'package:injectable/injectable.dart';
+import 'package:app_aryoria/src/data/datasources/local/sharefPref.dart';
+
+// SERVICES
+import 'package:app_aryoria/src/data/datasources/index_datasource.dart';
+
+// REPOSITORY  Y REPOSITORY IMPL
+import 'package:app_aryoria/src/domain/repositories/index_repository.dart';
+import 'package:app_aryoria/src/data/repositories/index_repository_impl.dart';
+
+// USES CASES
+import 'package:app_aryoria/src/domain/use_cases/index_uses_cases.dart';
 
 @module
 abstract class AppModule {
@@ -58,6 +30,9 @@ abstract class AppModule {
 
   @injectable
   CategoriaService get catgoriaService => CategoriaService();
+
+  @injectable
+  PeriodoContableService get periodoCService => PeriodoContableService();
 
   // ==========================================================
   // 2. REPOSITORY
@@ -83,6 +58,13 @@ abstract class AppModule {
     categoriaService: catgoriaService,
     authRepository: authRepository,
   );
+
+  @injectable
+  PeriodoContableRepository get periodoCRepository =>
+      PeriodoContableRepositoryImpl(
+        periodoService: periodoCService,
+        authRepository: authRepository,
+      );
 
   // ==========================================================
   // 3. USES CASES
@@ -123,5 +105,15 @@ abstract class AppModule {
     getCategoriaByTipo: GetCategoriaByTipoUseCase(categoriaRepository),
     getCategorias: GetCategoriasUseCase(categoriaRepository),
     updateCategoria: UpdateCategoriaUseCase(categoriaRepository),
+  );
+
+  @injectable
+  PeriodoContableUsesCases get periodoCUseCases => PeriodoContableUsesCases(
+    changeEstadoPeriodoC: ChangeEstadoPeriodoCUseCase(periodoCRepository),
+    createPeriodoC: CreatePeriodoCUseCase(periodoCRepository),
+    deletePeriodoC: DeletePeriodoCUseCase(periodoCRepository),
+    getPeriodoCById: GetPeriodoCByIdUseCase(periodoCRepository),
+    getPeriodoC: GetPeriodoCUseCase(periodoCRepository),
+    updatePeriodoC: UpdatePeriodoCUseCase(periodoCRepository),
   );
 }

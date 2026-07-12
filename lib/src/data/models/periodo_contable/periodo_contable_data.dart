@@ -10,9 +10,8 @@ class PeriodoContableData {
   final double saldoInicial;
   final double saldoFinal;
   final String? observacion;
-  final String createdAt;
-  final String updatedAt;
-  final String? deletedAt;
+  final String? createdAt;
+  final String? updatedAt;
 
   const PeriodoContableData({
     required this.idPeriodo,
@@ -26,27 +25,25 @@ class PeriodoContableData {
     required this.saldoInicial,
     required this.saldoFinal,
     this.observacion,
-    required this.createdAt,
-    required this.updatedAt,
-    this.deletedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory PeriodoContableData.fromJson(Map<String, dynamic> json) {
     return PeriodoContableData(
-      idPeriodo: json['id_periodo'] ?? 0,
-      idEmpresa: json['id_empresa'] ?? 0,
-      nombre: json['nombre'] ?? '',
-      anio: json['anio'] ?? 0,
-      mes: json['mes'] ?? 0,
-      fechaInicio: json['fecha_inicio'] ?? '',
-      fechaFin: json['fecha_fin'] ?? '',
-      estado: json['estado'] ?? '',
-      saldoInicial: double.tryParse(json['saldo_inicial'].toString()) ?? 0.0,
-      saldoFinal: double.tryParse(json['saldo_final'].toString()) ?? 0.0,
-      observacion: json['observacion'],
-      createdAt: json['created_at'] ?? '',
-      updatedAt: json['updated_at'] ?? '',
-      deletedAt: json['deleted_at'],
+      idPeriodo: _parseInt(json['id_periodo']),
+      idEmpresa: _parseInt(json['id_empresa']),
+      nombre: json['nombre']?.toString() ?? '',
+      anio: _parseInt(json['anio']),
+      mes: _parseInt(json['mes']),
+      fechaInicio: json['fecha_inicio']?.toString() ?? '',
+      fechaFin: json['fecha_fin']?.toString() ?? '',
+      estado: json['estado']?.toString() ?? 'ABIERTO',
+      saldoInicial: _parseDouble(json['saldo_inicial']),
+      saldoFinal: _parseDouble(json['saldo_final']),
+      observacion: json['observacion']?.toString(),
+      createdAt: json['created_at']?.toString(),
+      updatedAt: json['updated_at']?.toString(),
     );
   }
 
@@ -65,9 +62,14 @@ class PeriodoContableData {
       'observacion': observacion,
       'created_at': createdAt,
       'updated_at': updatedAt,
-      'deleted_at': deletedAt,
     };
   }
+
+  bool get isAbierto => estado.toUpperCase() == 'ABIERTO';
+
+  bool get isCerrado => estado.toUpperCase() == 'CERRADO';
+
+  bool get isBloqueado => estado.toUpperCase() == 'BLOQUEADO';
 
   PeriodoContableData copyWith({
     int? idPeriodo,
@@ -83,7 +85,6 @@ class PeriodoContableData {
     String? observacion,
     String? createdAt,
     String? updatedAt,
-    String? deletedAt,
   }) {
     return PeriodoContableData(
       idPeriodo: idPeriodo ?? this.idPeriodo,
@@ -99,7 +100,20 @@ class PeriodoContableData {
       observacion: observacion ?? this.observacion,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
     );
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value is int) return value;
+
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value is double) return value;
+
+    if (value is int) return value.toDouble();
+
+    return double.tryParse(value?.toString() ?? '') ?? 0;
   }
 }
