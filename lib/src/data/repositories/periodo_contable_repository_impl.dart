@@ -87,6 +87,7 @@ class PeriodoContableRepositoryImpl implements PeriodoContableRepository {
 
       return await periodoService.getPeriodosContables(
         token: token,
+        idEmpresa: idEmpresa,
         queryParams: queryParams,
       );
     } catch (error) {

@@ -66,18 +66,28 @@ class PeriodoContableService {
   }
 
   // *********************************************************
-  // 2.- Obtener Periodos Contable Paginadas
+  // 2.- OBTENER PERÍODOS CONTABLES PAGINADOS
   // *********************************************************
   Future<Resource<PeriodoContablePaginatedResponse>> getPeriodosContables({
     required String token,
+    required int idEmpresa,
     required Map<String, dynamic> queryParams,
   }) async {
     try {
-      final url = Uri.parse(API_GET_PERIODO_C_PAGINATED).replace(
-        queryParameters: queryParams.map(
+      final Map<String, dynamic> params = {
+        ...queryParams,
+        'id_empresa': idEmpresa,
+      };
+
+      final Uri url = Uri.parse(API_GET_PERIODO_C_PAGINATED).replace(
+        queryParameters: params.map(
           (key, value) => MapEntry(key, value.toString()),
         ),
       );
+
+      debugPrint('URL LISTAR PERIODOS: $url');
+      debugPrint('ID EMPRESA SERVICE: $idEmpresa');
+      debugPrint('QUERY PARAMS PERIODOS: $params');
 
       final response = await http.get(
         url,
@@ -85,6 +95,8 @@ class PeriodoContableService {
       );
 
       final body = HttpServiceHelper.decodeResponse(response);
+
+      debugPrint('RESPONSE LISTAR PERIODOS: $body');
 
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
         return Success(PeriodoContablePaginatedResponse.fromJson(body));

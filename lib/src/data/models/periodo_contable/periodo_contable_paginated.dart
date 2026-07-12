@@ -1,10 +1,10 @@
-import 'periodo_contable_data.dart';
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_data.dart';
 
 class PeriodoContablePaginatedResponse {
   final bool success;
   final String message;
   final List<PeriodoContableData> data;
-  final PeriodoPagination pagination;
+  final PeriodoContablePagination pagination;
 
   const PeriodoContablePaginatedResponse({
     required this.success,
@@ -14,112 +14,58 @@ class PeriodoContablePaginatedResponse {
   });
 
   factory PeriodoContablePaginatedResponse.fromJson(Map<String, dynamic> json) {
-    final rawData = json['data'];
+    final Map<String, dynamic> responseData =
+        json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : <String, dynamic>{};
 
-    /*
-     * Formato esperado 1:
-     *
-     * {
-     *   "success": true,
-     *   "message": "...",
-     *   "data": {
-     *     "total": 20,
-     *     "page": 1,
-     *     "limit": 10,
-     *     "totalPages": 2,
-     *     "data": [...]
-     *   }
-     * }
-     */
-    if (rawData is Map<String, dynamic>) {
-      final rawList = rawData['data'];
+    final List<dynamic> periodosJson = responseData['periodos'] is List
+        ? responseData['periodos'] as List<dynamic>
+        : <dynamic>[];
 
-      return PeriodoContablePaginatedResponse(
-        success: json['success'] == true,
-        message: json['message']?.toString() ?? '',
-        data: rawList is List
-            ? rawList
-                  .whereType<Map>()
-                  .map(
-                    (item) => PeriodoContableData.fromJson(
-                      Map<String, dynamic>.from(item),
-                    ),
-                  )
-                  .toList()
-            : const [],
-        pagination: PeriodoPagination(
-          total: _parseInt(rawData['total']),
-          page: _parseInt(rawData['page'], fallback: 1),
-          limit: _parseInt(rawData['limit'], fallback: 10),
-          totalPages: _parseInt(
-            rawData['totalPages'] ?? rawData['total_pages'],
-          ),
-        ),
-      );
-    }
-
-    /*
-     * Formato esperado 2:
-     *
-     * {
-     *   "success": true,
-     *   "message": "...",
-     *   "data": [...],
-     *   "pagination": {...}
-     * }
-     */
-    final rawPagination = json['pagination'];
+    final Map<String, dynamic> paginationJson =
+        responseData['pagination'] is Map<String, dynamic>
+        ? responseData['pagination'] as Map<String, dynamic>
+        : <String, dynamic>{};
 
     return PeriodoContablePaginatedResponse(
       success: json['success'] == true,
       message: json['message']?.toString() ?? '',
-      data: rawData is List
-          ? rawData
-                .whereType<Map>()
-                .map(
-                  (item) => PeriodoContableData.fromJson(
-                    Map<String, dynamic>.from(item),
-                  ),
-                )
-                .toList()
-          : const [],
-      pagination: rawPagination is Map
-          ? PeriodoPagination.fromJson(Map<String, dynamic>.from(rawPagination))
-          : const PeriodoPagination(),
+      data: periodosJson
+          .whereType<Map<String, dynamic>>()
+          .map(PeriodoContableData.fromJson)
+          .toList(),
+      pagination: PeriodoContablePagination.fromJson(paginationJson),
     );
-  }
-
-  static int _parseInt(dynamic value, {int fallback = 0}) {
-    if (value is int) return value;
-
-    return int.tryParse(value?.toString() ?? '') ?? fallback;
   }
 }
 
-class PeriodoPagination {
+class PeriodoContablePagination {
   final int total;
   final int page;
   final int limit;
   final int totalPages;
 
-  const PeriodoPagination({
-    this.total = 0,
-    this.page = 1,
-    this.limit = 10,
-    this.totalPages = 0,
+  const PeriodoContablePagination({
+    required this.total,
+    required this.page,
+    required this.limit,
+    required this.totalPages,
   });
 
-  factory PeriodoPagination.fromJson(Map<String, dynamic> json) {
-    return PeriodoPagination(
-      total: _parseInt(json['total']),
-      page: _parseInt(json['page'], fallback: 1),
-      limit: _parseInt(json['limit'], fallback: 10),
-      totalPages: _parseInt(json['totalPages'] ?? json['total_pages']),
+  factory PeriodoContablePagination.fromJson(Map<String, dynamic> json) {
+    return PeriodoContablePagination(
+      total: _toInt(json['total']),
+      page: _toInt(json['page'], fallback: 1),
+      limit: _toInt(json['limit'], fallback: 10),
+      totalPages: _toInt(json['totalPages'], fallback: 1),
     );
   }
 
-  static int _parseInt(dynamic value, {int fallback = 0}) {
-    if (value is int) return value;
+  static int _toInt(dynamic value, {int fallback = 0}) {
+    if (value is int) {
+      return value;
+    }
 
     return int.tryParse(value?.toString() ?? '') ?? fallback;
   }

@@ -1,5 +1,5 @@
 import 'package:app_aryoria/src/data/datasources/remote/services/categoria_service.dart';
-import 'package:app_aryoria/src/domain/repositories/categoria_repostory.dart';
+import 'package:app_aryoria/src/domain/repositories/categoria_repository.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 // Repo

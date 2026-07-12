@@ -12,6 +12,8 @@ import 'package:app_aryoria/src/presentation/screens/empresa/view/selected_empre
 import 'package:app_aryoria/src/presentation/screens/home/view/home_page.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/page/movimiento_page.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/page/periodo_contable_page.dart';
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/periodo_contable_detalle/periodo_contable_detalle_page.dart';
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/periodo_contable_form_page.dart';
 import 'package:app_aryoria/src/presentation/screens/reportes/view/reportes_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/loading/view/loading_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/logout/view/logout_page.dart';
@@ -125,12 +127,46 @@ final GoRouter appRouter = GoRouter(
           builder: (_, __) => const CategoriaPage(),
         ),
 
+        // ==========================================================
+        // PERÍODOS CONTABLES
+        // ==========================================================
         GoRoute(
           path: '/periodos_contables',
           name: 'periodos_contables',
           builder: (_, __) => const PeriodoContablePage(),
         ),
 
+        GoRoute(
+          path: '/periodos_contables/crear',
+          name: 'crear_periodo_contable',
+          builder: (context, state) {
+            return const PeriodoContableFormPage();
+          },
+        ),
+
+        GoRoute(
+          path: '/periodos_contables/:idPeriodo',
+          name: 'periodo_contable_detalle',
+          builder: (context, state) {
+            final int idPeriodo = int.parse(state.pathParameters['idPeriodo']!);
+
+            return PeriodoContableDetallePage(idPeriodo: idPeriodo);
+          },
+        ),
+
+        GoRoute(
+          path: '/periodos_contables/:idPeriodo/editar',
+          name: 'editar_periodo_contable',
+          builder: (context, state) {
+            final int idPeriodo = int.parse(state.pathParameters['idPeriodo']!);
+
+            return PeriodoContableFormPage(idPeriodo: idPeriodo);
+          },
+        ),
+
+        // ==========================================================
+        // MOVIMIENTOS
+        // ==========================================================
         GoRoute(
           path: '/movimientos',
           name: 'movimientos',

@@ -1,4 +1,4 @@
-import 'package:app_aryoria/src/domain/repositories/categoria_repostory.dart';
+import 'package:app_aryoria/src/domain/repositories/categoria_repository.dart';
 
 class GetCategoriaByIdUseCase {
   CategoriaRepository categoriaRepository;

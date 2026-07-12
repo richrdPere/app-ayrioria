@@ -43,6 +43,8 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
   void _loadPeriodos({int page = 1, bool refresh = false}) {
     final int? idEmpresa = _idEmpresa;
 
+    debugPrint("ID EMPRESA: $idEmpresa");
+
     if (idEmpresa == null) {
       return;
     }
@@ -103,7 +105,7 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
   // CREAR PERÍODO
   // ==========================================================
   Future<void> _onCreate() async {
-    final result = await context.push('/periodos-contables/crear');
+    final result = await context.push('/periodos_contables/crear');
 
     if (!mounted) {
       return;
@@ -125,7 +127,7 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
     }
 
     context.push(
-      '/periodos-contables/$idPeriodo',
+      '/periodos_contables/$idPeriodo',
       extra: {'idEmpresa': idEmpresa},
     );
   }
@@ -141,7 +143,7 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
     }
 
     final result = await context.push(
-      '/periodos-contables/$idPeriodo/editar',
+      '/periodos_contables/$idPeriodo/editar',
       extra: {'idEmpresa': idEmpresa},
     );
 
