@@ -1,14 +1,21 @@
-abstract class Resource<T> {}
+abstract class Resource<T> {
+  const Resource();
+}
 
-class Initial extends Resource {}
+class Initial<T> extends Resource<T> {
+  const Initial();
+}
 
-class Loading extends Resource {}
+class Loading<T> extends Resource<T> {
+  const Loading();
+}
 
 class Success<T> extends Resource<T> {
   final T data;
   Success(this.data);
 }
-class ErrorData<T> extends Resource<T>{
+
+class ErrorData<T> extends Resource<T> {
   final String error;
   ErrorData(this.error);
 

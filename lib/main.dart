@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
           routerConfig: appRouter,
           debugShowCheckedModeBanner: false,
           title: 'Sistema Aryoria Demo',
-          theme: AppTheme(selectedColor: 0).getTheme(),
+          theme: AppTheme(selectedColor: 4).getTheme(),
         ),
       ),
     );

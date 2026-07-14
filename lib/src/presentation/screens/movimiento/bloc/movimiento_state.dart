@@ -12,12 +12,16 @@ class MovimientoState extends Equatable {
 
   final List<MovimientoData> movimientos;
 
+  final int? idEmpresa;
+  final int? idPeriodo;
+
   final int page;
   final int limit;
   final int totalPages;
   final int total;
 
   final String search;
+
   final bool isLoading;
   final bool isLoadingMore;
   final bool hasMore;
@@ -27,6 +31,8 @@ class MovimientoState extends Equatable {
     this.actionResponse,
     this.detailResponse,
     this.movimientos = const [],
+    this.idEmpresa,
+    this.idPeriodo,
     this.page = 1,
     this.limit = 10,
     this.totalPages = 0,
@@ -42,6 +48,8 @@ class MovimientoState extends Equatable {
     Resource<MovimientoResponse>? actionResponse,
     Resource<MovimientoResponse>? detailResponse,
     List<MovimientoData>? movimientos,
+    int? idEmpresa,
+    int? idPeriodo,
     int? page,
     int? limit,
     int? totalPages,
@@ -50,12 +58,25 @@ class MovimientoState extends Equatable {
     bool? isLoading,
     bool? isLoadingMore,
     bool? hasMore,
+    bool clearMovimientoResponse = false,
+    bool clearActionResponse = false,
+    bool clearDetailResponse = false,
+    bool clearIdEmpresa = false,
+    bool clearIdPeriodo = false,
   }) {
     return MovimientoState(
-      movimientoResponse: movimientoResponse ?? this.movimientoResponse,
-      actionResponse: actionResponse ?? this.actionResponse,
-      detailResponse: detailResponse ?? this.detailResponse,
+      movimientoResponse: clearMovimientoResponse
+          ? null
+          : movimientoResponse ?? this.movimientoResponse,
+      actionResponse: clearActionResponse
+          ? null
+          : actionResponse ?? this.actionResponse,
+      detailResponse: clearDetailResponse
+          ? null
+          : detailResponse ?? this.detailResponse,
       movimientos: movimientos ?? this.movimientos,
+      idEmpresa: clearIdEmpresa ? null : idEmpresa ?? this.idEmpresa,
+      idPeriodo: clearIdPeriodo ? null : idPeriodo ?? this.idPeriodo,
       page: page ?? this.page,
       limit: limit ?? this.limit,
       totalPages: totalPages ?? this.totalPages,
@@ -73,6 +94,8 @@ class MovimientoState extends Equatable {
     actionResponse,
     detailResponse,
     movimientos,
+    idEmpresa,
+    idPeriodo,
     page,
     limit,
     totalPages,

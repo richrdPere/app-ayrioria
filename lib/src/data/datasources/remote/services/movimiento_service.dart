@@ -70,6 +70,7 @@ class MovimientoService {
   Future<Resource<MovimientoPaginatedResponse>> getMovimientos({
     required String token,
     required int idEmpresa,
+    required int idPeriodo,
     int page = 1,
     int limit = 10,
     String search = '',
@@ -77,6 +78,7 @@ class MovimientoService {
     try {
       final queryParams = <String, String>{
         'id_empresa': idEmpresa.toString(),
+        'id_periodo': idPeriodo.toString(),
         'page': page.toString(),
         'limit': limit.toString(),
       };
@@ -91,6 +93,8 @@ class MovimientoService {
 
       final resp = await http.get(url, headers: _headers(token));
       final Map<String, dynamic> data = jsonDecode(resp.body);
+
+      debugPrint("MOVIMIENTOS: $data");
 
       if (resp.statusCode == 200) {
         return Success(MovimientoPaginatedResponse.fromJson(data));

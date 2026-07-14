@@ -193,51 +193,46 @@ class _PeriodoContableFormPageState extends State<PeriodoContableFormPage> {
           },
         ),
       ],
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.isEditing ? 'Editar período' : 'Nuevo período'),
-        ),
-        body: idEmpresa == null
-            ? const _EmpresaNoSeleccionada()
-            : BlocBuilder<PeriodoContableBloc, PeriodoContableState>(
-                buildWhen: (previous, current) {
-                  return previous.detailResponse != current.detailResponse ||
-                      previous.periodoSelected != current.periodoSelected ||
-                      previous.actionResponse != current.actionResponse;
-                },
-                builder: (context, state) {
-                  if (widget.isEditing && state.detailResponse is Loading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+      child: idEmpresa == null
+          ? const _EmpresaNoSeleccionada()
+          : BlocBuilder<PeriodoContableBloc, PeriodoContableState>(
+              buildWhen: (previous, current) {
+                return previous.detailResponse != current.detailResponse ||
+                    previous.periodoSelected != current.periodoSelected ||
+                    previous.actionResponse != current.actionResponse;
+              },
+              builder: (context, state) {
+                if (widget.isEditing && state.detailResponse is Loading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-                  if (widget.isEditing && state.detailResponse is ErrorData) {
-                    final ErrorData error = state.detailResponse as ErrorData;
+                if (widget.isEditing && state.detailResponse is ErrorData) {
+                  final error = state.detailResponse as ErrorData;
 
-                    return _PeriodoDetailError(
-                      message: _getErrorMessage(error),
-                      onRetry: _loadPeriodo,
-                    );
-                  }
-
-                  final PeriodoContableData? periodo = widget.isEditing
-                      ? state.periodoSelected
-                      : null;
-
-                  if (widget.isEditing && periodo == null) {
-                    return const Center(
-                      child: Text('No se encontró el período contable.'),
-                    );
-                  }
-
-                  return PeriodoContableFormContent(
-                    periodo: periodo,
-                    isEditing: widget.isEditing,
-                    isSaving: state.actionResponse is Loading,
-                    onSubmit: _onSubmit,
+                  return _PeriodoDetailError(
+                    message: _getErrorMessage(error),
+                    onRetry: _loadPeriodo,
                   );
-                },
-              ),
-      ),
+                }
+
+                final PeriodoContableData? periodo = widget.isEditing
+                    ? state.periodoSelected
+                    : null;
+
+                if (widget.isEditing && periodo == null) {
+                  return const Center(
+                    child: Text('No se encontró el período contable.'),
+                  );
+                }
+
+                return PeriodoContableFormContent(
+                  periodo: periodo,
+                  isEditing: widget.isEditing,
+                  isSaving: state.actionResponse is Loading,
+                  onSubmit: _onSubmit,
+                );
+              },
+            ),
     );
   }
 }

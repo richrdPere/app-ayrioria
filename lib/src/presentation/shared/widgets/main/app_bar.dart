@@ -18,25 +18,30 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onMenuPressed,
   });
 
+  void _handleLeadingPressed(BuildContext context) {
+    if (isHome) {
+      AppScaffoldKeys.main.currentState?.openDrawer();
+      return;
+    }
+
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+
+    context.goNamed('home');
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 0,
       backgroundColor: const Color(0xffEAF6FC),
+      automaticallyImplyLeading: false,
 
       leading: IconButton(
         icon: Icon(isHome ? Icons.menu : Icons.arrow_back_ios_new),
-        onPressed:
-            onMenuPressed ??
-            () {
-              if (isHome) {
-                //Scaffold.of(context).openDrawer();
-                AppScaffoldKeys.main.currentState?.openDrawer();
-              } else {
-                // context.pop();
-                context.goNamed("home");
-              }
-            },
+        onPressed: onMenuPressed ?? () => _handleLeadingPressed(context),
       ),
 
       title: isHome

@@ -1,7 +1,8 @@
-import 'package:app_aryoria/src/domain/use_cases/movimiento/MovimientoUsesCases.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:app_aryoria/src/domain/use_cases/movimiento/MovimientoUsesCases.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_paginated.dart';
 
 import 'movimiento_event.dart';
 import 'movimiento_state.dart';
@@ -17,32 +18,43 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     on<UpdateMovimientoEvent>(_onUpdateMovimiento);
     on<DeleteMovimientoEvent>(_onDeleteMovimiento);
     on<GetMovimientoByIdEvent>(_onGetMovimientoById);
+    on<ClearMovimientoActionResponseEvent>(_onClearMovimientoActionResponse);
+    on<ClearMovimientoDetailResponseEvent>(_onClearMovimientoDetailResponse);
+    on<ClearMovimientosEvent>(_onClearMovimientos);
   }
 
+  // ==========================================================
+  // OBTENER MOVIMIENTOS
+  // ==========================================================
   Future<void> _onGetMovimientos(
     GetMovimientosEvent event,
     Emitter<MovimientoState> emit,
   ) async {
-    final isFirstPage = event.page == 1;
+    final bool isFirstPage = event.page == 1;
 
     emit(
       state.copyWith(
+        idEmpresa: event.idEmpresa,
+        idPeriodo: event.idPeriodo,
         isLoading: isFirstPage,
         isLoadingMore: !isFirstPage,
         search: event.search,
         page: event.page,
+        clearMovimientoResponse: isFirstPage,
       ),
     );
 
     final response = await movimientoUsesCases.getMovimientos.run(
+      idEmpresa: event.idEmpresa,
+      idPeriodo: event.idPeriodo,
       page: event.page,
       limit: event.limit,
-      idEmpresa: event.idEmpresa,
       search: event.search,
     );
 
-    if (response is Success) {
+    if (response is Success<MovimientoPaginatedResponse>) {
       final paginated = response.data;
+      final pagination = paginated.pagination;
 
       final newList = isFirstPage
           ? paginated.data
@@ -50,35 +62,43 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
 
       emit(
         state.copyWith(
-          movimientoResponse: response.data,
-          movimientos: newList,
-          page: paginated.page,
-          limit: paginated.limit,
-          total: paginated.total,
-          totalPages: paginated.totalPages,
-          hasMore: paginated.page < paginated.totalPages,
-          isLoading: false,
-          isLoadingMore: false,
-        ),
-      );
-    } else {
-      emit(
-        state.copyWith(
           movimientoResponse: response,
+          movimientos: newList,
+          page: pagination.page,
+          limit: pagination.limit,
+          total: pagination.total,
+          totalPages: pagination.totalPages,
+          hasMore: pagination.page < pagination.totalPages,
           isLoading: false,
           isLoadingMore: false,
         ),
       );
+
+      return;
     }
+
+    emit(
+      state.copyWith(
+        movimientoResponse: response,
+        movimientos: isFirstPage ? [] : state.movimientos,
+        isLoading: false,
+        isLoadingMore: false,
+        hasMore: false,
+      ),
+    );
   }
 
-  Future<void> _onRefreshMovimientos(
+  // ==========================================================
+  // REFRESCAR MOVIMIENTOS
+  // ==========================================================
+  void _onRefreshMovimientos(
     RefreshMovimientosEvent event,
     Emitter<MovimientoState> emit,
-  ) async {
+  ) {
     add(
       GetMovimientosEvent(
         idEmpresa: event.idEmpresa,
+        idPeriodo: event.idPeriodo,
         page: 1,
         limit: state.limit,
         search: event.search,
@@ -86,13 +106,17 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     );
   }
 
-  Future<void> _onSearchMovimientos(
+  // ==========================================================
+  // BUSCAR MOVIMIENTOS
+  // ==========================================================
+  void _onSearchMovimientos(
     SearchMovimientosEvent event,
     Emitter<MovimientoState> emit,
-  ) async {
+  ) {
     add(
       GetMovimientosEvent(
         idEmpresa: event.idEmpresa,
+        idPeriodo: event.idPeriodo,
         page: 1,
         limit: state.limit,
         search: event.search,
@@ -100,49 +124,59 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     );
   }
 
+  // ==========================================================
+  // CREAR MOVIMIENTO
+  // ==========================================================
   Future<void> _onCreateMovimiento(
     CreateMovimientoEvent event,
     Emitter<MovimientoState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(actionResponse: Loading()));
 
     final response = await movimientoUsesCases.createMovimiento.run(
       event.request,
     );
 
-    emit(state.copyWith(actionResponse: response, isLoading: false));
+    emit(state.copyWith(actionResponse: response));
   }
 
+  // ==========================================================
+  // ACTUALIZAR MOVIMIENTO
+  // ==========================================================
   Future<void> _onUpdateMovimiento(
     UpdateMovimientoEvent event,
     Emitter<MovimientoState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(actionResponse: Loading()));
 
     final response = await movimientoUsesCases.updateMovimiento.run(
       idMovimiento: event.idMovimiento,
       request: event.request,
     );
 
-    emit(state.copyWith(actionResponse: response, isLoading: false));
+    emit(state.copyWith(actionResponse: response));
   }
 
+  // ==========================================================
+  // ELIMINAR MOVIMIENTO
+  // ==========================================================
   Future<void> _onDeleteMovimiento(
     DeleteMovimientoEvent event,
     Emitter<MovimientoState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(actionResponse: Loading()));
 
     final response = await movimientoUsesCases.deleteMovimiento.run(
       event.idMovimiento,
     );
 
-    emit(state.copyWith(actionResponse: response, isLoading: false));
+    emit(state.copyWith(actionResponse: response));
 
     if (response is Success) {
       add(
         GetMovimientosEvent(
           idEmpresa: event.idEmpresa,
+          idPeriodo: event.idPeriodo,
           page: 1,
           limit: state.limit,
           search: state.search,
@@ -151,16 +185,49 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     }
   }
 
+  // ==========================================================
+  // OBTENER MOVIMIENTO POR ID
+  // ==========================================================
   Future<void> _onGetMovimientoById(
     GetMovimientoByIdEvent event,
     Emitter<MovimientoState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(detailResponse: Loading()));
 
     final response = await movimientoUsesCases.getMovimientoById.run(
       event.idMovimiento,
     );
 
-    emit(state.copyWith(detailResponse: response, isLoading: false));
+    emit(state.copyWith(detailResponse: response));
+  }
+
+  // ==========================================================
+  // LIMPIAR RESPUESTA DE ACCIÓN
+  // ==========================================================
+  void _onClearMovimientoActionResponse(
+    ClearMovimientoActionResponseEvent event,
+    Emitter<MovimientoState> emit,
+  ) {
+    emit(state.copyWith(clearActionResponse: true));
+  }
+
+  // ==========================================================
+  // LIMPIAR RESPUESTA DE DETALLE
+  // ==========================================================
+  void _onClearMovimientoDetailResponse(
+    ClearMovimientoDetailResponseEvent event,
+    Emitter<MovimientoState> emit,
+  ) {
+    emit(state.copyWith(clearDetailResponse: true));
+  }
+
+  // ==========================================================
+  // LIMPIAR ESTADO DE MOVIMIENTOS
+  // ==========================================================
+  void _onClearMovimientos(
+    ClearMovimientosEvent event,
+    Emitter<MovimientoState> emit,
+  ) {
+    emit(const MovimientoState());
   }
 }

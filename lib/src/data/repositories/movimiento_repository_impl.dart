@@ -68,8 +68,9 @@ class MovimientoRepositoryImpl implements MovimientoRepository {
   Future<Resource<MovimientoPaginatedResponse>> getMovimientos({
     int page = 1,
     int limit = 10,
-    required int idEmpresa,
     String search = '',
+    required int idEmpresa,
+    required int idPeriodo,
   }) async {
     final token = await authRepository.getToken();
 
@@ -80,6 +81,7 @@ class MovimientoRepositoryImpl implements MovimientoRepository {
     return movimientoService.getMovimientos(
       token: token,
       idEmpresa: idEmpresa,
+      idPeriodo: idPeriodo,
       page: page,
       limit: limit,
       search: search,

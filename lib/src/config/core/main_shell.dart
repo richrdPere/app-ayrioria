@@ -18,29 +18,61 @@ class MainShell extends StatelessWidget {
 
   bool get isHome => state.fullPath == "/home";
 
+  String get currentLocation => state.matchedLocation;
+
+  bool get showDrawer {
+    return currentLocation == '/home';
+  }
+
   String get title {
-    switch (state.fullPath) {
-      case "/empresas":
-        return "Tus Empresas";
+    final fullPath = state.fullPath ?? currentLocation;
 
-      case "/categorias":
-        return "Categorías";
+    switch (fullPath) {
+      // case "/empresas":
+      //   return "Tus Empresas";
 
-      case "/periodos_contables":
-        return "Periodos Contable";
+      case '/home':
+        return '';
 
-      case "/movimientos":
-        return "Movimientos";
+      case '/categorias':
+        return 'Categorías';
 
-      case "/reportes":
-        return "Reportes";
+      case '/periodos_contables':
+        return 'Períodos contables';
 
-      case "/configuracion":
-        return "Configuración";
+      case '/periodos_contables/crear':
+        return 'Nuevo período';
+
+      case '/periodos_contables/:idPeriodo':
+        return 'Detalle del período';
+
+      case '/periodos_contables/:idPeriodo/editar':
+        return 'Editar período';
+
+      case '/movimientos':
+        return 'Movimientos';
+
+      case '/reportes':
+        return 'Reportes';
+
+      case '/configuracion':
+        return 'Configuración';
 
       default:
-        return "";
+        return '';
     }
+  }
+
+  String formatNombreUsuario(Persona? persona) {
+    if (persona == null) return '';
+
+    final nombres = persona.nombres.trim().split(' ');
+    final apellidos = persona.apellidos.trim().split(' ');
+
+    final primerNombre = nombres.isNotEmpty ? nombres.first : '';
+    final primerApellido = apellidos.isNotEmpty ? apellidos.first : '';
+
+    return '$primerNombre $primerApellido'.trim();
   }
 
   @override
@@ -51,23 +83,11 @@ class MainShell extends StatelessWidget {
     final persona = auth?.data.usuario.persona;
     final empresaNombre = session.empresaActiva?.nombreComercial ?? '';
 
-    String formatNombreUsuario(Persona? persona) {
-      if (persona == null) return '';
-
-      final nombres = (persona.nombres).trim().split(' ');
-      final apellidos = (persona.apellidos).trim().split(' ');
-
-      final primerNombre = nombres.isNotEmpty ? nombres.first : '';
-      final primerApellido = apellidos.isNotEmpty ? apellidos.first : '';
-
-      return '$primerNombre $primerApellido'.trim();
-    }
-
     final nombreUsuario = formatNombreUsuario(persona);
 
     return Scaffold(
       key: AppScaffoldKeys.main,
-      drawer: const AppDrawer(),
+      drawer: showDrawer ? const AppDrawer() : null,
       appBar: MainAppBar(
         isHome: isHome,
         nombreUsuario: nombreUsuario,

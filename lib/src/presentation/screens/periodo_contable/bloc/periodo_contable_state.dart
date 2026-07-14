@@ -34,6 +34,8 @@ class PeriodoContableState extends Equatable {
   /// Indica si se está cargando una página adicional.
   final bool isLoadingMore;
 
+  /// Periodo contable activo
+
   const PeriodoContableState({
     this.periodos = const [],
     this.periodoSelected,
@@ -46,6 +48,31 @@ class PeriodoContableState extends Equatable {
     this.hasMore = true,
     this.isLoadingMore = false,
   });
+
+  // ==========================================================
+  // PERÍODO CONTABLE ACTIVO
+  // ==========================================================
+
+  /// Retorna el primer período cuyo estado sea ABIERTO.
+  ///
+  /// Si no existe ningún período abierto, retorna null.
+  PeriodoContableData? get periodoActivo {
+    for (final periodo in periodos) {
+      if (periodo.estado.trim().toUpperCase() == 'ABIERTO') {
+        return periodo;
+      }
+    }
+
+    return null;
+  }
+
+  /// Retorna el ID del período activo.
+  ///
+  /// Si no existe un período abierto, retorna null.
+  int? get idPeriodoActivo => periodoActivo?.idPeriodo;
+
+  /// Indica si existe un período contable abierto.
+  bool get tienePeriodoActivo => periodoActivo != null;
 
   PeriodoContableState copyWith({
     List<PeriodoContableData>? periodos,

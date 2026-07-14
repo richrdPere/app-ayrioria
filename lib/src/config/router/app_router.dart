@@ -11,9 +11,11 @@ import 'package:app_aryoria/src/presentation/screens/empresa/view/create_empresa
 import 'package:app_aryoria/src/presentation/screens/empresa/view/selected_empresa/empresa_page.dart';
 import 'package:app_aryoria/src/presentation/screens/home/view/home_page.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/page/movimiento_page.dart';
+import 'package:app_aryoria/src/presentation/screens/movimiento/view/detalle/movimiento_detalle_page.dart';
+import 'package:app_aryoria/src/presentation/screens/movimiento/view/form/movimiento_form_page.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/page/periodo_contable_page.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/periodo_contable_detalle/periodo_contable_detalle_page.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/periodo_contable_form_page.dart';
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/periodo_contable_form/periodo_contable_form_page.dart';
 import 'package:app_aryoria/src/presentation/screens/reportes/view/reportes_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/loading/view/loading_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/logout/view/logout_page.dart';
@@ -134,34 +136,41 @@ final GoRouter appRouter = GoRouter(
           path: '/periodos_contables',
           name: 'periodos_contables',
           builder: (_, __) => const PeriodoContablePage(),
-        ),
+          routes: [
+            // - Crear
+            GoRoute(
+              path: 'crear',
+              name: 'crear_periodo_contable',
+              builder: (_, __) => const PeriodoContableFormPage(),
+            ),
 
-        GoRoute(
-          path: '/periodos_contables/crear',
-          name: 'crear_periodo_contable',
-          builder: (context, state) {
-            return const PeriodoContableFormPage();
-          },
-        ),
+            // - Detalle
+            GoRoute(
+              path: ':idPeriodo',
+              name: 'periodo_contable_detalle',
+              builder: (context, state) {
+                final idPeriodo = int.tryParse(
+                  state.pathParameters['idPeriodo'] ?? '',
+                );
 
-        GoRoute(
-          path: '/periodos_contables/:idPeriodo',
-          name: 'periodo_contable_detalle',
-          builder: (context, state) {
-            final int idPeriodo = int.parse(state.pathParameters['idPeriodo']!);
+                return PeriodoContableDetallePage(idPeriodo: idPeriodo!);
+              },
+              routes: [
+                // - Actualizar
+                GoRoute(
+                  path: 'editar',
+                  name: 'editar_periodo_contable',
+                  builder: (context, state) {
+                    final idPeriodo = int.tryParse(
+                      state.pathParameters['idPeriodo'] ?? '',
+                    );
 
-            return PeriodoContableDetallePage(idPeriodo: idPeriodo);
-          },
-        ),
-
-        GoRoute(
-          path: '/periodos_contables/:idPeriodo/editar',
-          name: 'editar_periodo_contable',
-          builder: (context, state) {
-            final int idPeriodo = int.parse(state.pathParameters['idPeriodo']!);
-
-            return PeriodoContableFormPage(idPeriodo: idPeriodo);
-          },
+                    return PeriodoContableFormPage(idPeriodo: idPeriodo);
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
 
         // ==========================================================
@@ -171,8 +180,52 @@ final GoRouter appRouter = GoRouter(
           path: '/movimientos',
           name: 'movimientos',
           builder: (_, __) => const MovimientoPage(),
+          routes: [
+            GoRoute(
+              path: 'crear',
+              name: 'crear_movimiento',
+              builder: (_, __) {
+                return const MovimientoFormPage();
+              },
+            ),
+            GoRoute(
+              path: ':idMovimiento',
+              name: 'movimiento_detalle',
+              builder: (_, state) {
+                final idMovimiento = int.tryParse(
+                  state.pathParameters['idMovimiento'] ?? '',
+                );
+
+                if (idMovimiento == null) {
+                  return const Center(child: Text('Movimiento no válido.'));
+                }
+
+                return MovimientoDetailPage(idMovimiento: idMovimiento);
+              },
+              routes: [
+                GoRoute(
+                  path: 'editar',
+                  name: 'editar_movimiento',
+                  builder: (_, state) {
+                    final idMovimiento = int.tryParse(
+                      state.pathParameters['idMovimiento'] ?? '',
+                    );
+
+                    if (idMovimiento == null) {
+                      return const Center(child: Text('Movimiento no válido.'));
+                    }
+
+                    return MovimientoFormPage(idMovimiento: idMovimiento);
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
 
+        // ==========================================================
+        // REPORTES
+        // ==========================================================
         GoRoute(
           path: '/reportes',
           name: 'reportes',

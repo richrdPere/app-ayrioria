@@ -24,8 +24,17 @@ class _PeriodoContableDetallePageState
     extends State<PeriodoContableDetallePage> {
   bool _isDeleting = false;
 
+  late PeriodoContableBloc _periodoContableBloc;
+
   int? get _idEmpresa {
     return context.read<SessionBloc>().state.empresaActiva?.idEmpresa;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _periodoContableBloc = context.read<PeriodoContableBloc>();
   }
 
   @override
@@ -37,9 +46,7 @@ class _PeriodoContableDetallePageState
 
   @override
   void dispose() {
-    context.read<PeriodoContableBloc>().add(
-      const ClearPeriodoContableSelectedEvent(),
-    );
+    _periodoContableBloc.add(const ClearPeriodoContableSelectedEvent());
 
     super.dispose();
   }
@@ -274,61 +281,49 @@ class _PeriodoContableDetallePageState
           );
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Detalle del período'),
-          actions: [
-            IconButton(
-              tooltip: 'Actualizar',
-              onPressed: idEmpresa == null ? null : _loadPeriodo,
-              icon: const Icon(Icons.refresh),
-            ),
-          ],
-        ),
-        body: idEmpresa == null
-            ? const _EmpresaNoSeleccionada()
-            : BlocBuilder<PeriodoContableBloc, PeriodoContableState>(
-                buildWhen: (previous, current) =>
-                    previous.detailResponse != current.detailResponse ||
-                    previous.periodoSelected != current.periodoSelected ||
-                    previous.actionResponse != current.actionResponse,
-                builder: (context, state) {
-                  if (state.detailResponse is Loading) {
-                    return const _PeriodoDetalleLoading();
-                  }
+      child: idEmpresa == null
+          ? const _EmpresaNoSeleccionada()
+          : BlocBuilder<PeriodoContableBloc, PeriodoContableState>(
+              buildWhen: (previous, current) =>
+                  previous.detailResponse != current.detailResponse ||
+                  previous.periodoSelected != current.periodoSelected ||
+                  previous.actionResponse != current.actionResponse,
+              builder: (context, state) {
+                if (state.detailResponse is Loading) {
+                  return const _PeriodoDetalleLoading();
+                }
 
-                  if (state.detailResponse is ErrorData) {
-                    final ErrorData error = state.detailResponse as ErrorData;
+                if (state.detailResponse is ErrorData) {
+                  final ErrorData error = state.detailResponse as ErrorData;
 
-                    return _PeriodoDetalleError(
-                      message: _getErrorMessage(error),
-                      onRetry: _loadPeriodo,
-                    );
-                  }
-
-                  final PeriodoContableData? periodo = state.periodoSelected;
-
-                  if (periodo == null) {
-                    return _PeriodoDetalleError(
-                      message: 'No se encontró el período contable.',
-                      onRetry: _loadPeriodo,
-                    );
-                  }
-
-                  return PeriodoContableDetalleContent(
-                    periodo: periodo,
-                    isProcessing: state.actionResponse is Loading,
-                    onEdit: _onEdit,
-                    onDelete: () {
-                      _onDelete(periodo);
-                    },
-                    onChangeEstado: () {
-                      _onChangeEstado(periodo);
-                    },
+                  return _PeriodoDetalleError(
+                    message: _getErrorMessage(error),
+                    onRetry: _loadPeriodo,
                   );
-                },
-              ),
-      ),
+                }
+
+                final PeriodoContableData? periodo = state.periodoSelected;
+
+                if (periodo == null) {
+                  return _PeriodoDetalleError(
+                    message: 'No se encontró el período contable.',
+                    onRetry: _loadPeriodo,
+                  );
+                }
+
+                return PeriodoContableDetalleContent(
+                  periodo: periodo,
+                  isProcessing: state.actionResponse is Loading,
+                  onEdit: _onEdit,
+                  onDelete: () {
+                    _onDelete(periodo);
+                  },
+                  onChangeEstado: () {
+                    _onChangeEstado(periodo);
+                  },
+                );
+              },
+            ),
     );
   }
 }

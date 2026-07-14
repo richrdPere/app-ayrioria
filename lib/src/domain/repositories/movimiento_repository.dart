@@ -14,8 +14,9 @@ abstract class MovimientoRepository {
   Future<Resource<MovimientoPaginatedResponse>> getMovimientos({
     int page = 1,
     int limit = 10,
-    required int idEmpresa,
     String search = '',
+    required int idEmpresa,
+    required int idPeriodo,
   });
 
   /// Obtener movimiento por Id

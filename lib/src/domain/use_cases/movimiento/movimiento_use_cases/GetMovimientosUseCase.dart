@@ -9,10 +9,12 @@ class GetMovimientosUseCase {
     int limit = 10,
     String search = '',
     required int idEmpresa,
+    required int idPeriodo,
   }) => movimientoRepository.getMovimientos(
     page: page,
     limit: limit,
     search: search,
     idEmpresa: idEmpresa,
+    idPeriodo: idPeriodo,
   );
 }
