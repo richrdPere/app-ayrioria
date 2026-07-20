@@ -1,4 +1,5 @@
 // AUTH
+
 export 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/GetUserSessionUseCase.dart';
 export 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/LoginUseCase.dart';
 export 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/LogoutUseCase.dart';
@@ -40,3 +41,10 @@ export 'package:app_aryoria/src/domain/use_cases/periodo_contable/periodo_contab
 export 'package:app_aryoria/src/domain/use_cases/periodo_contable/periodo_contable_uses_cases/GetPeriodoCUseCase.dart';
 export 'package:app_aryoria/src/domain/use_cases/periodo_contable/periodo_contable_uses_cases/UpdatePeriodoCUseCase.dart';
 export 'package:app_aryoria/src/domain/use_cases/periodo_contable/PeriodoContableUsesCases.dart';
+
+// REPORTE
+export 'package:app_aryoria/src/domain/use_cases/reporte/reporte_uses_cases/GetEvolucionPeriodoUseCase.dart';
+export 'package:app_aryoria/src/domain/use_cases/reporte/reporte_uses_cases/GetReporteCategoriasUseCase.dart';
+export 'package:app_aryoria/src/domain/use_cases/reporte/reporte_uses_cases/GetReporteGeneralUseCase.dart';
+export 'package:app_aryoria/src/domain/use_cases/reporte/reporte_uses_cases/GetResumenPeriodoUseCase.dart';
+export 'package:app_aryoria/src/domain/use_cases/reporte/ReporteUsesCases.dart';

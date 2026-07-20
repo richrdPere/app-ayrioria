@@ -34,6 +34,9 @@ abstract class AppModule {
   @injectable
   PeriodoContableService get periodoCService => PeriodoContableService();
 
+  @injectable
+  ReporteService get reporteService => ReporteService();
+
   // ==========================================================
   // 2. REPOSITORY
   // ==========================================================
@@ -65,6 +68,12 @@ abstract class AppModule {
         periodoService: periodoCService,
         authRepository: authRepository,
       );
+
+  @injectable
+  ReporteRepository get reporteRepository => ReporteRepositoryImpl(
+    reporteService: reporteService,
+    authRepository: authRepository,
+  );
 
   // ==========================================================
   // 3. USES CASES
@@ -115,5 +124,13 @@ abstract class AppModule {
     getPeriodoCById: GetPeriodoCByIdUseCase(periodoCRepository),
     getPeriodoC: GetPeriodoCUseCase(periodoCRepository),
     updatePeriodoC: UpdatePeriodoCUseCase(periodoCRepository),
+  );
+
+  @injectable
+  ReporteUsesCases get reporteUseCases => ReporteUsesCases(
+    getEvolucionPeriodo: GetEvolucionPeriodoUseCase(reporteRepository),
+    getReporteCategorias: GetReporteCategoriasUseCase(reporteRepository),
+    getReporteGeneral: GetReporteGeneralUseCase(reporteRepository),
+    getResumenPeriodo: GetResumenPeriodoUseCase(reporteRepository),
   );
 }

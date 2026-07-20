@@ -28,15 +28,23 @@ class MainShell extends StatelessWidget {
     final fullPath = state.fullPath ?? currentLocation;
 
     switch (fullPath) {
-      // case "/empresas":
-      //   return "Tus Empresas";
-
       case '/home':
         return '';
 
+      // Categorías
       case '/categorias':
         return 'Categorías';
 
+      case '/categorias/crear':
+        return 'Nueva categoría';
+
+      case '/categorias/:idCategoria':
+        return 'Detalle de categoría';
+
+      case '/categorias/:idCategoria/editar':
+        return 'Editar categoría';
+
+      // Períodos contables
       case '/periodos_contables':
         return 'Períodos contables';
 
@@ -49,12 +57,24 @@ class MainShell extends StatelessWidget {
       case '/periodos_contables/:idPeriodo/editar':
         return 'Editar período';
 
+      // Movimientos
       case '/movimientos':
         return 'Movimientos';
 
+      case '/movimientos/crear':
+        return 'Nuevo movimiento';
+
+      case '/movimientos/:idMovimiento':
+        return 'Detalle del movimiento';
+
+      case '/movimientos/:idMovimiento/editar':
+        return 'Editar movimiento';
+
+      // Reportes
       case '/reportes':
         return 'Reportes';
 
+      // Configuración
       case '/configuracion':
         return 'Configuración';
 

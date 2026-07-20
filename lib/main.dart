@@ -7,7 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import 'package:intl/date_symbol_data_local.dart';
+
 void main() async {
+  await initializeDateFormatting('es_PE', null);
   await configureDependencies();
   runApp(const MyApp());
 }
@@ -26,7 +29,7 @@ class MyApp extends StatelessWidget {
           routerConfig: appRouter,
           debugShowCheckedModeBanner: false,
           title: 'Sistema Aryoria Demo',
-          theme: AppTheme(selectedColor: 4).getTheme(),
+          theme: AppTheme(selectedColor: 0).getTheme(),
         ),
       ),
     );

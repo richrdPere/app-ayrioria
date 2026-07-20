@@ -378,7 +378,7 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
             : FloatingActionButton.extended(
                 onPressed: _onCreate,
                 icon: const Icon(Icons.add),
-                label: const Text('Nuevo período'),
+                label: const Text('Período'),
               ),
       ),
     );

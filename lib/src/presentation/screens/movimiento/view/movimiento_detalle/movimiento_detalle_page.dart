@@ -6,7 +6,7 @@ import 'package:app_aryoria/src/domain/utils/Resource.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_event.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_state.dart';
-import 'package:app_aryoria/src/presentation/screens/movimiento/view/detalle/movimiento_detalle_content.dart';
+import 'package:app_aryoria/src/presentation/screens/movimiento/view/movimiento_detalle/movimiento_detalle_content.dart';
 
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
 
@@ -218,81 +218,48 @@ class _MovimientoDetailPageState extends State<MovimientoDetailPage> {
           },
         ),
       ],
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Detalle del movimiento'),
-          actions: [
-            IconButton(
-              tooltip: 'Editar',
-              onPressed: _onEditMovimiento,
-              icon: const Icon(Icons.edit_outlined),
-            ),
-            PopupMenuButton<String>(
-              onSelected: (value) {
-                if (value == 'delete') {
-                  _onDeleteMovimiento();
-                }
-              },
-              itemBuilder: (context) {
-                return const [
-                  PopupMenuItem<String>(
-                    value: 'delete',
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete_outline, color: Colors.red),
-                        SizedBox(width: 12),
-                        Text('Eliminar', style: TextStyle(color: Colors.red)),
-                      ],
-                    ),
-                  ),
-                ];
-              },
-            ),
-          ],
-        ),
-        body: BlocBuilder<MovimientoBloc, MovimientoState>(
-          buildWhen: (previous, current) {
-            return previous.detailResponse != current.detailResponse ||
-                previous.actionResponse != current.actionResponse;
-          },
-          builder: (context, state) {
-            final Resource? response = state.detailResponse;
+      child: BlocBuilder<MovimientoBloc, MovimientoState>(
+        buildWhen: (previous, current) {
+          return previous.detailResponse != current.detailResponse ||
+              previous.actionResponse != current.actionResponse;
+        },
+        builder: (context, state) {
+          final Resource? response = state.detailResponse;
 
-            if (response is Loading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+          if (response is Loading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            if (response is ErrorData) {
+          if (response is ErrorData) {
+            return _MovimientoDetailError(
+              message: response.error,
+              onRetry: _loadMovimiento,
+            );
+          }
+
+          if (response is Success<MovimientoResponse>) {
+            final MovimientoData? movimiento = response.data.data;
+
+            if (movimiento == null) {
               return _MovimientoDetailError(
-                message: response.error,
+                message: 'No se encontró la información del movimiento.',
                 onRetry: _loadMovimiento,
               );
             }
 
-            if (response is Success<MovimientoResponse>) {
-              final MovimientoData? movimiento = response.data.data;
-
-              if (movimiento == null) {
-                return _MovimientoDetailError(
-                  message: 'No se encontró la información del movimiento.',
-                  onRetry: _loadMovimiento,
-                );
-              }
-
-              return MovimientoDetailContent(
-                movimiento: movimiento,
-                isDeleting: state.actionResponse is Loading,
-                onEdit: _onEditMovimiento,
-                onDelete: _onDeleteMovimiento,
-              );
-            }
-
-            return _MovimientoDetailError(
-              message: 'No se pudo cargar el movimiento.',
-              onRetry: _loadMovimiento,
+            return MovimientoDetailContent(
+              movimiento: movimiento,
+              isDeleting: state.actionResponse is Loading,
+              onEdit: _onEditMovimiento,
+              onDelete: _onDeleteMovimiento,
             );
-          },
-        ),
+          }
+
+          return _MovimientoDetailError(
+            message: 'No se pudo cargar el movimiento.',
+            onRetry: _loadMovimiento,
+          );
+        },
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_event.dart';
-import 'package:app_aryoria/src/presentation/screens/categorias/view/categoria_content.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/view/categoria_list/categoria_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

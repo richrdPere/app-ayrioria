@@ -84,8 +84,13 @@ class _PeriodoContableContentState extends State<PeriodoContableContent> {
       builder: (context, state) {
         return Column(
           children: [
+            // Header
             _buildHeader(context),
+
+            // Search
             _buildSearch(),
+
+            // Listado
             Expanded(child: _buildBody(state)),
           ],
         );

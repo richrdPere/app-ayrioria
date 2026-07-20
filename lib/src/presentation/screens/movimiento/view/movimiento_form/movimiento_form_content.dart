@@ -2,6 +2,10 @@ import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
 import 'package:app_aryoria/src/data/models/movimientos/movimiento_data.dart';
 import 'package:app_aryoria/src/data/models/movimientos/movimiento_request.dart';
 
+import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_bloc.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_event.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_state.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,11 +35,12 @@ class MovimientoFormContent extends StatefulWidget {
 class _MovimientoFormContentState extends State<MovimientoFormContent> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  late final TextEditingController _categoriaController;
   late final TextEditingController _descripcionController;
   late final TextEditingController _montoController;
   late final TextEditingController _observacionController;
   late final TextEditingController _fechaController;
+
+  int? _idCategoriaSeleccionada;
 
   String _tipo = 'INGRESO';
   DateTime _fechaMovimiento = DateTime.now();
@@ -46,9 +51,7 @@ class _MovimientoFormContentState extends State<MovimientoFormContent> {
 
     final MovimientoData? movimiento = widget.movimiento;
 
-    _categoriaController = TextEditingController(
-      text: movimiento?.idCategoria.toString() ?? '',
-    );
+    _idCategoriaSeleccionada = movimiento?.idCategoria;
 
     _descripcionController = TextEditingController(
       text: movimiento?.descripcion ?? '',
@@ -64,16 +67,23 @@ class _MovimientoFormContentState extends State<MovimientoFormContent> {
 
     _tipo = movimiento?.tipo.toUpperCase() ?? 'INGRESO';
 
-    // _fechaMovimiento = movimiento?.fecha ?? DateTime.now();
-
     _fechaController = TextEditingController(
       text: _formatDate(_fechaMovimiento),
+    );
+
+    Future.microtask(_loadCategorias);
+  }
+
+  void _loadCategorias() {
+    if (!mounted) return;
+
+    context.read<CategoriaBloc>().add(
+      GetCategoriasEvent(idEmpresa: widget.idEmpresa, page: 1),
     );
   }
 
   @override
   void dispose() {
-    _categoriaController.dispose();
     _descripcionController.dispose();
     _montoController.dispose();
     _observacionController.dispose();
@@ -90,7 +100,7 @@ class _MovimientoFormContentState extends State<MovimientoFormContent> {
       lastDate: DateTime(2100),
     );
 
-    if (selectedDate == null) {
+    if (selectedDate == null || !mounted) {
       return;
     }
 
@@ -115,7 +125,7 @@ class _MovimientoFormContentState extends State<MovimientoFormContent> {
       return;
     }
 
-    final int? idCategoria = int.tryParse(_categoriaController.text.trim());
+    final int? idCategoria = _idCategoriaSeleccionada;
 
     final double? monto = double.tryParse(
       _montoController.text.trim().replaceAll(',', '.'),
@@ -126,6 +136,17 @@ class _MovimientoFormContentState extends State<MovimientoFormContent> {
     }
 
     final session = context.read<SessionBloc>().state;
+    final usuario = session.user?.data.usuario;
+
+    if (usuario == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No se pudo obtener el usuario de la sesión.'),
+        ),
+      );
+
+      return;
+    }
 
     final MovimientoRequest request = MovimientoRequest(
       idEmpresa: widget.idEmpresa,
@@ -138,7 +159,7 @@ class _MovimientoFormContentState extends State<MovimientoFormContent> {
       observacion: _observacionController.text.trim().isEmpty
           ? null
           : _observacionController.text.trim(),
-      idUsuario: session.user!.data.usuario.idUsuario,
+      idUsuario: usuario.idUsuario,
     );
 
     widget.onSubmit(request);
@@ -210,56 +231,126 @@ class _MovimientoFormContentState extends State<MovimientoFormContent> {
           style: Theme.of(context).textTheme.titleSmall,
         ),
         const SizedBox(height: 10),
-        SegmentedButton<String>(
-          segments: const [
-            ButtonSegment<String>(
-              value: 'INGRESO',
-              icon: Icon(Icons.arrow_downward),
-              label: Text('Ingreso'),
-            ),
-            ButtonSegment<String>(
-              value: 'EGRESO',
-              icon: Icon(Icons.arrow_upward),
-              label: Text('Egreso'),
-            ),
-          ],
-          selected: {_tipo},
-          onSelectionChanged: widget.isSubmitting
-              ? null
-              : (Set<String> selected) {
-                  setState(() {
-                    _tipo = selected.first;
-                  });
-                },
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<String>(
+            segments: const [
+              ButtonSegment<String>(
+                value: 'INGRESO',
+                icon: Icon(Icons.arrow_downward),
+                label: Text('Ingreso'),
+              ),
+              ButtonSegment<String>(
+                value: 'EGRESO',
+                icon: Icon(Icons.arrow_upward),
+                label: Text('Egreso'),
+              ),
+            ],
+            selected: {_tipo},
+            onSelectionChanged: widget.isSubmitting
+                ? null
+                : (Set<String> selected) {
+                    final String nuevoTipo = selected.first;
+
+                    if (nuevoTipo == _tipo) {
+                      return;
+                    }
+
+                    setState(() {
+                      _tipo = nuevoTipo;
+
+                      // La categoría anterior puede no pertenecer
+                      // al nuevo tipo seleccionado.
+                      _idCategoriaSeleccionada = null;
+                    });
+                  },
+          ),
         ),
       ],
     );
   }
 
   Widget _buildCategoriaField() {
-    return TextFormField(
-      controller: _categoriaController,
-      enabled: !widget.isSubmitting,
-      keyboardType: TextInputType.number,
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      decoration: const InputDecoration(
-        labelText: 'Categoría',
-        hintText: 'ID de la categoría',
-        prefixIcon: Icon(Icons.category_outlined),
-        border: OutlineInputBorder(),
-      ),
-      validator: (value) {
-        final String text = value?.trim() ?? '';
+    return BlocBuilder<CategoriaBloc, CategoriaState>(
+      builder: (context, state) {
+        final categoriasFiltradas = state.categorias.where((categoria) {
+          return categoria.tipo.trim().toUpperCase() == _tipo;
+        }).toList();
 
-        if (text.isEmpty) {
-          return 'Selecciona una categoría.';
+        debugPrint("CATEGORIAS: $categoriasFiltradas");
+
+        final bool categoriaSeleccionadaExiste =
+            _idCategoriaSeleccionada != null &&
+            categoriasFiltradas.any(
+              (categoria) => categoria.idCategoria == _idCategoriaSeleccionada,
+            );
+
+        final int? valorSeleccionado = categoriaSeleccionadaExiste
+            ? _idCategoriaSeleccionada
+            : null;
+
+        if (_idCategoriaSeleccionada != null && !categoriaSeleccionadaExiste) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+
+            setState(() {
+              _idCategoriaSeleccionada = null;
+            });
+          });
         }
 
-        if (int.tryParse(text) == null) {
-          return 'La categoría no es válida.';
-        }
+        return DropdownButtonFormField<int>(
+          initialValue: valorSeleccionado,
+          isExpanded: true,
+          decoration: InputDecoration(
+            labelText: 'Categoría',
+            hintText: categoriasFiltradas.isEmpty
+                ? 'No existen categorías de tipo $_tipo'
+                : 'Selecciona una categoría',
+            prefixIcon: const Icon(Icons.category_outlined),
+            suffixIcon: categoriasFiltradas.isEmpty
+                ? IconButton(
+                    tooltip: 'Recargar categorías',
+                    onPressed: widget.isSubmitting ? null : _loadCategorias,
+                    icon: const Icon(Icons.refresh),
+                  )
+                : null,
+            border: const OutlineInputBorder(),
+          ),
+          items: categoriasFiltradas.map((categoria) {
+            return DropdownMenuItem<int>(
+              value: categoria.idCategoria,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      categoria.nombre,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: widget.isSubmitting || categoriasFiltradas.isEmpty
+              ? null
+              : (int? value) {
+                  setState(() {
+                    _idCategoriaSeleccionada = value;
+                  });
+                },
+          validator: (_) {
+            if (categoriasFiltradas.isEmpty) {
+              return 'No existen categorías disponibles para $_tipo.';
+            }
 
-        return null;
+            if (_idCategoriaSeleccionada == null) {
+              return 'Selecciona una categoría.';
+            }
+
+            return null;
+          },
+        );
       },
     );
   }
@@ -334,13 +425,20 @@ class _MovimientoFormContentState extends State<MovimientoFormContent> {
       controller: _fechaController,
       readOnly: true,
       enabled: !widget.isSubmitting,
-      onTap: _selectDate,
+      onTap: widget.isSubmitting ? null : _selectDate,
       decoration: const InputDecoration(
         labelText: 'Fecha del movimiento',
         prefixIcon: Icon(Icons.event_outlined),
         suffixIcon: Icon(Icons.calendar_today_outlined),
         border: OutlineInputBorder(),
       ),
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return 'Selecciona la fecha del movimiento.';
+        }
+
+        return null;
+      },
     );
   }
 

@@ -3,7 +3,7 @@ import 'package:app_aryoria/src/data/models/movimientos/movimiento_data.dart';
 class MovimientoResponse {
   final bool success;
   final String message;
-  final MovimientoData data;
+  final MovimientoData? data;
 
   MovimientoResponse({
     required this.success,
@@ -12,10 +12,14 @@ class MovimientoResponse {
   });
 
   factory MovimientoResponse.fromJson(Map<String, dynamic> json) {
+    final rawData = json['data'];
+
     return MovimientoResponse(
       success: json["success"],
       message: json["message"],
-      data: MovimientoData.fromJson(json["data"]),
+      data: rawData is Map<String, dynamic>
+          ? MovimientoData.fromJson(rawData)
+          : null,
     );
   }
 }

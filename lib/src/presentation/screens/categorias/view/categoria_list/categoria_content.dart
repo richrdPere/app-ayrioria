@@ -23,7 +23,7 @@ import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/cat
 import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_empty_state.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_error_state.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_loading_more.dart';
-import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_search_field.dart';
+// import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_search_field.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_summary.dart';
 
 class CategoriaContent extends StatefulWidget {
@@ -88,10 +88,10 @@ class _CategoriaContentState extends State<CategoriaContent> {
     });
   }
 
-  void _clearSearch() {
-    searchCtrl.clear();
-    _onSearchChanged('');
-  }
+  // void _clearSearch() {
+  //   searchCtrl.clear();
+  //   _onSearchChanged('');
+  // }
 
   void _onScroll() {
     if (!scrollCtrl.hasClients) return;
@@ -236,13 +236,17 @@ class _CategoriaContentState extends State<CategoriaContent> {
           builder: (context, state) {
             return Column(
               children: [
+                // Header
+                _buildHeader(context),
+
                 // Search
-                CategoriaSearchField(
-                  controller: searchCtrl,
-                  enabled: !state.isLoading,
-                  onChanged: _onSearchChanged,
-                  onClear: _clearSearch,
-                ),
+                _buildSearch(),
+                // CategoriaSearchField(
+                //   controller: searchCtrl,
+                //   enabled: !state.isLoading,
+                //   onChanged: _onSearchChanged,
+                //   onClear: _clearSearch,
+                // ),
 
                 // Nro de categorias
                 CategoriaSummary(
@@ -257,12 +261,153 @@ class _CategoriaContentState extends State<CategoriaContent> {
             );
           },
         ),
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
             CategoriaFormDialog.show(context);
           },
-          child: const Icon(Icons.add),
+          icon: const Icon(Icons.add),
+          label: const Text('Categoria'),
         ),
+      ),
+    );
+  }
+
+  // ==========================================================
+  // 1. HEADER
+  // ==========================================================
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              Icons.calendar_month_outlined,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Categorías',
+                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Administra tus categorias para representar tus ingresos y egresos de tu empresa.',
+                  style: TextStyle(fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================================
+  // BUSCADOR Y FILTRO
+  // ==========================================================
+  // CategoriaSearchField(
+  //   controller: searchCtrl,
+  //   enabled: !state.isLoading,
+  //   onChanged: _onSearchChanged,
+  //   onClear: _clearSearch,
+  // ),
+  Widget _buildSearch() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: searchCtrl,
+              textInputAction: TextInputAction.search,
+              onSubmitted: _onSearchChanged,
+              decoration: InputDecoration(
+                hintText: 'Buscar período...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: searchCtrl.text.isEmpty
+                    ? null
+                    : IconButton(
+                        tooltip: 'Limpiar',
+                        onPressed: () {
+                          searchCtrl.clear();
+
+                          setState(() {});
+
+                          // widget.onSearch('');
+                        },
+                        icon: const Icon(Icons.clear),
+                      ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              ),
+              onChanged: (_) {
+                setState(() {});
+              },
+            ),
+          ),
+          const SizedBox(width: 10),
+          // PopupMenuButton<String?>(
+          //   tooltip: 'Filtrar por estado',
+          //   initialValue: estadoSeleccionado,
+          //   onSelected: onEstadoChanged,
+          //   itemBuilder: (context) => const [
+          //     PopupMenuItem<String?>(
+          //       value: null,
+          //       child: Text('Todos los estados'),
+          //     ),
+          //     PopupMenuItem<String?>(value: 'ABIERTO', child: Text('Abiertos')),
+          //     PopupMenuItem<String?>(value: 'CERRADO', child: Text('Cerrados')),
+          //   ],
+          //   child: Container(
+          //     height: 56,
+          //     width: 56,
+          //     decoration: BoxDecoration(
+          //       border: Border.all(
+          //         color: Theme.of(context).colorScheme.outline,
+          //       ),
+          //       borderRadius: BorderRadius.circular(15),
+          //     ),
+          //     child: Stack(
+          //       alignment: Alignment.center,
+          //       children: [
+          //         const Icon(Icons.filter_list),
+          //         if (widget.estadoSeleccionado != null)
+          //           Positioned(
+          //             right: 9,
+          //             top: 9,
+          //             child: Container(
+          //               width: 8,
+          //               height: 8,
+          //               decoration: const BoxDecoration(
+          //                 color: Colors.red,
+          //                 shape: BoxShape.circle,
+          //               ),
+          //             ),
+          //           ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+        ],
       ),
     );
   }

@@ -7,7 +7,7 @@ import 'package:app_aryoria/src/domain/utils/Resource.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_event.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_state.dart';
-import 'package:app_aryoria/src/presentation/screens/movimiento/view/form/movimiento_form_content.dart';
+import 'package:app_aryoria/src/presentation/screens/movimiento/view/movimiento_form/movimiento_form_content.dart';
 
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
 
@@ -167,68 +167,61 @@ class _MovimientoFormPageState extends State<MovimientoFormPage> {
           },
         ),
       ],
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            widget.isEditing ? 'Actualizar movimiento' : 'Nuevo movimiento',
-          ),
-        ),
-        body: Builder(
-          builder: (context) {
-            if (idEmpresa == null) {
-              return const _FormErrorState(
-                message: 'No existe una empresa activa.',
-              );
-            }
-
-            if (idPeriodo == null) {
-              return const _FormErrorState(
-                message:
-                    'Debes abrir un período contable antes de registrar movimientos.',
-              );
-            }
-
-            return BlocBuilder<MovimientoBloc, MovimientoState>(
-              buildWhen: (previous, current) {
-                return previous.detailResponse != current.detailResponse ||
-                    previous.actionResponse != current.actionResponse;
-              },
-              builder: (context, state) {
-                if (widget.isEditing && state.detailResponse is Loading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                MovimientoData? movimiento;
-
-                if (widget.isEditing) {
-                  final Resource? response = state.detailResponse;
-
-                  if (response is Success<MovimientoResponse>) {
-                    movimiento = response.data.data;
-                  }
-
-                  if (movimiento == null && response is! Loading) {
-                    return const _FormErrorState(
-                      message:
-                          'No se pudo obtener la información del movimiento.',
-                    );
-                  }
-                }
-
-                final bool isSubmitting = state.actionResponse is Loading;
-
-                return MovimientoFormContent(
-                  idEmpresa: idEmpresa,
-                  idPeriodo: idPeriodo,
-                  movimiento: movimiento,
-                  isEditing: widget.isEditing,
-                  isSubmitting: isSubmitting,
-                  onSubmit: _onSubmit,
-                );
-              },
+      child: Builder(
+        builder: (context) {
+          if (idEmpresa == null) {
+            return const _FormErrorState(
+              message: 'No existe una empresa activa.',
             );
-          },
-        ),
+          }
+
+          if (idPeriodo == null) {
+            return const _FormErrorState(
+              message:
+                  'Debes abrir un período contable antes de registrar movimientos.',
+            );
+          }
+
+          return BlocBuilder<MovimientoBloc, MovimientoState>(
+            buildWhen: (previous, current) {
+              return previous.detailResponse != current.detailResponse ||
+                  previous.actionResponse != current.actionResponse;
+            },
+            builder: (context, state) {
+              if (widget.isEditing && state.detailResponse is Loading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              MovimientoData? movimiento;
+
+              if (widget.isEditing) {
+                final Resource? response = state.detailResponse;
+
+                if (response is Success<MovimientoResponse>) {
+                  movimiento = response.data.data;
+                }
+
+                if (movimiento == null && response is! Loading) {
+                  return const _FormErrorState(
+                    message:
+                        'No se pudo obtener la información del movimiento.',
+                  );
+                }
+              }
+
+              final bool isSubmitting = state.actionResponse is Loading;
+
+              return MovimientoFormContent(
+                idEmpresa: idEmpresa,
+                idPeriodo: idPeriodo,
+                movimiento: movimiento,
+                isEditing: widget.isEditing,
+                isSubmitting: isSubmitting,
+                onSubmit: _onSubmit,
+              );
+            },
+          );
+        },
       ),
     );
   }
