@@ -59,7 +59,7 @@ class _SplashView extends StatelessWidget {
                 const SizedBox(height: 30),
 
                 const Text(
-                  "AYRORIA",
+                  "ARYORIA",
                   style: TextStyle(
                     fontSize: 34,
                     fontWeight: FontWeight.bold,

@@ -1,5 +1,6 @@
-// AUTH
 
+
+// AUTH
 export 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/GetUserSessionUseCase.dart';
 export 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/LoginUseCase.dart';
 export 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/LogoutUseCase.dart';
@@ -48,3 +49,14 @@ export 'package:app_aryoria/src/domain/use_cases/reporte/reporte_uses_cases/GetR
 export 'package:app_aryoria/src/domain/use_cases/reporte/reporte_uses_cases/GetReporteGeneralUseCase.dart';
 export 'package:app_aryoria/src/domain/use_cases/reporte/reporte_uses_cases/GetResumenPeriodoUseCase.dart';
 export 'package:app_aryoria/src/domain/use_cases/reporte/ReporteUsesCases.dart';
+
+// SUBCATEGORIAS
+export 'package:app_aryoria/src/domain/use_cases/sub_categoria/sub_categoria_uses_cases/ChangeSubcategoriaEstadoUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/sub_categoria/sub_categoria_uses_cases/CreateSubcategoriaUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/sub_categoria/sub_categoria_uses_cases/DeleteSubcategoriaUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/sub_categoria/sub_categoria_uses_cases/GetSubcategoriaByIdUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/sub_categoria/sub_categoria_uses_cases/GetSubcategoriasByCategoriaUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/sub_categoria/sub_categoria_uses_cases/GetSubcategoriasByTipoUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/sub_categoria/sub_categoria_uses_cases/GetSubcategoriasPaginatedUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/sub_categoria/sub_categoria_uses_cases/UpdateSubcategoriaUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/sub_categoria/SubcategoriaUsesCases.dart';

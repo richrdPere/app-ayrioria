@@ -27,7 +27,6 @@ class AuthService with ChangeNotifier {
     try {
       // 1.- URL Base
       Uri url = Uri.parse(API_LOGIN);
-      // Uri url = Uri.parse('$baseUrlPrueba/sereno/login_Sereno');
 
       // 2.- Headers
       Map<String, String> headers = {'Content-Type': 'application/json'};
@@ -40,6 +39,9 @@ class AuthService with ChangeNotifier {
       final Map<String, dynamic> data = json.decode(resp.body);
 
       // print("AQUI ESTA");
+      debugPrint('resp.body: ${resp.body}');
+      debugPrint('resp.statusCode: ${resp.statusCode}');
+      debugPrint('resp.headers: ${resp.headers}');
       if (resp.statusCode == 200 || resp.statusCode == 201) {
         final authResponse = AuthResponse.fromJson(data);
 

@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: blocProviders,
       child: AuthListener(
+
         child: MaterialApp.router(
           builder: FToastBuilder(),
           routerConfig: appRouter,

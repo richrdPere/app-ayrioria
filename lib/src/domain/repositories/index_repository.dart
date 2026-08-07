@@ -1,3 +1,5 @@
+export 'package:app_aryoria/src/domain/repositories/sub_categoria_repository.dart';
+
 export 'package:app_aryoria/src/domain/repositories/auth_repository.dart';
 
 export 'package:app_aryoria/src/domain/repositories/categoria_repository.dart';

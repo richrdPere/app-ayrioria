@@ -42,6 +42,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i313.CategoriaService>(() => appModule.catgoriaService);
     gh.factory<_i313.PeriodoContableService>(() => appModule.periodoCService);
     gh.factory<_i313.ReporteService>(() => appModule.reporteService);
+    gh.factory<_i313.SubcategoriaService>(() => appModule.subcategoriaService);
     gh.factory<_i897.AuthRepository>(() => appModule.authRepository);
     gh.factory<_i897.EmpresaRepository>(() => appModule.empresaRepository);
     gh.factory<_i897.MovimientoRepository>(
@@ -52,6 +53,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.periodoCRepository,
     );
     gh.factory<_i897.ReporteRepository>(() => appModule.reporteRepository);
+    gh.factory<_i897.SubcategoriaRepository>(
+      () => appModule.subcategoriaRepository,
+    );
     gh.factory<_i1052.AuthUsesCases>(() => appModule.authUsesCases);
     gh.factory<_i1052.EmpresaUseCases>(() => appModule.empresaUseCases);
     gh.factory<_i1052.MovimientoUsesCases>(() => appModule.movimientoUseCases);
@@ -60,6 +64,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.periodoCUseCases,
     );
     gh.factory<_i1052.ReporteUsesCases>(() => appModule.reporteUseCases);
+    gh.factory<_i1052.SubcategoriaUsesCases>(
+      () => appModule.subcategoriaUseCases,
+    );
     gh.factory<_i43.LoadingBloc>(
       () => _i43.LoadingBloc(gh<_i1037.AuthUsesCases>()),
     );

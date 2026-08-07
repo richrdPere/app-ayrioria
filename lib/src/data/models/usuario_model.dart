@@ -5,61 +5,64 @@ import 'persona_model.dart';
 
 class Usuario {
   final int idUsuario;
-  final int idPersona;
+  final int? idPersona;
   final String email;
   final String username;
-  final String password;
+  final String? password;
   final bool estado;
   final DateTime? ultimoAcceso;
 
-  final Persona persona;
+  final Persona? persona;
   final List<Role> roles;
 
-  Usuario({
+  const Usuario({
     required this.idUsuario,
-    required this.idPersona,
+    this.idPersona,
     required this.email,
     required this.username,
-    required this.password,
+    this.password,
     required this.estado,
     this.ultimoAcceso,
-    required this.persona,
+    this.persona,
     required this.roles,
   });
 
-  factory Usuario.fromJson(Map<String, dynamic> json) => Usuario(
-    idUsuario: json["id_usuario"],
-    idPersona: json["id_persona"],
-    email: json["email"],
-    username: json["username"],
-    password: json["password"],
-    estado: json["estado"],
-    ultimoAcceso: json["ultimo_acceso"] != null
-        ? DateTime.parse(json["ultimo_acceso"])
-        : null,
-    // createdAt: DateTime.parse(json["created_at"]),
-    // updatedAt: DateTime.parse(json["updated_at"]),
-    // deletedAt: json["deleted_at"],
-    persona: Persona.fromJson(json["persona"]),
-    roles: json["roles"] != null
-        ? List<Role>.from(json["roles"].map((x) => Role.fromJson(x)))
-        : [],
-  );
+  factory Usuario.fromJson(Map<String, dynamic> json) {
+    return Usuario(
+      idUsuario: json["id_usuario"] as int,
+      idPersona: json["id_persona"] as int?,
+      email: json["email"]?.toString() ?? "",
+      username: json["username"]?.toString() ?? "",
+      password: json["password"]?.toString(),
+      estado: json["estado"] as bool? ?? false,
+      ultimoAcceso: json["ultimo_acceso"] != null
+          ? DateTime.tryParse(json["ultimo_acceso"].toString())
+          : null,
 
-  Map<String, dynamic> toJson() => {
-    "id_usuario": idUsuario,
-    "id_persona": idPersona,
-    "email": email,
-    "username": username,
-    "password": password,
-    "estado": estado,
-    "ultimo_acceso": ultimoAcceso?.toIso8601String(),
-    // "created_at": createdAt.toIso8601String(),
-    // "updated_at": updatedAt.toIso8601String(),
-    // "deleted_at": deletedAt,
-    "persona": persona.toJson(),
-    "roles": List<dynamic>.from(roles.map((x) => x.toJson())),
-  };
+      persona: json["persona"] is Map<String, dynamic>
+          ? Persona.fromJson(json["persona"] as Map<String, dynamic>)
+          : null,
+
+      roles: (json["roles"] as List<dynamic>? ?? [])
+          .whereType<Map<String, dynamic>>()
+          .map(Role.fromJson)
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id_usuario": idUsuario,
+      "id_persona": idPersona,
+      "email": email,
+      "username": username,
+      "password": password,
+      "estado": estado,
+      "ultimo_acceso": ultimoAcceso?.toIso8601String(),
+      "persona": persona?.toJson(),
+      "roles": roles.map((role) => role.toJson()).toList(),
+    };
+  }
 
   UsuarioEntity toEntity() {
     return UsuarioEntity(
@@ -69,8 +72,8 @@ class Usuario {
       username: username,
       estado: estado,
       ultimoAcceso: ultimoAcceso,
-      persona: persona.toEntity(),
-      roles: roles.map((e) => e.toEntity()).toList(),
+      persona: persona?.toEntity(),
+      roles: roles.map((role) => role.toEntity()).toList(),
     );
   }
 }

@@ -90,7 +90,7 @@ class _LogoutView extends StatelessWidget {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(bottom: 25),
         child: Text(
-          'Ayroria',
+          'ARYORIA',
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.grey.shade500),
         ),

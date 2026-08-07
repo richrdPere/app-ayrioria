@@ -37,6 +37,9 @@ abstract class AppModule {
   @injectable
   ReporteService get reporteService => ReporteService();
 
+  @injectable
+  SubcategoriaService get subcategoriaService => SubcategoriaService();
+
   // ==========================================================
   // 2. REPOSITORY
   // ==========================================================
@@ -74,6 +77,13 @@ abstract class AppModule {
     reporteService: reporteService,
     authRepository: authRepository,
   );
+
+  @injectable
+  SubcategoriaRepository get subcategoriaRepository =>
+      SubcategoriaRepositoryImpl(
+        subcategoriaService: subcategoriaService,
+        authRepository: authRepository,
+      );
 
   // ==========================================================
   // 3. USES CASES
@@ -132,5 +142,23 @@ abstract class AppModule {
     getReporteCategorias: GetReporteCategoriasUseCase(reporteRepository),
     getReporteGeneral: GetReporteGeneralUseCase(reporteRepository),
     getResumenPeriodo: GetResumenPeriodoUseCase(reporteRepository),
+  );
+
+  @injectable
+  SubcategoriaUsesCases get subcategoriaUseCases => SubcategoriaUsesCases(
+    changeSubcategoriaEstado: ChangeSubcategoriaEstadoUC(
+      subcategoriaRepository,
+    ),
+    createSubcategoria: CreateSubcategoriaUC(subcategoriaRepository),
+    deleteSubcategoria: DeleteSubcategoriaUC(subcategoriaRepository),
+    getSubcategoriaById: GetSubcategoriaByIdUC(subcategoriaRepository),
+    getSubcategoriaByCategoria: GetSubcategoriaByCategoriaUC(
+      subcategoriaRepository,
+    ),
+    getSubcategoriasByTipo: GetSubcategoriasByTipoUC(subcategoriaRepository),
+    getSubcategoriasPaginated: GetSubcategoriasPaginatedUC(
+      subcategoriaRepository,
+    ),
+    updateSubcategoria: UpdateSubcategoriaUC(subcategoriaRepository),
   );
 }

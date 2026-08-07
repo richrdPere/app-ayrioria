@@ -37,6 +37,9 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       elevation: 0,
       backgroundColor: const Color(0xffEAF6FC),
+      // backgroundColor: const Color(0xffEAF6FC),
+      // backgroundColor:  Theme.of(context).colorScheme,
+      // backgroundColor: Theme.of(context).colorScheme,
       automaticallyImplyLeading: false,
 
       leading: IconButton(

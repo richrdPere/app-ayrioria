@@ -1,27 +1,28 @@
+import 'package:flutter/material.dart';
 import 'package:app_aryoria/injection.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
-import 'package:app_aryoria/src/domain/use_cases/categoria/CategoriaUsesCases.dart';
-import 'package:app_aryoria/src/domain/use_cases/empresa/EmpresaUseCases.dart';
+
+// Uses Cases
 import 'package:app_aryoria/src/domain/use_cases/index_uses_cases.dart';
-import 'package:app_aryoria/src/domain/use_cases/movimiento/MovimientoUsesCases.dart';
+
+// BloC's
+import 'package:app_aryoria/src/presentation/screens/auth/login/bloc/login_bloc.dart';
+import 'package:app_aryoria/src/presentation/screens/auth/login/bloc/login_event.dart';
 import 'package:app_aryoria/src/presentation/screens/auth/register/bloc/register_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/reportes/bloc/reporte_bloc.dart';
-// import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_event.dart';
-// import 'package:app_aryoria/src/presentation/screens/auth/register/bloc/register_event.dart';
+import 'package:app_aryoria/src/presentation/screens/subcategorias/bloc/subcategoria_bloc.dart';
+
+// Shared
 import 'package:app_aryoria/src/presentation/shared/screens/loading/bloc/loading_bloc.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/logout/bloc/logout_bloc.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/splash/bloc/splash_bloc.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/splash/bloc/splash_event.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'package:app_aryoria/src/domain/use_cases/auth/AuthUseCases.dart';
-import 'package:app_aryoria/src/presentation/screens/auth/login/bloc/login_bloc.dart';
-import 'package:app_aryoria/src/presentation/screens/auth/login/bloc/login_event.dart';
 
 List<BlocProvider> blocProviders = [
   // ======================================================
@@ -103,5 +104,13 @@ List<BlocProvider> blocProviders = [
   // ======================================================
   BlocProvider<ReporteBloc>(
     create: (BuildContext context) => ReporteBloc(locator<ReporteUsesCases>()),
+  ),
+
+  // ======================================================
+  // SUBCATEGORIAS
+  // ======================================================
+  BlocProvider<SubcategoriaBloc>(
+    create: (BuildContext context) =>
+        SubcategoriaBloc(locator<SubcategoriaUsesCases>()),
   ),
 ];
