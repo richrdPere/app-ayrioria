@@ -2,16 +2,20 @@
 
 // Environment
 import 'dart:convert';
-import 'package:app_aryoria/src/data/models/common/base_response.dart';
-import 'package:app_aryoria/src/data/models/login/auth_response.dart';
-import 'package:flutter/rendering.dart';
+
+import 'package:app_aryoria/src/data/models/login/login_data_model.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:app_aryoria/src/config/constants/environment.dart'
     as url_backend;
 
-// Models
-import 'package:app_aryoria/src/data/models/empresa/empresa_response.dart';
+// Helpers
+import 'package:app_aryoria/src/data/datasources/remote/services/helpers/http_Service_helper.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
+
+// Models
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
+import 'package:app_aryoria/src/data/models/empresa/empresa_data.dart';
 import 'package:app_aryoria/src/data/models/empresa/empresa_request.dart';
 import 'package:app_aryoria/src/data/models/empresa/empresa_paginated.dart';
 
@@ -29,7 +33,7 @@ class EmpresaService {
   // *********************************************************
   // 1.- Crear Empresa
   // *********************************************************
-  Future<Resource<EmpresaResponse>> createEmpresa({
+  Future<Resource<ApiResponse<EmpresaData>>> createEmpresa({
     required String token,
     required EmpresaRequest request,
   }) async {
@@ -37,120 +41,135 @@ class EmpresaService {
       // 1.- URL Base
       Uri url = Uri.parse(API_CREATE_EMPRESA);
 
-      // 2.- Headers
-      final headers = <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      };
+      // 2.- Response
+      final response = await http.post(
+        url,
+        headers: HttpServiceHelper.getHeaders(token),
+        body: jsonEncode(request.toJson()),
+      );
 
-      // 3.- Body
-      final body = jsonEncode(request.toJson());
+      final body = HttpServiceHelper.decodeResponse(response);
 
-      // 4.- Response
-      final resp = await http.post(url, headers: headers, body: body);
-      final Map<String, dynamic> data = jsonDecode(resp.body);
+      // 3.- Return JSON
+      if (HttpServiceHelper.isSuccess(response.statusCode)) {
+        final apiResponse = ApiResponse<EmpresaData>.fromJson(
+          body,
+          (rawData) => EmpresaData.fromJson(Map<String, dynamic>.from(rawData)),
+        );
 
-      // 5.- Response
-      if (resp.statusCode == 200 || resp.statusCode == 201) {
-        final empresaResponse = EmpresaResponse.fromJson(data);
-
-        return Success(empresaResponse);
-      } else {
-        return ErrorData(data["message"] ?? "Error al crear la empresa.");
+        return Success<ApiResponse<EmpresaData>>(apiResponse);
       }
-    } catch (e) {
-      debugPrint("ERROR CREAR EMPRESA: $e");
-      return ErrorData('No fue posible conectarse con el servidor.');
+
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<EmpresaData>>(
+        body,
+        response.statusCode,
+      );
+    } catch (error) {
+      return ErrorData<ApiResponse<EmpresaData>>(
+        'No se pudo crear la empresa: $error',
+      );
     }
   }
 
   // *********************************************************
   // 2.- Obtener Empresa + Paginado
   // *********************************************************
-  Future<Resource<EmpresaPaginatedResponse>> getEmpresas({
+  Future<Resource<ApiResponse<EmpresaPaginated>>> getEmpresas({
     required String token,
     int page = 1,
     int limit = 10,
     String search = '',
   }) async {
     try {
-      // 1.- URL
-      final url = Uri.parse(
-        '$API_GET_EMPRESAS_PAGINATED'
-        '?page=$page&limit=$limit&search=${Uri.encodeQueryComponent(search)}',
-      );
-
-      // 2.- Headers
-      final headers = <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
+      // 1.- URL Base
+      final queryParameters = <String, String>{
+        'page': page.toString(),
+        'limit': limit.toString(),
+        if (search.trim().isNotEmpty) 'search': search.trim(),
       };
 
-      // 3.- Request
-      final resp = await http.get(url, headers: headers);
+      final url = Uri.parse(
+        API_GET_EMPRESAS_PAGINATED,
+      ).replace(queryParameters: queryParameters);
 
-      final Map<String, dynamic> data = jsonDecode(resp.body);
+      // 2.- Response
+      final response = await http.get(
+        url,
+        headers: HttpServiceHelper.getHeaders(token),
+      );
 
-      // 4.- Response
-      if (resp.statusCode == 200) {
-        final response = EmpresaPaginatedResponse.fromJson(data);
+      final body = HttpServiceHelper.decodeResponse(response);
 
-        return Success(response);
-      } else {
-        return ErrorData(
-          data['message'] ?? 'No fue posible obtener las empresas.',
-        );
+      // 3.- Return JSON
+      if (HttpServiceHelper.isSuccess(response.statusCode)) {
+        final apiResponse = ApiResponse<EmpresaPaginated>.fromJson(body, (
+          rawData,
+        ) {
+          return EmpresaPaginated.fromJson(Map<String, dynamic>.from(rawData));
+        });
+
+        return Success<ApiResponse<EmpresaPaginated>>(apiResponse);
       }
-    } catch (e) {
-      debugPrint('ERROR GET EMPRESAS: $e');
 
-      return ErrorData('No fue posible conectarse con el servidor.');
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<EmpresaPaginated>>(
+        body,
+        response.statusCode,
+      );
+    } catch (error) {
+      return ErrorData<ApiResponse<EmpresaPaginated>>(
+        'No se pudieron obtener las EMPRESAS: $error',
+      );
     }
   }
 
   // *********************************************************
   // 3.- Obtener Empresa por Id
   // *********************************************************
-  Future<Resource<EmpresaResponse>> getEmpresaById({
+  Future<Resource<ApiResponse<EmpresaData>>> getEmpresaById({
     required int idEmpresa,
     required String token,
   }) async {
     try {
       // 1.- URL
-      final url = Uri.parse('$API_GET_EMPRESA_BY_ID$idEmpresa');
+      final url = Uri.parse(
+        '$API_GET_EMPRESA_BY_ID$idEmpresa',
+      ).replace(queryParameters: {'id_empresa': idEmpresa.toString()});
 
-      // 2.- Headers
-      final headers = <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      };
+      // 2.- Response
+      final response = await http.get(
+        url,
+        headers: HttpServiceHelper.getHeaders(token),
+      );
 
-      // 3.- Request
-      final resp = await http.get(url, headers: headers);
+      final body = HttpServiceHelper.decodeResponse(response);
 
-      final Map<String, dynamic> data = jsonDecode(resp.body);
+      // 3.- Return JSON
+      if (HttpServiceHelper.isSuccess(response.statusCode)) {
+        final apiResponse = ApiResponse<EmpresaData>.fromJson(body, (rawData) {
+          return EmpresaData.fromJson(Map<String, dynamic>.from(rawData));
+        });
 
-      // 4.- Response
-      if (resp.statusCode == 200) {
-        final empresaResponse = EmpresaResponse.fromJson(data);
-
-        return Success(empresaResponse);
-      } else {
-        return ErrorData(
-          data["message"] ?? "No fue posible obtener la empresa.",
-        );
+        return Success<ApiResponse<EmpresaData>>(apiResponse);
       }
-    } catch (e) {
-      debugPrint("ERROR OBTENER EMPRESA: $e");
 
-      return ErrorData("No fue posible conectarse con el servidor.");
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<EmpresaData>>(
+        body,
+        response.statusCode,
+      );
+    } catch (e) {
+      return ErrorData<ApiResponse<EmpresaData>>(
+        'No se pudo obtener la empresa: $e',
+      );
     }
   }
 
   // *********************************************************
   // 4.- Actualizar Empresa
   // *********************************************************
-  Future<Resource<EmpresaResponse>> updateEmpresa({
+  Future<Resource<ApiResponse<EmpresaData>>> updateEmpresa({
     required int idEmpresa,
     required EmpresaRequest request,
     required String token,
@@ -159,39 +178,41 @@ class EmpresaService {
       // 1.- URL
       final url = Uri.parse('$API_UPDATE_EMPRESA$idEmpresa');
 
-      // 2.- Headers
-      final headers = <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      };
+      // 2.- Response
+      final response = await http.put(
+        url,
+        headers: HttpServiceHelper.getHeaders(token),
+        body: jsonEncode(request.toJson()),
+      );
 
-      // 3.- Body
-      final body = jsonEncode(request.toJson());
+      final body = HttpServiceHelper.decodeResponse(response);
 
-      // 4.- Request
-      final resp = await http.put(url, headers: headers, body: body);
+      // 3.- Return JSON
+      if (HttpServiceHelper.isSuccess(response.statusCode)) {
+        final apiResponse = ApiResponse<EmpresaData>.fromJson(
+          body,
+          (rawData) => EmpresaData.fromJson(Map<String, dynamic>.from(rawData)),
+        );
 
-      final Map<String, dynamic> data = jsonDecode(resp.body);
-
-      // 5.- Response
-      if (resp.statusCode == 200) {
-        return Success(EmpresaResponse.fromJson(data));
+        return Success<ApiResponse<EmpresaData>>(apiResponse);
       }
 
-      return ErrorData(
-        data["message"] ?? "No fue posible actualizar la empresa.",
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<EmpresaData>>(
+        body,
+        response.statusCode,
       );
     } catch (e) {
-      debugPrint("ERROR ACTUALIZAR EMPRESA: $e");
-
-      return ErrorData("No fue posible conectarse con el servidor.");
+      return ErrorData<ApiResponse<EmpresaData>>(
+        'No se pudo actualizar la empresa: $e',
+      );
     }
   }
 
   // *********************************************************
   // 5.- Eliminar Empresa
   // *********************************************************
-  Future<Resource<BaseResponse>> deleteEmpresa({
+  Future<Resource<ApiResponse<void>>> deleteEmpresa({
     required int idEmpresa,
     required String token,
   }) async {
@@ -199,36 +220,38 @@ class EmpresaService {
       // 1.- URL
       final url = Uri.parse('$API_DELETE_EMPRESA$idEmpresa');
 
-      // 2.- Headers
-      final headers = <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      };
+      // 2.- Response
+      final response = await http.delete(
+        url,
+        headers: HttpServiceHelper.getHeaders(
+          token,
+          extraHeaders: {'id_empresa': idEmpresa.toString()},
+        ),
+      );
 
-      // 3.- Request
-      final resp = await http.delete(url, headers: headers);
+      final body = HttpServiceHelper.decodeResponse(response);
 
-      final Map<String, dynamic> data = jsonDecode(resp.body);
+      // 3.- Return JSON
+      if (HttpServiceHelper.isSuccess(response.statusCode)) {
+        final apiResponse = ApiResponse<void>.fromJson(body, null);
 
-      // 4.- Response
-      if (resp.statusCode == 200) {
-        return Success(BaseResponse.fromJson(data));
+        return Success<ApiResponse<void>>(apiResponse);
       }
 
-      return ErrorData(
-        data["message"] ?? "No fue posible eliminar la empresa.",
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<void>>(
+        body,
+        response.statusCode,
       );
     } catch (e) {
-      debugPrint("ERROR ELIMINAR EMPRESA: $e");
-
-      return ErrorData("No fue posible conectarse con el servidor.");
+      return ErrorData<ApiResponse<void>>('No se pudo eliminar la empresa: $e');
     }
   }
 
   // *********************************************************
   // 6.- Seleccionar Empresa
   // *********************************************************
-  Future<Resource<AuthResponse>> selectEmpresa({
+  Future<Resource<ApiResponse<LoginDataModel>>> selectEmpresa({
     required String token,
     required int idEmpresa,
   }) async {
@@ -236,32 +259,41 @@ class EmpresaService {
       // 1.- URL
       final url = Uri.parse(API_SELECT_EMPRESA);
 
-      // 2.- Headers
-      final headers = <String, String>{
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      };
+      final payload = {'id_empresa': idEmpresa};
 
-      // 3.- Body
-      final body = jsonEncode({"id_empresa": idEmpresa});
+      // 2.- Response
+      final response = await http.post(
+        url,
+        headers: HttpServiceHelper.getHeaders(token),
+        body: jsonEncode(payload),
+      );
 
-      // 4.- Request
-      final resp = await http.post(url, headers: headers, body: body);
+      final body = HttpServiceHelper.decodeResponse(response);
 
-      final Map<String, dynamic> data = jsonDecode(resp.body);
+      debugPrint('SELECT EMPRESA STATUS: ${response.statusCode}');
 
-      // 5.- Response
-      if (resp.statusCode == 200 || resp.statusCode == 201) {
-        return Success(AuthResponse.fromJson(data));
-      } else {
-        return ErrorData(
-          data["message"] ?? "No fue posible seleccionar la empresa.",
+      debugPrint('SELECT EMPRESA BODY: $body');
+
+      // 3.- Return JSON
+      if (HttpServiceHelper.isSuccess(response.statusCode)) {
+        final apiResponse = ApiResponse<LoginDataModel>.fromJson(
+          body,
+          (rawData) =>
+              LoginDataModel.fromJson(Map<String, dynamic>.from(rawData)),
         );
-      }
-    } catch (e) {
-      debugPrint("ERROR SELECT EMPRESA: $e");
 
-      return ErrorData("No fue posible conectarse con el servidor.");
+        return Success<ApiResponse<LoginDataModel>>(apiResponse);
+      }
+
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<LoginDataModel>>(
+        body,
+        response.statusCode,
+      );
+    } catch (e) {
+      return ErrorData<ApiResponse<LoginDataModel>>(
+        'No se pudo seleccionar la empresa: $e',
+      );
     }
   }
 }

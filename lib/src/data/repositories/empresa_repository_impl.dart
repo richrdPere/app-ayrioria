@@ -1,16 +1,17 @@
+// Service
 import 'package:app_aryoria/src/data/datasources/remote/services/empresa_service.dart';
-import 'package:app_aryoria/src/data/models/common/base_response.dart';
-import 'package:app_aryoria/src/data/models/empresa/empresa_paginated.dart';
-import 'package:app_aryoria/src/data/models/login/auth_response.dart';
-import 'package:app_aryoria/src/domain/repositories/auth_repository.dart';
-import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 // Repo
-import 'package:app_aryoria/src/domain/repositories/empresa_repository.dart';
+import 'package:app_aryoria/src/domain/utils/Resource.dart';
+import 'package:app_aryoria/src/domain/repositories/index_repository.dart';
 
 // Models
 import 'package:app_aryoria/src/data/models/empresa/empresa_request.dart';
-import 'package:app_aryoria/src/data/models/empresa/empresa_response.dart';
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
+import 'package:app_aryoria/src/data/models/empresa/empresa_data.dart';
+import 'package:app_aryoria/src/data/models/empresa/empresa_paginated.dart';
+import 'package:app_aryoria/src/data/models/login/auth_response.dart';
+import 'package:app_aryoria/src/data/models/login/login_data_model.dart';
 
 class EmpresaRepositoryImpl implements EmpresaRepository {
   final EmpresaService empresaService;
@@ -21,8 +22,11 @@ class EmpresaRepositoryImpl implements EmpresaRepository {
     required this.authRepository,
   });
 
+  // *********************************************************
+  // 1.- Crear Empresa
+  // *********************************************************
   @override
-  Future<Resource<EmpresaResponse>> createEmpresa(
+  Future<Resource<ApiResponse<EmpresaData>>> createEmpresa(
     EmpresaRequest request,
   ) async {
     final token = await authRepository.getToken();
@@ -34,8 +38,11 @@ class EmpresaRepositoryImpl implements EmpresaRepository {
     return empresaService.createEmpresa(token: token, request: request);
   }
 
+  // *********************************************************
+  // 2.- Obtener Empresa + Paginado
+  // *********************************************************
   @override
-  Future<Resource<EmpresaPaginatedResponse>> getEmpresas({
+  Future<Resource<ApiResponse<EmpresaPaginated>>> getEmpresas({
     int page = 1,
     int limit = 10,
     String search = '',
@@ -54,8 +61,13 @@ class EmpresaRepositoryImpl implements EmpresaRepository {
     );
   }
 
+  // *********************************************************
+  // 3.- Obtener Empresa por Id
+  // *********************************************************
   @override
-  Future<Resource<EmpresaResponse>> getEmpresaById(int idEmpresa) async {
+  Future<Resource<ApiResponse<EmpresaData>>> getEmpresaById(
+    int idEmpresa,
+  ) async {
     final token = await authRepository.getToken();
 
     if (token == null) {
@@ -65,8 +77,11 @@ class EmpresaRepositoryImpl implements EmpresaRepository {
     return empresaService.getEmpresaById(token: token, idEmpresa: idEmpresa);
   }
 
+  // *********************************************************
+  // 4.- Actualizar Empresa
+  // *********************************************************
   @override
-  Future<Resource<EmpresaResponse>> updateEmpresa({
+  Future<Resource<ApiResponse<EmpresaData>>> updateEmpresa({
     required int idEmpresa,
     required EmpresaRequest request,
   }) async {
@@ -83,8 +98,11 @@ class EmpresaRepositoryImpl implements EmpresaRepository {
     );
   }
 
+  // *********************************************************
+  // 5.- Eliminar Empresa
+  // *********************************************************
   @override
-  Future<Resource<BaseResponse>> deleteEmpresa(int idEmpresa) async {
+  Future<Resource<ApiResponse<void>>> deleteEmpresa(int idEmpresa) async {
     final token = await authRepository.getToken();
 
     if (token == null) {
@@ -94,26 +112,50 @@ class EmpresaRepositoryImpl implements EmpresaRepository {
     return empresaService.deleteEmpresa(token: token, idEmpresa: idEmpresa);
   }
 
+  // *********************************************************
+  // 6.- Seleccionar Empresa
+  // *********************************************************
   @override
-  Future<Resource<AuthResponse>> selectEmpresa(
+  Future<Resource<ApiResponse<LoginDataModel>>> selectEmpresa(
     int idEmpresa,
   ) async {
+    // 1. OBTENER TOKEN
     final token = await authRepository.getToken();
 
     if (token == null) {
       return ErrorData("No existe sesión.");
     }
 
+    // 2. SELECCIONAR EMPRESA
     final response = await empresaService.selectEmpresa(
       token: token,
       idEmpresa: idEmpresa,
     );
 
-    if (response is Success<AuthResponse>) {
+    // 3. GUARDAR NUEVA SESIÓN
+    if (response is Success<ApiResponse<LoginDataModel>>) {
+      final apiResponse = response.data;
+      final loginData = apiResponse.data;
+
+      if (loginData == null) {
+        return ErrorData<ApiResponse<LoginDataModel>>(
+          "El servidor no devolvió los datos de sesión.",
+        );
+      }
+
       try {
-        await authRepository.saveUserSession(response.data);
-      } catch (_) {
-        return ErrorData("No fue posible guardar la sesión.");
+        final authResponse = AuthResponse(
+          success: apiResponse.success,
+          message: apiResponse.message,
+          data: loginData,
+        );
+
+        await authRepository.saveUserSession(authResponse);
+      } catch (e) {
+        return ErrorData<ApiResponse<LoginDataModel>>(
+          "No fue posible guardar la sesión.",
+          error: e.toString(),
+        );
       }
     }
 

@@ -1,23 +1,33 @@
-import 'package:app_aryoria/src/data/models/common/base_response.dart';
-import 'package:app_aryoria/src/data/models/empresa/empresa_paginated.dart';
-import 'package:app_aryoria/src/data/models/empresa/empresa_response.dart';
-import 'package:app_aryoria/src/data/models/login/auth_response.dart';
-import 'package:app_aryoria/src/domain/utils/Resource.dart';
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
 
-class EmpresaState {
+import 'package:app_aryoria/src/data/models/empresa/empresa_data.dart';
+import 'package:app_aryoria/src/data/models/empresa/empresa_paginated.dart';
+
+import 'package:app_aryoria/src/data/models/login/login_data_model.dart';
+
+import 'package:app_aryoria/src/domain/utils/Resource.dart';
+import 'package:equatable/equatable.dart';
+
+class EmpresaState extends Equatable {
   final bool isLoading;
 
-  final Resource<EmpresaResponse>? createResponse;
+  // 1. CREAR EMPRESA
+  final Resource<ApiResponse<EmpresaData>>? createResponse;
 
-  final Resource<EmpresaPaginatedResponse>? empresasResponse;
+  // 2. OBTENER EMPRESAS
+  final Resource<ApiResponse<EmpresaPaginated>>? empresasResponse;
 
-  final Resource<EmpresaResponse>? empresaResponse;
+  // 3. OBTENER EMPRESA POR ID
+  final Resource<ApiResponse<EmpresaData>>? empresaResponse;
 
-  final Resource<EmpresaResponse>? updateResponse;
+  // 4. ACTUALIZAR EMPRESA
+  final Resource<ApiResponse<EmpresaData>>? updateResponse;
 
-  final Resource<BaseResponse>? deleteResponse;
+  // 5. ELIMINAR EMPRESA
+  final Resource<ApiResponse<void>>? deleteResponse;
 
-  final Resource<AuthResponse>? selectResponse;
+  // 6. SELECCIONAR EMPRESA
+  final Resource<ApiResponse<LoginDataModel>>? selectResponse;
 
   const EmpresaState({
     this.isLoading = false,
@@ -35,12 +45,12 @@ class EmpresaState {
 
   EmpresaState copyWith({
     bool? isLoading,
-    Resource<EmpresaResponse>? createResponse,
-    Resource<EmpresaPaginatedResponse>? empresasResponse,
-    Resource<EmpresaResponse>? empresaResponse,
-    Resource<EmpresaResponse>? updateResponse,
-    Resource<BaseResponse>? deleteResponse,
-    Resource<AuthResponse>? selectResponse,
+    Resource<ApiResponse<EmpresaData>>? createResponse,
+    Resource<ApiResponse<EmpresaPaginated>>? empresasResponse,
+    Resource<ApiResponse<EmpresaData>>? empresaResponse,
+    Resource<ApiResponse<EmpresaData>>? updateResponse,
+    Resource<ApiResponse<void>>? deleteResponse,
+    Resource<ApiResponse<LoginDataModel>>? selectResponse,
   }) {
     return EmpresaState(
       isLoading: isLoading ?? this.isLoading,
@@ -52,4 +62,15 @@ class EmpresaState {
       selectResponse: selectResponse ?? this.selectResponse,
     );
   }
+
+  @override
+  List<Object?> get props => [
+    isLoading,
+    createResponse,
+    empresasResponse,
+    empresaResponse,
+    updateResponse,
+    selectResponse,
+    deleteResponse,
+  ];
 }

@@ -4,14 +4,14 @@ abstract class EmpresaEvent {
   const EmpresaEvent();
 }
 
-/// Crear empresa
+/// 1. CREAR EMPRESA
 class CreateEmpresaEvent extends EmpresaEvent {
   final EmpresaRequest request;
 
   const CreateEmpresaEvent(this.request);
 }
 
-/// Obtener empresas paginadas
+/// 2. OBTENER EMPRESAS
 class GetEmpresasEvent extends EmpresaEvent {
   final int page;
   final int limit;
@@ -20,14 +20,14 @@ class GetEmpresasEvent extends EmpresaEvent {
   const GetEmpresasEvent({this.page = 1, this.limit = 10, this.search = ''});
 }
 
-/// Obtener empresa por Id
+/// 3. OBTENER EMPRESA POR ID
 class GetEmpresaByIdEvent extends EmpresaEvent {
   final int idEmpresa;
 
   const GetEmpresaByIdEvent(this.idEmpresa);
 }
 
-/// Actualizar empresa
+/// 4. ACTUALIZAR EMPRESA
 class UpdateEmpresaEvent extends EmpresaEvent {
   final int idEmpresa;
   final EmpresaRequest request;
@@ -35,21 +35,21 @@ class UpdateEmpresaEvent extends EmpresaEvent {
   const UpdateEmpresaEvent({required this.idEmpresa, required this.request});
 }
 
-/// Eliminar empresa
+/// 5. ELIMINAR EMPRESA
 class DeleteEmpresaEvent extends EmpresaEvent {
   final int idEmpresa;
 
   const DeleteEmpresaEvent(this.idEmpresa);
 }
 
-/// Eliminar empresa
+/// 6. SELECCIONAR EMPRESA
 class SelectEmpresaEvent extends EmpresaEvent {
   final int idEmpresa;
 
   const SelectEmpresaEvent(this.idEmpresa);
 }
 
-/// Limpiar estados
+/// 7. RESET
 class EmpresaResetEvent extends EmpresaEvent {
   const EmpresaResetEvent();
 }

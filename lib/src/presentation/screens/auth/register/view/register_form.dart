@@ -1,5 +1,6 @@
 import 'package:app_aryoria/src/data/models/register/register_request.dart';
 import 'package:app_aryoria/src/presentation/screens/auth/register/bloc/register_event.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/auth/register/bloc/register_bloc.dart';
@@ -10,6 +11,7 @@ import 'package:app_aryoria/src/presentation/shared/widgets/custom_input.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/logo.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/boton_azul.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/labels.dart';
+import 'package:app_aryoria/src/presentation/shared/widgets/pin_selector_field.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});
@@ -54,7 +56,7 @@ class _RegisterFormState extends State<RegisterForm> {
       usuario: UsuarioRequest(
         email: emailCtrl.text.trim(),
         username: documentoCtrl.text.trim(),
-        password: passwordCtrl.text.trim(),
+        password: passwordCtrl.text,
       ),
     );
 
@@ -63,7 +65,6 @@ class _RegisterFormState extends State<RegisterForm> {
 
   @override
   Widget build(BuildContext context) {
-  
     return Scaffold(
       backgroundColor: const Color(0xffF2F2F2),
       body: SafeArea(
@@ -176,14 +177,38 @@ class _RegisterFormState extends State<RegisterForm> {
   }
 
   Widget _buildPasswordField() {
-    return CustomInput(
+    return PinSelectorField(
+      controller: passwordCtrl,
+      placeholder: 'Contraseña',
       icon: Icons.lock_outline,
-      placeholder: "Contraseña",
-      textController: passwordCtrl,
-      keyboardType: TextInputType.visiblePassword,
-      isPassword: true,
+      length: 6,
     );
+    
   }
+
+  // Widget _buildPasswordField() {
+  //   return RandomPinInput(
+  //     controller: passwordCtrl,
+  //     length: 6,
+  //     title: 'Contraseña',
+
+  //     validator: (value) {
+  //       if (value == null || value.isEmpty) {
+  //         return 'Ingresa tu contraseña.';
+  //       }
+
+  //       if (value.length != 6) {
+  //         return 'La contraseña debe tener 6 dígitos.';
+  //       }
+
+  //       if (!RegExp(r'^\d{6}$').hasMatch(value)) {
+  //         return 'La contraseña solo puede contener números.';
+  //       }
+
+  //       return null;
+  //     },
+  //   );
+  // }
 
   Widget _buildButton() {
     return BlocBuilder<RegisterBloc, RegisterState>(

@@ -40,6 +40,7 @@ class SubcategoriaService {
     required Map<String, dynamic> queryParams,
   }) async {
     try {
+      // 1.- URL Base
       final Map<String, dynamic> params = {
         ...queryParams,
         'id_empresa': idEmpresa,
@@ -56,6 +57,7 @@ class SubcategoriaService {
         ),
       );
 
+      // 2.- Response
       final response = await http.get(
         uri,
         headers: HttpServiceHelper.getHeaders(token),
@@ -63,6 +65,7 @@ class SubcategoriaService {
 
       final body = HttpServiceHelper.decodeResponse(response);
 
+      // 3.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
         final apiResponse = ApiResponse<SubcategoriaPaginated>.fromJson(body, (
           rawData,
@@ -75,6 +78,7 @@ class SubcategoriaService {
         return Success<ApiResponse<SubcategoriaPaginated>>(apiResponse);
       }
 
+      // 4.- Return Error
       return HttpServiceHelper.buildError<ApiResponse<SubcategoriaPaginated>>(
         body,
         response.statusCode,
@@ -96,10 +100,12 @@ class SubcategoriaService {
     required int idCategoria,
   }) async {
     try {
+      // 1.- URL Base
       final uri = Uri.parse(
         '$API_GET_SUBATEGORIA_BY_CATEGORIA/$idCategoria',
       ).replace(queryParameters: {'id_empresa': idEmpresa.toString()});
 
+      // 2.- Response
       final response = await http.get(
         uri,
         headers: HttpServiceHelper.getHeaders(token),
@@ -107,6 +113,7 @@ class SubcategoriaService {
 
       final body = HttpServiceHelper.decodeResponse(response);
 
+      // 3.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
         final apiResponse = ApiResponse<List<SubcategoriaData>>.fromJson(body, (
           rawData,
@@ -126,6 +133,7 @@ class SubcategoriaService {
         return Success<ApiResponse<List<SubcategoriaData>>>(apiResponse);
       }
 
+      // 4.- Return Error
       return HttpServiceHelper.buildError<ApiResponse<List<SubcategoriaData>>>(
         body,
         response.statusCode,
@@ -204,10 +212,12 @@ class SubcategoriaService {
     required int idSubcategoria,
   }) async {
     try {
+      // 1.- URL
       final uri = Uri.parse(
         '$API_GET_SUBCATEGORIA_BY_ID/$idSubcategoria',
       ).replace(queryParameters: {'id_empresa': idEmpresa.toString()});
 
+      // 2.- Response
       final response = await http.get(
         uri,
         headers: HttpServiceHelper.getHeaders(token),
@@ -215,6 +225,7 @@ class SubcategoriaService {
 
       final body = HttpServiceHelper.decodeResponse(response);
 
+      // 3.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
         final apiResponse = ApiResponse<SubcategoriaData>.fromJson(body, (
           rawData,
@@ -225,6 +236,7 @@ class SubcategoriaService {
         return Success<ApiResponse<SubcategoriaData>>(apiResponse);
       }
 
+      // 4.- Return Error
       return HttpServiceHelper.buildError<ApiResponse<SubcategoriaData>>(
         body,
         response.statusCode,
@@ -288,10 +300,12 @@ class SubcategoriaService {
     required UpdateSubcategoriaRequest request,
   }) async {
     try {
+      // 1.- URL
       final uri = Uri.parse('$API_UPDATE_SUBCATEGORIA/$idSubcategoria');
 
       final payload = {...request.toJson(), 'id_empresa': idEmpresa};
 
+      // 2.- Response
       final response = await http.put(
         uri,
         headers: HttpServiceHelper.getHeaders(token),
@@ -300,6 +314,7 @@ class SubcategoriaService {
 
       final body = HttpServiceHelper.decodeResponse(response);
 
+      // 3.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
         final apiResponse = ApiResponse<SubcategoriaData>.fromJson(
           body,
@@ -310,6 +325,7 @@ class SubcategoriaService {
         return Success<ApiResponse<SubcategoriaData>>(apiResponse);
       }
 
+      // 4.- Return Error
       return HttpServiceHelper.buildError<ApiResponse<SubcategoriaData>>(
         body,
         response.statusCode,
@@ -331,10 +347,12 @@ class SubcategoriaService {
     required bool estado,
   }) async {
     try {
+      // 1.- URL
       final uri = Uri.parse('$API_UPDATE_ESTADO_SUBCATEGORIA/$idSubcategoria');
 
       final payload = {'id_empresa': idEmpresa, 'estado': estado};
 
+      // 2.- Response
       final response = await http.patch(
         uri,
         headers: HttpServiceHelper.getHeaders(token),
@@ -343,6 +361,7 @@ class SubcategoriaService {
 
       final body = HttpServiceHelper.decodeResponse(response);
 
+      // 3.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
         final apiResponse = ApiResponse<SubcategoriaData>.fromJson(
           body,
@@ -353,6 +372,7 @@ class SubcategoriaService {
         return Success<ApiResponse<SubcategoriaData>>(apiResponse);
       }
 
+      // 4.- Return Error
       return HttpServiceHelper.buildError<ApiResponse<SubcategoriaData>>(
         body,
         response.statusCode,
@@ -373,8 +393,10 @@ class SubcategoriaService {
     required int idSubcategoria,
   }) async {
     try {
+      // 1.- URL
       final uri = Uri.parse('$API_DELETE_SUBCATEGORIA/$idSubcategoria');
 
+      // 2.- Response
       final response = await http.delete(
         uri,
         headers: HttpServiceHelper.getHeaders(
@@ -385,12 +407,14 @@ class SubcategoriaService {
 
       final body = HttpServiceHelper.decodeResponse(response);
 
+      // 3.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
         final apiResponse = ApiResponse<void>.fromJson(body, null);
 
         return Success<ApiResponse<void>>(apiResponse);
       }
 
+      // 4.- Return Error
       return HttpServiceHelper.buildError<ApiResponse<void>>(
         body,
         response.statusCode,

@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/presentation/shared/widgets/login_pin_selector_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -8,7 +9,6 @@ import 'package:app_aryoria/src/presentation/shared/widgets/boton_azul.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/custom_input.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/labels.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/logo.dart';
-
 
 class LoginContent extends StatelessWidget {
   // Instancias
@@ -84,12 +84,12 @@ class _FormState extends State<_Form> {
             ),
 
             // Password
-            CustomInput(
-              icon: Icons.lock_outline,
+            LoginPinSelectorField(
+              controller: passCtrl,
+              length: 6,
               placeholder: 'Contraseña',
-              textController: passCtrl,
-              keyboardType: TextInputType.emailAddress,
-              isPassword: true,
+              icon: Icons.lock_outline,
+
               onChanged: (value) {
                 bloc.add(PasswordChanged(password: BlocFormItem(value: value)));
               },
@@ -99,7 +99,6 @@ class _FormState extends State<_Form> {
             BotonAzul(
               text: 'Ingrese',
               onPressed: () {
-            
                 if (_formKey.currentState!.validate()) {
                   bloc.add(LoginSubmit());
                   // context.go('/dashboard/home');

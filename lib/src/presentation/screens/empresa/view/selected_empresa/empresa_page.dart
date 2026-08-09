@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 // Models
-import 'package:app_aryoria/src/data/models/login/auth_response.dart';
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
+import 'package:app_aryoria/src/data/models/login/login_data_model.dart';
+
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 // Bloc's
@@ -25,8 +27,9 @@ class _EmpresaPageState extends State<EmpresaPage> {
   void initState() {
     super.initState();
 
-    /// Cargar empresas al entrar
     Future.microtask(() {
+      if (!mounted) return;
+
       context.read<EmpresaBloc>().add(const GetEmpresasEvent());
     });
   }
@@ -38,16 +41,51 @@ class _EmpresaPageState extends State<EmpresaPage> {
           previous.selectResponse != current.selectResponse,
 
       listener: (context, state) {
-        if (state.selectResponse is Success<AuthResponse>) {
+        final response = state.selectResponse;
+
+        // ======================================================
+        // EMPRESA SELECCIONADA
+        // ======================================================
+        if (response is Success<ApiResponse<LoginDataModel>>) {
+          final apiResponse = response.data;
+
+          final loginData = apiResponse.data;
+
+          if (loginData == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('No se pudieron obtener los datos de la sesión.'),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+
+            return;
+          }
+
+          if (loginData.empresa == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('No se pudo establecer la empresa activa.'),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+
+            return;
+          }
+
           context.goNamed('home');
+
+          return;
         }
 
-        if (state.selectResponse is ErrorData) {
-          final error = state.selectResponse as ErrorData;
+        // ======================================================
+        // ERROR
+        // ======================================================
 
+        if (response is ErrorData<ApiResponse<LoginDataModel>>) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(error.displayMessage),
+              content: Text(response.displayMessage),
               backgroundColor: Colors.redAccent,
             ),
           );

@@ -25,7 +25,6 @@ class SubcategoriaPaginated {
     // ==========================================================
     // ITEMS
     // ==========================================================
-
     final rawItems = json['items'];
 
     final items = rawItems is List
@@ -41,7 +40,6 @@ class SubcategoriaPaginated {
     // ==========================================================
     // PAGINATION
     // ==========================================================
-
     final rawPagination = json['pagination'];
 
     final pagination = rawPagination is Map

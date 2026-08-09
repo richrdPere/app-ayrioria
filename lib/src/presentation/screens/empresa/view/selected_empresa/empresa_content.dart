@@ -1,5 +1,7 @@
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 // Models
 import 'package:app_aryoria/src/data/models/empresa/empresa_data.dart';
@@ -18,7 +20,6 @@ import 'package:app_aryoria/src/presentation/screens/empresa/view/selected_empre
 import 'package:app_aryoria/src/presentation/screens/empresa/view/selected_empresa/widgets/empresa_error_state.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/view/selected_empresa/widgets/empresa_list.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/view/selected_empresa/widgets/empresa_loading.dart';
-import 'package:go_router/go_router.dart';
 
 class EmpresaContent extends StatefulWidget {
   const EmpresaContent({super.key});
@@ -58,43 +59,49 @@ class _EmpresaContentState extends State<EmpresaContent> {
           Expanded(
             child: BlocBuilder<EmpresaBloc, EmpresaState>(
               builder: (context, state) {
-                // Loading
+                // ==========================================================
+                // LOADING
+                // ==========================================================
                 if (state.isLoading && state.empresasResponse == null) {
                   return const EmpresaLoading();
                 }
 
-                // Error
-                if (state.empresasResponse is ErrorData) {
-                  final error = state.empresasResponse as ErrorData;
+                final response = state.empresasResponse;
 
+                // ==========================================================
+                // ERROR
+                // ==========================================================
+                if (response is ErrorData<ApiResponse<EmpresaPaginated>>) {
                   return EmpresaErrorState(
-                    message: error.displayMessage,
-
+                    message: response.displayMessage,
                     onRetry: () {
                       context.read<EmpresaBloc>().add(const GetEmpresasEvent());
                     },
                   );
                 }
 
+                // ==========================================================
+                // EMPRESAS
+                // ==========================================================
                 final empresas =
-                    state.empresasResponse is Success<EmpresaPaginatedResponse>
-                    ? (state.empresasResponse
-                              as Success<EmpresaPaginatedResponse>)
-                          .data
-                          .data
+                    response is Success<ApiResponse<EmpresaPaginated>>
+                    ? response.data.data?.data ?? <EmpresaData>[]
                     : <EmpresaData>[];
 
-                // Usuario sin empresas
+                // ==========================================================
+                // SIN EMPRESAS
+                // ==========================================================
                 if (empresas.isEmpty) {
                   return EmpresaEmptyState(
                     onCreate: () {
-                      // abrir formulario
                       context.pushNamed('crear_empresa');
                     },
                   );
                 }
 
-                // Usuario con empresas
+                // ==========================================================
+                // CON EMPRESAS
+                // ==========================================================
                 return Column(
                   children: [
                     EmpresaSearch(controller: searchCtrl),

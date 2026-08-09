@@ -168,6 +168,7 @@ class _EmpresaCreateContentState extends State<EmpresaCreateContent> {
                   controller: emailCtrl,
                   label: "Email",
                   icon: Icons.email,
+                  keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "El email es obligatorio";
