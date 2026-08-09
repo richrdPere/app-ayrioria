@@ -1,108 +1,178 @@
 import 'package:equatable/equatable.dart';
 
-import 'package:app_aryoria/src/domain/utils/Resource.dart';
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
 import 'package:app_aryoria/src/data/models/movimientos/movimiento_data.dart';
 import 'package:app_aryoria/src/data/models/movimientos/movimiento_paginated.dart';
-import 'package:app_aryoria/src/data/models/movimientos/movimiento_response.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_query_params.dart';
+
+import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 class MovimientoState extends Equatable {
-  final Resource<MovimientoPaginatedResponse>? movimientoResponse;
-  final Resource<MovimientoResponse>? actionResponse;
-  final Resource<MovimientoResponse>? detailResponse;
+  // ==========================================================
+  // RESPUESTAS
+  // ==========================================================
+
+  /// Respuesta del listado paginado.
+  final Resource<ApiResponse<MovimientoPaginated>>? movimientoResponse;
+
+  /// Respuesta de crear / actualizar / eliminar.
+  ///
+  /// Para eliminar el backend devuelve ApiResponse<void>,
+  /// pero para simplificar el Bloc mantenemos Resource dinámico.
+  final Resource? actionResponse;
+
+  /// Respuesta del detalle de un movimiento.
+  final Resource<ApiResponse<MovimientoData>>? detailResponse;
+
+  // ==========================================================
+  // DATOS
+  // ==========================================================
 
   final List<MovimientoData> movimientos;
 
+  /// Movimiento cargado para detalle o edición.
+  final MovimientoData? movimientoSelected;
+
+  // ==========================================================
+  // CONTEXTO
+  // ==========================================================
+
   final int? idEmpresa;
-  final int? idPeriodo;
 
-  final int page;
-  final int limit;
-  final int totalPages;
+  /// Filtros, búsqueda y paginación actuales.
+  final MovimientoQueryParams queryParams;
+
+  // ==========================================================
+  // PAGINACIÓN
+  // ==========================================================
+
   final int total;
+  final int totalPages;
 
-  final String search;
+  final bool hasMore;
 
+  // ==========================================================
+  // LOADING
+  // ==========================================================
   final bool isLoading;
   final bool isLoadingMore;
-  final bool hasMore;
 
   const MovimientoState({
     this.movimientoResponse,
     this.actionResponse,
     this.detailResponse,
+
     this.movimientos = const [],
+    this.movimientoSelected,
+
     this.idEmpresa,
-    this.idPeriodo,
-    this.page = 1,
-    this.limit = 10,
-    this.totalPages = 0,
+
+    this.queryParams = const MovimientoQueryParams(),
+
     this.total = 0,
-    this.search = '',
+    this.totalPages = 0,
+
+    this.hasMore = true,
+
     this.isLoading = false,
     this.isLoadingMore = false,
-    this.hasMore = true,
   });
 
+
+  // HELPERS
+  int get page => queryParams.page;
+  int get limit => queryParams.limit;
+  int? get idPeriodo => queryParams.idPeriodo;
+  int? get idCategoria => queryParams.idCategoria;
+  int? get idSubcategoria => queryParams.idSubcategoria;
+  int? get idCuenta => queryParams.idCuenta;
+  String get search => queryParams.search ?? '';
+  String? get tipo => queryParams.tipo;
+  String? get estado => queryParams.estado;
+  String? get fechaInicio => queryParams.fechaInicio;
+  String? get fechaFin => queryParams.fechaFin;
+  bool get hasMovimientos => movimientos.isNotEmpty;
+  bool get hasSearch =>
+      queryParams.search != null && queryParams.search!.trim().isNotEmpty;
+
+  // ==========================================================
+  // COPY WITH
+  // ==========================================================
+
   MovimientoState copyWith({
-    Resource<MovimientoPaginatedResponse>? movimientoResponse,
-    Resource<MovimientoResponse>? actionResponse,
-    Resource<MovimientoResponse>? detailResponse,
+    Resource<ApiResponse<MovimientoPaginated>>? movimientoResponse,
+    Resource? actionResponse,
+    Resource<ApiResponse<MovimientoData>>? detailResponse,
+
     List<MovimientoData>? movimientos,
+    MovimientoData? movimientoSelected,
+
     int? idEmpresa,
-    int? idPeriodo,
-    int? page,
-    int? limit,
-    int? totalPages,
+    MovimientoQueryParams? queryParams,
+
     int? total,
-    String? search,
+    int? totalPages,
+
+    bool? hasMore,
+
     bool? isLoading,
     bool? isLoadingMore,
-    bool? hasMore,
+
     bool clearMovimientoResponse = false,
     bool clearActionResponse = false,
     bool clearDetailResponse = false,
+
+    bool clearMovimientoSelected = false,
     bool clearIdEmpresa = false,
-    bool clearIdPeriodo = false,
   }) {
     return MovimientoState(
       movimientoResponse: clearMovimientoResponse
           ? null
           : movimientoResponse ?? this.movimientoResponse,
+
       actionResponse: clearActionResponse
           ? null
           : actionResponse ?? this.actionResponse,
+
       detailResponse: clearDetailResponse
           ? null
           : detailResponse ?? this.detailResponse,
+
       movimientos: movimientos ?? this.movimientos,
+
+      movimientoSelected: clearMovimientoSelected
+          ? null
+          : movimientoSelected ?? this.movimientoSelected,
       idEmpresa: clearIdEmpresa ? null : idEmpresa ?? this.idEmpresa,
-      idPeriodo: clearIdPeriodo ? null : idPeriodo ?? this.idPeriodo,
-      page: page ?? this.page,
-      limit: limit ?? this.limit,
-      totalPages: totalPages ?? this.totalPages,
+      queryParams: queryParams ?? this.queryParams,
       total: total ?? this.total,
-      search: search ?? this.search,
+      totalPages: totalPages ?? this.totalPages,
+      hasMore: hasMore ?? this.hasMore,
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-      hasMore: hasMore ?? this.hasMore,
     );
   }
 
+
+  // EQUATABLE
   @override
   List<Object?> get props => [
     movimientoResponse,
     actionResponse,
     detailResponse,
+
     movimientos,
+    movimientoSelected,
+
     idEmpresa,
-    idPeriodo,
-    page,
-    limit,
-    totalPages,
+    queryParams,
+
     total,
-    search,
+    totalPages,
+
+    hasMore,
+
     isLoading,
     isLoadingMore,
-    hasMore,
   ];
 }

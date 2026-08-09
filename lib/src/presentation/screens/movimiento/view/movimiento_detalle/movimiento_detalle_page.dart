@@ -66,8 +66,17 @@ class _MovimientoDetailPageState extends State<MovimientoDetailPage> {
   // CARGAR DETALLE
   // ==========================================================
   void _loadMovimiento() {
+    final int? idEmpresa = _idEmpresa;
+
+    if (idEmpresa == null) {
+      _showError('No existe una empresa  activo.');
+      return;
+    }
     context.read<MovimientoBloc>().add(
-      GetMovimientoByIdEvent(idMovimiento: widget.idMovimiento),
+      GetMovimientoByIdEvent(
+        idMovimiento: widget.idMovimiento,
+        idEmpresa: idEmpresa,
+      ),
     );
   }
 
@@ -136,7 +145,6 @@ class _MovimientoDetailPageState extends State<MovimientoDetailPage> {
       DeleteMovimientoEvent(
         idMovimiento: widget.idMovimiento,
         idEmpresa: idEmpresa,
-        idPeriodo: idPeriodo,
       ),
     );
   }
@@ -192,9 +200,13 @@ class _MovimientoDetailPageState extends State<MovimientoDetailPage> {
             return previous.actionResponse != current.actionResponse;
           },
           listener: (context, state) {
-            final Resource<MovimientoResponse>? response = state.actionResponse;
+            final Resource? response = state.actionResponse;
 
-            if (response is Success<MovimientoResponse>) {
+            if (response == null) {
+              return;
+            }
+
+            if (response is Success) {
               final String message = response.data.message.isNotEmpty
                   ? response.data.message
                   : 'Movimiento eliminado correctamente.';

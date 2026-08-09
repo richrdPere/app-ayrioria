@@ -1,8 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_data.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_paginated.dart';
+
 import 'package:app_aryoria/src/domain/use_cases/movimiento/MovimientoUsesCases.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
-import 'package:app_aryoria/src/data/models/movimientos/movimiento_paginated.dart';
 
 import 'movimiento_event.dart';
 import 'movimiento_state.dart';
@@ -14,12 +17,17 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     on<GetMovimientosEvent>(_onGetMovimientos);
     on<RefreshMovimientosEvent>(_onRefreshMovimientos);
     on<SearchMovimientosEvent>(_onSearchMovimientos);
+
     on<CreateMovimientoEvent>(_onCreateMovimiento);
     on<UpdateMovimientoEvent>(_onUpdateMovimiento);
     on<DeleteMovimientoEvent>(_onDeleteMovimiento);
+
     on<GetMovimientoByIdEvent>(_onGetMovimientoById);
+
     on<ClearMovimientoActionResponseEvent>(_onClearMovimientoActionResponse);
+
     on<ClearMovimientoDetailResponseEvent>(_onClearMovimientoDetailResponse);
+
     on<ClearMovimientosEvent>(_onClearMovimientos);
   }
 
@@ -30,45 +38,84 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     GetMovimientosEvent event,
     Emitter<MovimientoState> emit,
   ) async {
-    final bool isFirstPage = event.page == 1;
+    final bool isFirstPage = event.queryParams.page == 1 || event.refresh;
 
     emit(
       state.copyWith(
         idEmpresa: event.idEmpresa,
-        idPeriodo: event.idPeriodo,
+        queryParams: event.queryParams,
         isLoading: isFirstPage,
         isLoadingMore: !isFirstPage,
-        search: event.search,
-        page: event.page,
         clearMovimientoResponse: isFirstPage,
       ),
     );
 
     final response = await movimientoUsesCases.getMovimientos.run(
       idEmpresa: event.idEmpresa,
-      idPeriodo: event.idPeriodo,
-      page: event.page,
-      limit: event.limit,
-      search: event.search,
+      queryParams: event.queryParams,
     );
 
-    if (response is Success<MovimientoPaginatedResponse>) {
-      final paginated = response.data;
+    // ========================================================
+    // SUCCESS
+    // ========================================================
+    if (response is Success<ApiResponse<MovimientoPaginated>>) {
+      final apiResponse = response.data;
+
+      final MovimientoPaginated? paginated = apiResponse.data;
+
+      if (paginated == null) {
+        // emit(
+        //   state.copyWith(
+        //     movimientoResponse: response,
+        //     movimientos: isFirstPage ? const [] : state.movimientos,
+        //     total: 0,
+        //     totalPages: 0,
+        //     hasMore: false,
+        //     isLoading: false,
+        //     isLoadingMore: false,
+        //   ),
+        // );
+        final pagination = paginated?.pagination;
+
+        emit(
+          state.copyWith(
+            movimientoResponse: response,
+            // movimientos: isFirstPage ? const [] : state.movimientos,
+            movimientos: paginated?.items,
+            queryParams: event.queryParams.copyWith(
+              page: pagination?.page,
+              limit: pagination?.limit,
+            ),
+            total: pagination?.total,
+            totalPages: pagination?.totalPages,
+            hasMore: pagination?.hasNextPage,
+            isLoading: false,
+            isLoadingMore: false,
+          ),
+        );
+
+        return;
+      }
+
       final pagination = paginated.pagination;
 
-      final newList = isFirstPage
-          ? paginated.data
-          : [...state.movimientos, ...paginated.data];
+      final List<MovimientoData> newList = isFirstPage
+          ? paginated.items
+          : [...state.movimientos, ...paginated.items];
+
+      final updatedParams = event.queryParams.copyWith(
+        page: pagination.page,
+        limit: pagination.limit,
+      );
 
       emit(
         state.copyWith(
           movimientoResponse: response,
           movimientos: newList,
-          page: pagination.page,
-          limit: pagination.limit,
+          queryParams: updatedParams,
           total: pagination.total,
           totalPages: pagination.totalPages,
-          hasMore: pagination.page < pagination.totalPages,
+          hasMore: pagination.hasNextPage,
           isLoading: false,
           isLoadingMore: false,
         ),
@@ -77,10 +124,14 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
       return;
     }
 
+    // ========================================================
+    // ERROR
+    // ========================================================
     emit(
       state.copyWith(
-        movimientoResponse: response,
-        movimientos: isFirstPage ? [] : state.movimientos,
+        movimientoResponse:
+            response as Resource<ApiResponse<MovimientoPaginated>>?,
+        movimientos: isFirstPage ? const [] : state.movimientos,
         isLoading: false,
         isLoadingMore: false,
         hasMore: false,
@@ -98,10 +149,8 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     add(
       GetMovimientosEvent(
         idEmpresa: event.idEmpresa,
-        idPeriodo: event.idPeriodo,
-        page: 1,
-        limit: state.limit,
-        search: event.search,
+        queryParams: event.queryParams.copyWith(page: 1),
+        refresh: true,
       ),
     );
   }
@@ -116,10 +165,8 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     add(
       GetMovimientosEvent(
         idEmpresa: event.idEmpresa,
-        idPeriodo: event.idPeriodo,
-        page: 1,
-        limit: state.limit,
-        search: event.search,
+        queryParams: event.queryParams.copyWith(page: 1),
+        refresh: true,
       ),
     );
   }
@@ -131,7 +178,11 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     CreateMovimientoEvent event,
     Emitter<MovimientoState> emit,
   ) async {
-    emit(state.copyWith(actionResponse: Loading()));
+    emit(
+      state.copyWith(
+        actionResponse: const Loading<ApiResponse<MovimientoData>>(),
+      ),
+    );
 
     final response = await movimientoUsesCases.createMovimiento.run(
       event.request,
@@ -147,14 +198,28 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     UpdateMovimientoEvent event,
     Emitter<MovimientoState> emit,
   ) async {
-    emit(state.copyWith(actionResponse: Loading()));
+    emit(
+      state.copyWith(
+        actionResponse: const Loading<ApiResponse<MovimientoData>>(),
+      ),
+    );
 
     final response = await movimientoUsesCases.updateMovimiento.run(
       idMovimiento: event.idMovimiento,
+      idEmpresa: event.idEmpresa,
       request: event.request,
     );
 
     emit(state.copyWith(actionResponse: response));
+
+    // Actualizar también el movimiento seleccionado
+    if (response is Success<ApiResponse<MovimientoData>>) {
+      final movimiento = response.data.data;
+
+      if (movimiento != null) {
+        emit(state.copyWith(movimientoSelected: movimiento));
+      }
+    }
   }
 
   // ==========================================================
@@ -164,22 +229,37 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     DeleteMovimientoEvent event,
     Emitter<MovimientoState> emit,
   ) async {
-    emit(state.copyWith(actionResponse: Loading()));
+    emit(state.copyWith(actionResponse: const Loading<ApiResponse<void>>()));
 
     final response = await movimientoUsesCases.deleteMovimiento.run(
-      event.idMovimiento,
+      idMovimiento: event.idMovimiento,
+      idEmpresa: event.idEmpresa,
     );
 
     emit(state.copyWith(actionResponse: response));
 
-    if (response is Success) {
-      add(
-        GetMovimientosEvent(
-          idEmpresa: event.idEmpresa,
-          idPeriodo: event.idPeriodo,
-          page: 1,
-          limit: state.limit,
-          search: state.search,
+    if (response is Success<ApiResponse<void>>) {
+      // ======================================================
+      // OPCIÓN 1:
+      // eliminar localmente para evitar otra llamada HTTP
+      // ======================================================
+
+      final updatedList = state.movimientos
+          .where((movimiento) => movimiento.idMovimiento != event.idMovimiento)
+          .toList();
+
+      final int updatedTotal = state.total > 0 ? state.total - 1 : 0;
+
+      emit(
+        state.copyWith(
+          movimientos: updatedList,
+          total: updatedTotal,
+          movimientoSelected:
+              state.movimientoSelected?.idMovimiento == event.idMovimiento
+              ? null
+              : state.movimientoSelected,
+          clearMovimientoSelected:
+              state.movimientoSelected?.idMovimiento == event.idMovimiento,
         ),
       );
     }
@@ -192,13 +272,34 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     GetMovimientoByIdEvent event,
     Emitter<MovimientoState> emit,
   ) async {
-    emit(state.copyWith(detailResponse: Loading()));
-
-    final response = await movimientoUsesCases.getMovimientoById.run(
-      event.idMovimiento,
+    emit(
+      state.copyWith(
+        detailResponse: const Loading<ApiResponse<MovimientoData>>(),
+        clearMovimientoSelected: true,
+      ),
     );
 
-    emit(state.copyWith(detailResponse: response));
+    final response = await movimientoUsesCases.getMovimientoById.run(
+      idEmpresa: event.idEmpresa,
+      idMovimiento: event.idMovimiento,
+    );
+
+    if (response is Success<ApiResponse<MovimientoData>>) {
+      final movimiento = response.data.data;
+
+      emit(
+        state.copyWith(
+          detailResponse: response,
+          movimientoSelected: movimiento,
+        ),
+      );
+
+      return;
+    }
+
+    emit(
+      state.copyWith(detailResponse: response, clearMovimientoSelected: true),
+    );
   }
 
   // ==========================================================
@@ -218,11 +319,13 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     ClearMovimientoDetailResponseEvent event,
     Emitter<MovimientoState> emit,
   ) {
-    emit(state.copyWith(clearDetailResponse: true));
+    emit(
+      state.copyWith(clearDetailResponse: true, clearMovimientoSelected: true),
+    );
   }
 
   // ==========================================================
-  // LIMPIAR ESTADO DE MOVIMIENTOS
+  // LIMPIAR ESTADO
   // ==========================================================
   void _onClearMovimientos(
     ClearMovimientosEvent event,

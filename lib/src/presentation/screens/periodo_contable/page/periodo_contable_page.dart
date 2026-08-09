@@ -17,9 +17,11 @@ class PeriodoContablePage extends StatefulWidget {
 
 class _PeriodoContablePageState extends State<PeriodoContablePage> {
   final TextEditingController _searchController = TextEditingController();
-
   String? _estadoSeleccionado;
 
+  // ==========================================================
+  // EMPRESA ACTIVA
+  // ==========================================================
   int? get _idEmpresa {
     return context.read<SessionBloc>().state.empresaActiva?.idEmpresa;
   }
@@ -340,46 +342,38 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
           );
         }
       },
-      child: Scaffold(
-        // appBar: AppBar(
-        //   title: const Text('Períodos contables'),
-        //   actions: [
-        //     IconButton(
-        //       tooltip: 'Actualizar',
-        //       onPressed: idEmpresa == null
-        //           ? null
-        //           : () {
-        //               _loadPeriodos(page: 1, refresh: true);
-        //             },
-        //       icon: const Icon(Icons.refresh),
-        //     ),
-        //   ],
-        // ),
-        body: idEmpresa == null
-            ? const _EmpresaNoSeleccionada()
-            : PeriodoContableContent(
-                searchController: _searchController,
-                estadoSeleccionado: _estadoSeleccionado,
-                onSearch: _onSearch,
-                onEstadoChanged: _onEstadoChanged,
-                onRefresh: _onRefresh,
-                onLoadMore: _loadMore,
-                onRetry: () {
-                  _loadPeriodos(page: 1, refresh: true);
-                },
-                onCreate: _onCreate,
-                onViewDetail: _onViewDetail,
-                onEdit: _onEdit,
-                onDelete: _onDelete,
-                onChangeEstado: _onChangeEstado,
-              ),
-        floatingActionButton: idEmpresa == null
-            ? null
-            : FloatingActionButton.extended(
-                onPressed: _onCreate,
-                icon: const Icon(Icons.add),
-                label: const Text('Período'),
-              ),
+      child: BlocBuilder<PeriodoContableBloc, PeriodoContableState>(
+        builder: (context, state) {
+          final bool existenPeriodos = state.periodos.isNotEmpty;
+
+          return Scaffold(
+            body: idEmpresa == null
+                ? const _EmpresaNoSeleccionada()
+                : PeriodoContableContent(
+                    searchController: _searchController,
+                    estadoSeleccionado: _estadoSeleccionado,
+                    onSearch: _onSearch,
+                    onEstadoChanged: _onEstadoChanged,
+                    onRefresh: _onRefresh,
+                    onLoadMore: _loadMore,
+                    onRetry: () {
+                      _loadPeriodos(page: 1, refresh: true);
+                    },
+                    onCreate: _onCreate,
+                    onViewDetail: _onViewDetail,
+                    onEdit: _onEdit,
+                    onDelete: _onDelete,
+                    onChangeEstado: _onChangeEstado,
+                  ),
+            floatingActionButton: idEmpresa != null && existenPeriodos
+                ? FloatingActionButton.extended(
+                    onPressed: _onCreate,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Período'),
+                  )
+                : null,
+          );
+        },
       ),
     );
   }

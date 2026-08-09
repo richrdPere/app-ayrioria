@@ -1,5 +1,9 @@
 import 'package:equatable/equatable.dart';
-import 'package:app_aryoria/src/data/models/movimientos/movimiento_request.dart';
+
+// Models
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_create_request.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_query_params.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_update_request.dart';
 
 abstract class MovimientoEvent extends Equatable {
   const MovimientoEvent();
@@ -13,21 +17,20 @@ abstract class MovimientoEvent extends Equatable {
 // ==========================================================
 class GetMovimientosEvent extends MovimientoEvent {
   final int idEmpresa;
-  final int idPeriodo;
-  final int page;
-  final int limit;
-  final String search;
+  final MovimientoQueryParams queryParams;
+
+  /// Indica si se reemplaza la lista actual.
+  /// Útil para refresh, filtros y búsquedas.
+  final bool refresh;
 
   const GetMovimientosEvent({
     required this.idEmpresa,
-    required this.idPeriodo,
-    this.page = 1,
-    this.limit = 10,
-    this.search = '',
+    required this.queryParams,
+    this.refresh = false,
   });
 
   @override
-  List<Object?> get props => [idEmpresa, idPeriodo, page, limit, search];
+  List<Object?> get props => [idEmpresa, queryParams, refresh];
 }
 
 // ==========================================================
@@ -35,17 +38,15 @@ class GetMovimientosEvent extends MovimientoEvent {
 // ==========================================================
 class RefreshMovimientosEvent extends MovimientoEvent {
   final int idEmpresa;
-  final int idPeriodo;
-  final String search;
+  final MovimientoQueryParams queryParams;
 
   const RefreshMovimientosEvent({
     required this.idEmpresa,
-    required this.idPeriodo,
-    this.search = '',
+    required this.queryParams,
   });
 
   @override
-  List<Object?> get props => [idEmpresa, idPeriodo, search];
+  List<Object?> get props => [idEmpresa, queryParams];
 }
 
 // ==========================================================
@@ -53,24 +54,22 @@ class RefreshMovimientosEvent extends MovimientoEvent {
 // ==========================================================
 class SearchMovimientosEvent extends MovimientoEvent {
   final int idEmpresa;
-  final int idPeriodo;
-  final String search;
+  final MovimientoQueryParams queryParams;
 
   const SearchMovimientosEvent({
     required this.idEmpresa,
-    required this.idPeriodo,
-    required this.search,
+    required this.queryParams,
   });
 
   @override
-  List<Object?> get props => [idEmpresa, idPeriodo, search];
+  List<Object?> get props => [idEmpresa, queryParams];
 }
 
 // ==========================================================
 // CREAR MOVIMIENTO
 // ==========================================================
 class CreateMovimientoEvent extends MovimientoEvent {
-  final MovimientoRequest request;
+  final MovimientoCreateRequest request;
 
   const CreateMovimientoEvent({required this.request});
 
@@ -83,15 +82,17 @@ class CreateMovimientoEvent extends MovimientoEvent {
 // ==========================================================
 class UpdateMovimientoEvent extends MovimientoEvent {
   final int idMovimiento;
-  final MovimientoRequest request;
+  final int idEmpresa;
+  final MovimientoUpdateRequest request;
 
   const UpdateMovimientoEvent({
     required this.idMovimiento,
+    required this.idEmpresa,
     required this.request,
   });
 
   @override
-  List<Object?> get props => [idMovimiento, request];
+  List<Object?> get props => [idMovimiento, idEmpresa, request];
 }
 
 // ==========================================================
@@ -100,16 +101,14 @@ class UpdateMovimientoEvent extends MovimientoEvent {
 class DeleteMovimientoEvent extends MovimientoEvent {
   final int idMovimiento;
   final int idEmpresa;
-  final int idPeriodo;
 
   const DeleteMovimientoEvent({
     required this.idMovimiento,
     required this.idEmpresa,
-    required this.idPeriodo,
   });
 
   @override
-  List<Object?> get props => [idMovimiento, idEmpresa, idPeriodo];
+  List<Object?> get props => [idMovimiento, idEmpresa];
 }
 
 // ==========================================================
@@ -117,11 +116,15 @@ class DeleteMovimientoEvent extends MovimientoEvent {
 // ==========================================================
 class GetMovimientoByIdEvent extends MovimientoEvent {
   final int idMovimiento;
+  final int idEmpresa;
 
-  const GetMovimientoByIdEvent({required this.idMovimiento});
+  const GetMovimientoByIdEvent({
+    required this.idMovimiento,
+    required this.idEmpresa,
+  });
 
   @override
-  List<Object?> get props => [idMovimiento];
+  List<Object?> get props => [idMovimiento, idEmpresa];
 }
 
 // ==========================================================

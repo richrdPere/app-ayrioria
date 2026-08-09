@@ -2,6 +2,7 @@ import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_da
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_state.dart';
+import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_module_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -82,13 +83,22 @@ class _PeriodoContableContentState extends State<PeriodoContableContent> {
   Widget build(BuildContext context) {
     return BlocBuilder<PeriodoContableBloc, PeriodoContableState>(
       builder: (context, state) {
+        final bool existenPeriodos = state.periodos.isNotEmpty;
+
         return Column(
           children: [
             // Header
-            _buildHeader(context),
+            // _buildHeader(context),
+            const AppModuleHeader(
+              icon: Icons.calendar_month_outlined,
+              title: 'Gestiona tus períodos',
+              description:
+                  'Administra la apertura y cierre de los períodos contables de tu empresa.',
+            ),
 
             // Search
-            _buildSearch(),
+            //_buildSearch(),
+            if (existenPeriodos) _buildSearch(),
 
             // Listado
             Expanded(child: _buildBody(state)),
@@ -101,50 +111,50 @@ class _PeriodoContableContentState extends State<PeriodoContableContent> {
   // ==========================================================
   // HEADER
   // ==========================================================
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(
-              Icons.calendar_month_outlined,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Períodos contables',
-                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Administra la apertura y cierre de los períodos de tu empresa.',
-                  style: TextStyle(fontSize: 13),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildHeader(BuildContext context) {
+  //   return Container(
+  //     width: double.infinity,
+  //     margin: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+  //     padding: const EdgeInsets.all(18),
+  //     decoration: BoxDecoration(
+  //       color: Theme.of(context).colorScheme.primaryContainer,
+  //       borderRadius: BorderRadius.circular(20),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Container(
+  //           width: 52,
+  //           height: 52,
+  //           decoration: BoxDecoration(
+  //             color: Theme.of(context).colorScheme.primary,
+  //             borderRadius: BorderRadius.circular(16),
+  //           ),
+  //           child: Icon(
+  //             Icons.calendar_month_outlined,
+  //             color: Theme.of(context).colorScheme.onPrimary,
+  //           ),
+  //         ),
+  //         const SizedBox(width: 14),
+  //         const Expanded(
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Text(
+  //                 'Períodos contables',
+  //                 style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+  //               ),
+  //               SizedBox(height: 4),
+  //               Text(
+  //                 'Administra la apertura y cierre de los períodos de tu empresa.',
+  //                 style: TextStyle(fontSize: 13),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   // ==========================================================
   // BUSCADOR Y FILTRO

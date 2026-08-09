@@ -1,20 +1,18 @@
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_paginated.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_query_params.dart';
 import 'package:app_aryoria/src/domain/repositories/movimiento_repository.dart';
+import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 class GetMovimientosUseCase {
   MovimientoRepository movimientoRepository;
   GetMovimientosUseCase(this.movimientoRepository);
 
-  run({
-    int page = 1,
-    int limit = 10,
-    String search = '',
+  Future<Resource<ApiResponse<MovimientoPaginated>>> run({
     required int idEmpresa,
-    required int idPeriodo,
+    required MovimientoQueryParams queryParams,
   }) => movimientoRepository.getMovimientos(
-    page: page,
-    limit: limit,
-    search: search,
     idEmpresa: idEmpresa,
-    idPeriodo: idPeriodo,
+    queryParams: queryParams,
   );
 }

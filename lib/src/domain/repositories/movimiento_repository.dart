@@ -1,33 +1,40 @@
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_create_request.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_data.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_paginated.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_query_params.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_update_request.dart';
+
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
-import 'package:app_aryoria/src/data/models/movimientos/movimiento_paginated.dart';
-import 'package:app_aryoria/src/data/models/movimientos/movimiento_request.dart';
-import 'package:app_aryoria/src/data/models/movimientos/movimiento_response.dart';
-
 abstract class MovimientoRepository {
-  /// Crear movimiento
-  Future<Resource<MovimientoResponse>> createMovimiento(
-    MovimientoRequest request,
+  /// 1.- Crear movimiento
+  Future<Resource<ApiResponse<MovimientoData>>> createMovimiento(
+    MovimientoCreateRequest request,
   );
 
-  /// Listar movimientos del usuario autenticado
-  Future<Resource<MovimientoPaginatedResponse>> getMovimientos({
-    int page = 1,
-    int limit = 10,
-    String search = '',
+  /// 2.- Listar movimientos del usuario autenticado
+  Future<Resource<ApiResponse<MovimientoPaginated>>> getMovimientos({
     required int idEmpresa,
-    required int idPeriodo,
+    required MovimientoQueryParams queryParams,
   });
 
-  /// Obtener movimiento por Id
-  Future<Resource<MovimientoResponse>> getMovimientoById(int idMovimiento);
-
-  /// Actualizar movimiento
-  Future<Resource<MovimientoResponse>> updateMovimiento({
+  /// 3.- Obtener movimiento por Id
+  Future<Resource<ApiResponse<MovimientoData>>> getMovimientoById({
+    required int idEmpresa,
     required int idMovimiento,
-    required MovimientoRequest request,
   });
 
-  /// Eliminar movimiento
-  Future<Resource<MovimientoResponse>> deleteMovimiento(int idMovimiento);
+  /// 4.- Actualizar movimiento
+  Future<Resource<ApiResponse<MovimientoData>>> updateMovimiento({
+    required int idMovimiento,
+    required int idEmpresa,
+    required MovimientoUpdateRequest request,
+  });
+
+  /// 5.- Eliminar movimiento
+  Future<Resource<ApiResponse<void>>> deleteMovimiento({
+    required int idMovimiento,
+    required int idEmpresa,
+  });
 }

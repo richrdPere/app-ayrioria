@@ -2,6 +2,8 @@ class MovimientoData {
   final int idMovimiento;
   final int idEmpresa;
   final int idCategoria;
+  final int idSubcategoria;
+  final int? idCuenta;
   final int idUsuario;
   final int idPeriodo;
 
@@ -16,12 +18,13 @@ class MovimientoData {
   final String estado;
   final bool activo;
 
-  final String createdAt;
-  final String updatedAt;
-  final String? deletedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deletedAt;
 
   final MovimientoEmpresaData? empresa;
   final MovimientoCategoriaData? categoria;
+  final MovimientoSubcategoriaData? subcategoria;
   final MovimientoUsuarioData? usuario;
   final MovimientoPeriodoData? periodoContable;
 
@@ -29,6 +32,8 @@ class MovimientoData {
     required this.idMovimiento,
     required this.idEmpresa,
     required this.idCategoria,
+    required this.idSubcategoria,
+    this.idCuenta,
     required this.idUsuario,
     required this.idPeriodo,
     required this.tipo,
@@ -39,55 +44,68 @@ class MovimientoData {
     this.comprobante,
     required this.estado,
     required this.activo,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
     this.deletedAt,
     this.empresa,
     this.categoria,
+    this.subcategoria,
     this.usuario,
     this.periodoContable,
   });
 
   factory MovimientoData.fromJson(Map<String, dynamic> json) {
     return MovimientoData(
-      idMovimiento: _parseInt(json['id_movimiento']),
-      idEmpresa: _parseInt(json['id_empresa']),
-      idCategoria: _parseInt(json['id_categoria']),
-      idUsuario: _parseInt(json['id_usuario']),
-      idPeriodo: _parseInt(json['id_periodo']),
+      idMovimiento: _toInt(json['id_movimiento']),
+      idEmpresa: _toInt(json['id_empresa']),
+      idCategoria: _toInt(json['id_categoria']),
+      idSubcategoria: _toInt(json['id_subcategoria']),
+      idCuenta: json['id_cuenta'] != null ? _toInt(json['id_cuenta']) : null,
+      idUsuario: _toInt(json['id_usuario']),
+      idPeriodo: _toInt(json['id_periodo']),
+
       tipo: json['tipo']?.toString() ?? '',
       fecha: json['fecha']?.toString() ?? '',
       descripcion: json['descripcion']?.toString() ?? '',
-      monto: _parseDouble(json['monto']),
+      monto: _toDouble(json['monto']),
+
       observacion: json['observacion']?.toString(),
       comprobante: json['comprobante']?.toString(),
+
       estado: json['estado']?.toString() ?? '',
-      activo: _parseBool(json['activo']),
-      createdAt: json['created_at']?.toString() ?? '',
-      updatedAt: json['updated_at']?.toString() ?? '',
-      deletedAt: json['deleted_at']?.toString(),
+      activo: json['activo'] == true,
+
+      createdAt: _toDateTime(json['created_at']),
+      updatedAt: _toDateTime(json['updated_at']),
+      deletedAt: _toDateTime(json['deleted_at']),
 
       empresa: json['empresa'] is Map
           ? MovimientoEmpresaData.fromJson(
-              Map<String, dynamic>.from(json['empresa'] as Map),
+              Map<String, dynamic>.from(json['empresa']),
             )
           : null,
 
       categoria: json['categoria'] is Map
           ? MovimientoCategoriaData.fromJson(
-              Map<String, dynamic>.from(json['categoria'] as Map),
+              Map<String, dynamic>.from(json['categoria']),
+            )
+          : null,
+
+      subcategoria: json['subcategoria'] is Map
+          ? MovimientoSubcategoriaData.fromJson(
+              Map<String, dynamic>.from(json['subcategoria']),
             )
           : null,
 
       usuario: json['usuario'] is Map
           ? MovimientoUsuarioData.fromJson(
-              Map<String, dynamic>.from(json['usuario'] as Map),
+              Map<String, dynamic>.from(json['usuario']),
             )
           : null,
 
       periodoContable: json['periodoContable'] is Map
           ? MovimientoPeriodoData.fromJson(
-              Map<String, dynamic>.from(json['periodoContable'] as Map),
+              Map<String, dynamic>.from(json['periodoContable']),
             )
           : null,
     );
@@ -98,6 +116,8 @@ class MovimientoData {
       'id_movimiento': idMovimiento,
       'id_empresa': idEmpresa,
       'id_categoria': idCategoria,
+      'id_subcategoria': idSubcategoria,
+      'id_cuenta': idCuenta,
       'id_usuario': idUsuario,
       'id_periodo': idPeriodo,
       'tipo': tipo,
@@ -108,79 +128,52 @@ class MovimientoData {
       'comprobante': comprobante,
       'estado': estado,
       'activo': activo,
-      'created_at': createdAt,
-      'updated_at': updatedAt,
-      'deleted_at': deletedAt,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+      'deleted_at': deletedAt?.toIso8601String(),
       'empresa': empresa?.toJson(),
       'categoria': categoria?.toJson(),
+      'subcategoria': subcategoria?.toJson(),
       'usuario': usuario?.toJson(),
       'periodoContable': periodoContable?.toJson(),
     };
   }
 
-  MovimientoData copyWith({
-    int? idMovimiento,
-    int? idEmpresa,
-    int? idCategoria,
-    int? idUsuario,
-    int? idPeriodo,
-    String? tipo,
-    String? fecha,
-    String? descripcion,
-    double? monto,
-    String? observacion,
-    String? comprobante,
-    String? estado,
-    bool? activo,
-    String? createdAt,
-    String? updatedAt,
-    String? deletedAt,
-    MovimientoEmpresaData? empresa,
-    MovimientoCategoriaData? categoria,
-    MovimientoUsuarioData? usuario,
-    MovimientoPeriodoData? periodoContable,
-  }) {
-    return MovimientoData(
-      idMovimiento: idMovimiento ?? this.idMovimiento,
-      idEmpresa: idEmpresa ?? this.idEmpresa,
-      idCategoria: idCategoria ?? this.idCategoria,
-      idUsuario: idUsuario ?? this.idUsuario,
-      idPeriodo: idPeriodo ?? this.idPeriodo,
-      tipo: tipo ?? this.tipo,
-      fecha: fecha ?? this.fecha,
-      descripcion: descripcion ?? this.descripcion,
-      monto: monto ?? this.monto,
-      observacion: observacion ?? this.observacion,
-      comprobante: comprobante ?? this.comprobante,
-      estado: estado ?? this.estado,
-      activo: activo ?? this.activo,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      empresa: empresa ?? this.empresa,
-      categoria: categoria ?? this.categoria,
-      usuario: usuario ?? this.usuario,
-      periodoContable: periodoContable ?? this.periodoContable,
-    );
+  static int _toInt(dynamic value) {
+    if (value is int) return value;
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static double _toDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static DateTime? _toDateTime(dynamic value) {
+    if (value == null) return null;
+    return DateTime.tryParse(value.toString());
   }
 }
 
+// ==========================================================
+// EMPRESA
+// ==========================================================
 class MovimientoEmpresaData {
   final int idEmpresa;
   final String razonSocial;
-  final String ruc;
+  final String? ruc;
 
   const MovimientoEmpresaData({
     required this.idEmpresa,
     required this.razonSocial,
-    required this.ruc,
+    this.ruc,
   });
 
   factory MovimientoEmpresaData.fromJson(Map<String, dynamic> json) {
     return MovimientoEmpresaData(
-      idEmpresa: _parseInt(json['id_empresa']),
+      idEmpresa: MovimientoData._toInt(json['id_empresa']),
       razonSocial: json['razon_social']?.toString() ?? '',
-      ruc: json['ruc']?.toString() ?? '',
+      ruc: json['ruc']?.toString(),
     );
   }
 
@@ -189,6 +182,9 @@ class MovimientoEmpresaData {
   }
 }
 
+// ==========================================================
+// CATEGORÍA
+// ==========================================================
 class MovimientoCategoriaData {
   final int idCategoria;
   final String nombre;
@@ -206,7 +202,7 @@ class MovimientoCategoriaData {
 
   factory MovimientoCategoriaData.fromJson(Map<String, dynamic> json) {
     return MovimientoCategoriaData(
-      idCategoria: _parseInt(json['id_categoria']),
+      idCategoria: MovimientoData._toInt(json['id_categoria']),
       nombre: json['nombre']?.toString() ?? '',
       tipo: json['tipo']?.toString() ?? '',
       color: json['color']?.toString(),
@@ -225,6 +221,48 @@ class MovimientoCategoriaData {
   }
 }
 
+// ==========================================================
+// SUBCATEGORÍA
+// ==========================================================
+class MovimientoSubcategoriaData {
+  final int idSubcategoria;
+  final int idCategoria;
+  final String nombre;
+  final String? naturaleza;
+  final bool estado;
+
+  const MovimientoSubcategoriaData({
+    required this.idSubcategoria,
+    required this.idCategoria,
+    required this.nombre,
+    this.naturaleza,
+    required this.estado,
+  });
+
+  factory MovimientoSubcategoriaData.fromJson(Map<String, dynamic> json) {
+    return MovimientoSubcategoriaData(
+      idSubcategoria: MovimientoData._toInt(json['id_subcategoria']),
+      idCategoria: MovimientoData._toInt(json['id_categoria']),
+      nombre: json['nombre']?.toString() ?? '',
+      naturaleza: json['naturaleza']?.toString(),
+      estado: json['estado'] == true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id_subcategoria': idSubcategoria,
+      'id_categoria': idCategoria,
+      'nombre': nombre,
+      'naturaleza': naturaleza,
+      'estado': estado,
+    };
+  }
+}
+
+// ==========================================================
+// USUARIO
+// ==========================================================
 class MovimientoUsuarioData {
   final int idUsuario;
   final String username;
@@ -238,7 +276,7 @@ class MovimientoUsuarioData {
 
   factory MovimientoUsuarioData.fromJson(Map<String, dynamic> json) {
     return MovimientoUsuarioData(
-      idUsuario: _parseInt(json['id_usuario']),
+      idUsuario: MovimientoData._toInt(json['id_usuario']),
       username: json['username']?.toString() ?? '',
       email: json['email']?.toString() ?? '',
     );
@@ -249,6 +287,9 @@ class MovimientoUsuarioData {
   }
 }
 
+// ==========================================================
+// PERÍODO CONTABLE
+// ==========================================================
 class MovimientoPeriodoData {
   final int idPeriodo;
   final String nombre;
@@ -256,21 +297,35 @@ class MovimientoPeriodoData {
   final int mes;
   final String estado;
 
+  final String fechaInicio;
+  final String fechaFin;
+
+  final double saldoInicial;
+  final double saldoFinal;
+
   const MovimientoPeriodoData({
     required this.idPeriodo,
     required this.nombre,
     required this.anio,
     required this.mes,
     required this.estado,
+    required this.fechaInicio,
+    required this.fechaFin,
+    required this.saldoInicial,
+    required this.saldoFinal,
   });
 
   factory MovimientoPeriodoData.fromJson(Map<String, dynamic> json) {
     return MovimientoPeriodoData(
-      idPeriodo: _parseInt(json['id_periodo']),
+      idPeriodo: MovimientoData._toInt(json['id_periodo']),
       nombre: json['nombre']?.toString() ?? '',
-      anio: _parseInt(json['anio']),
-      mes: _parseInt(json['mes']),
+      anio: MovimientoData._toInt(json['anio']),
+      mes: MovimientoData._toInt(json['mes']),
       estado: json['estado']?.toString() ?? '',
+      fechaInicio: json['fecha_inicio']?.toString() ?? '',
+      fechaFin: json['fecha_fin']?.toString() ?? '',
+      saldoInicial: MovimientoData._toDouble(json['saldo_inicial']),
+      saldoFinal: MovimientoData._toDouble(json['saldo_final']),
     );
   }
 
@@ -281,52 +336,10 @@ class MovimientoPeriodoData {
       'anio': anio,
       'mes': mes,
       'estado': estado,
+      'fecha_inicio': fechaInicio,
+      'fecha_fin': fechaFin,
+      'saldo_inicial': saldoInicial,
+      'saldo_final': saldoFinal,
     };
   }
-}
-
-int _parseInt(dynamic value, {int fallback = 0}) {
-  if (value is int) {
-    return value;
-  }
-
-  if (value is num) {
-    return value.toInt();
-  }
-
-  return int.tryParse(value?.toString() ?? '') ?? fallback;
-}
-
-double _parseDouble(dynamic value, {double fallback = 0.0}) {
-  if (value is double) {
-    return value;
-  }
-
-  if (value is num) {
-    return value.toDouble();
-  }
-
-  return double.tryParse(value?.toString() ?? '') ?? fallback;
-}
-
-bool _parseBool(dynamic value, {bool fallback = false}) {
-  if (value is bool) {
-    return value;
-  }
-
-  if (value is num) {
-    return value == 1;
-  }
-
-  final normalized = value?.toString().trim().toLowerCase();
-
-  if (normalized == 'true' || normalized == '1') {
-    return true;
-  }
-
-  if (normalized == 'false' || normalized == '0') {
-    return false;
-  }
-
-  return fallback;
 }

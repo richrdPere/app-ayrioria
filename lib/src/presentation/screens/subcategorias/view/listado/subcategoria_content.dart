@@ -51,7 +51,6 @@ class _SubcategoriaContentState extends State<SubcategoriaContent> {
   // ===========================================================================
   // Buscar
   // ===========================================================================
-
   void _onSearchChanged(String value) {
     _debounce?.cancel();
 
@@ -553,16 +552,16 @@ class _SubcategoriaContentState extends State<SubcategoriaContent> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            // onPressed: pagination.hasPreviousPage
-            //     ? () {
-            //         setState(() {
-            //           _page--;
-            //         });
+            onPressed: pagination.hasPreviousPage
+                ? () {
+                    setState(() {
+                      _page--;
+                    });
 
-            //         _loadSubcategorias();
-            //       }
-            //     : null,
-            onPressed: () {},
+                    _loadSubcategorias();
+                  }
+                : null,
+  
             icon: const Icon(Icons.chevron_left_rounded),
           ),
 
@@ -572,16 +571,16 @@ class _SubcategoriaContentState extends State<SubcategoriaContent> {
           ),
 
           IconButton(
-            // onPressed: pagination.hasNextPage
-            //     ? () {
-            //         setState(() {
-            //           _page++;
-            //         });
+            onPressed: pagination.hasNextPage
+                ? () {
+                    setState(() {
+                      _page++;
+                    });
 
-            //         _loadSubcategorias();
-            //       }
-            //     : null,
-            onPressed: () {},
+                    _loadSubcategorias();
+                  }
+                : null,
+            // onPressed: () {},
             icon: const Icon(Icons.chevron_right_rounded),
           ),
         ],
@@ -637,7 +636,6 @@ class _SubcategoriaContentState extends State<SubcategoriaContent> {
   // ===========================================================================
   // Acciones
   // ===========================================================================
-
   Future<void> _createSubcategoria() async {
     final subcategoriaBloc = context.read<SubcategoriaBloc>();
 

@@ -20,7 +20,7 @@ import 'package:app_aryoria/src/presentation/screens/configuracion/view/configur
 import 'package:app_aryoria/src/presentation/screens/empresa/view/create_empresa/empresa_create_page.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/view/selected_empresa/empresa_page.dart';
 import 'package:app_aryoria/src/presentation/screens/home/view/home_page.dart';
-import 'package:app_aryoria/src/presentation/screens/movimiento/page/movimiento_page.dart';
+import 'package:app_aryoria/src/presentation/screens/movimiento/view/listado/movimiento_page.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/view/movimiento_detalle/movimiento_detalle_page.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/view/movimiento_form/movimiento_form_page.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/page/periodo_contable_page.dart';
@@ -175,7 +175,14 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: 'crear',
               name: 'crear_periodo_contable',
-              builder: (_, __) => const PeriodoContableFormPage(),
+              pageBuilder: (context, state) {
+                return MaterialPage(
+                  key: state.pageKey,
+                  fullscreenDialog: true,
+                  child: const PeriodoContableFormPage(),
+                );
+              },
+              //builder: (_, __) => const PeriodoContableFormPage(),
             ),
 
             // - Detalle
@@ -194,13 +201,24 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: 'editar',
                   name: 'editar_periodo_contable',
-                  builder: (context, state) {
+                  pageBuilder: (context, state) {
                     final idPeriodo = int.tryParse(
                       state.pathParameters['idPeriodo'] ?? '',
                     );
 
-                    return PeriodoContableFormPage(idPeriodo: idPeriodo);
+                    return MaterialPage(
+                      key: state.pageKey,
+                      fullscreenDialog: true,
+                      child: PeriodoContableFormPage(idPeriodo: idPeriodo),
+                    );
                   },
+                  // builder: (context, state) {
+                  //   final idPeriodo = int.tryParse(
+                  //     state.pathParameters['idPeriodo'] ?? '',
+                  //   );
+
+                  //   return PeriodoContableFormPage(idPeriodo: idPeriodo);
+                  // },
                 ),
               ],
             ),
@@ -218,8 +236,12 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: 'crear',
               name: 'crear_movimiento',
-              builder: (_, __) {
-                return const MovimientoFormPage();
+              pageBuilder: (context, state) {
+                return MaterialPage(
+                  key: state.pageKey,
+                  fullscreenDialog: true,
+                  child: const MovimientoFormPage(),
+                );
               },
             ),
             GoRoute(
@@ -240,16 +262,16 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: 'editar',
                   name: 'editar_movimiento',
-                  builder: (_, state) {
+                  pageBuilder: (context, state) {
                     final idMovimiento = int.tryParse(
                       state.pathParameters['idMovimiento'] ?? '',
                     );
 
-                    if (idMovimiento == null) {
-                      return const Center(child: Text('Movimiento no válido.'));
-                    }
-
-                    return MovimientoFormPage(idMovimiento: idMovimiento);
+                    return MaterialPage(
+                      key: state.pageKey,
+                      fullscreenDialog: true,
+                      child: MovimientoFormPage(idMovimiento: idMovimiento),
+                    );
                   },
                 ),
               ],

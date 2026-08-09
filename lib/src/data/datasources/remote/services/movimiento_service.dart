@@ -8,15 +8,21 @@ import 'package:app_aryoria/src/config/constants/environment.dart'
     as url_backend;
 import 'package:http/http.dart' as http;
 
-// Models
+// Helpers
+import 'package:app_aryoria/src/data/datasources/remote/services/helpers/http_Service_helper.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
+
+// Models
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_create_request.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_data.dart';
 import 'package:app_aryoria/src/data/models/movimientos/movimiento_paginated.dart';
-import 'package:app_aryoria/src/data/models/movimientos/movimiento_request.dart';
-import 'package:app_aryoria/src/data/models/movimientos/movimiento_response.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_query_params.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_update_request.dart';
 
 class MovimientoService {
   // APIS
-  String get API_BASE => url_backend.Environment.mainUrl + '/movimientos';
+  String get API_BASE => '${url_backend.Environment.mainUrl}/movimientos';
 
   String get API_REGISTER_MOVIMIENTO => '$API_BASE/crear';
   String get API_GET_MOVIMIENTOS_PAGINATED => '$API_BASE/paginated';
@@ -24,168 +30,239 @@ class MovimientoService {
   String get API_UPDATE_MOVIMIENTO => '$API_BASE/editar/';
   String get API_DELETE_MOVIMIENTO => '$API_BASE/eliminar/';
 
-  Map<String, String> _headers(String token) {
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
-  }
-
   // *********************************************************
   // 1.- Crear Movimiento
   // *********************************************************
-  Future<Resource<MovimientoResponse>> createMovimiento({
+  Future<Resource<ApiResponse<MovimientoData>>> createMovimiento({
     required String token,
-    required MovimientoRequest request,
+    required MovimientoCreateRequest request,
   }) async {
     try {
       // 1.- URL Base
       Uri url = Uri.parse(API_REGISTER_MOVIMIENTO);
 
-      // 2.- Headers
-      final resp = await http.post(
+      // 2.- Response
+      final response = await http.post(
         url,
-        headers: _headers(token),
+        headers: HttpServiceHelper.getHeaders(token),
         body: jsonEncode(request.toJson()),
       );
 
-      // 3.- Response
-      final Map<String, dynamic> data = jsonDecode(resp.body);
+      final body = HttpServiceHelper.decodeResponse(response);
 
-      // 4.- Response
-      if (resp.statusCode == 200 || resp.statusCode == 201) {
-        return Success(MovimientoResponse.fromJson(data));
+      // 3.- Return JSON
+      if (HttpServiceHelper.isSuccess(response.statusCode)) {
+        final apiResponse = ApiResponse<MovimientoData>.fromJson(
+          body,
+          (rawData) =>
+              MovimientoData.fromJson(Map<String, dynamic>.from(rawData)),
+        );
+
+        return Success<ApiResponse<MovimientoData>>(apiResponse);
       }
 
-      return ErrorData(data["message"] ?? "Error al crear el movimiento.");
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<MovimientoData>>(
+        body,
+        response.statusCode,
+      );
     } catch (e) {
       debugPrint("ERROR CREAR EMPRESA: $e");
-      return ErrorData('No fue posible conectarse con el servidor.');
+      return ErrorData<ApiResponse<MovimientoData>>(
+        'No se pudo crear el movimiento: $e',
+      );
     }
   }
 
   // *********************************************************
   // 2.- Obtener Movimientos + Paginado
   // *********************************************************
-  Future<Resource<MovimientoPaginatedResponse>> getMovimientos({
+  Future<Resource<ApiResponse<MovimientoPaginated>>> getMovimientos({
     required String token,
     required int idEmpresa,
-    required int idPeriodo,
-    int page = 1,
-    int limit = 10,
-    String search = '',
+    required MovimientoQueryParams queryParams,
   }) async {
     try {
-      final queryParams = <String, String>{
-        'id_empresa': idEmpresa.toString(),
-        'id_periodo': idPeriodo.toString(),
-        'page': page.toString(),
-        'limit': limit.toString(),
+      // 1.- URL Base
+      final Map<String, dynamic> params = {
+        ...queryParams.toQueryParams(),
+        'id_empresa': idEmpresa,
       };
 
-      if (search.trim().isNotEmpty) {
-        queryParams['search'] = search.trim();
+      final uri = Uri.parse(API_GET_MOVIMIENTOS_PAGINATED).replace(
+        queryParameters: params.map(
+          (key, value) => MapEntry(key, value.toString()),
+        ),
+      );
+
+      // 2.- Response
+      final response = await http.get(
+        uri,
+        headers: HttpServiceHelper.getHeaders(token),
+      );
+
+      final body = HttpServiceHelper.decodeResponse(response);
+
+      // 3.- Return JSON
+      if (HttpServiceHelper.isSuccess(response.statusCode)) {
+        final apiResponse = ApiResponse<MovimientoPaginated>.fromJson(body, (
+          rawData,
+        ) {
+          return MovimientoPaginated.fromJson(
+            Map<String, dynamic>.from(rawData),
+          );
+        });
+
+        return Success<ApiResponse<MovimientoPaginated>>(apiResponse);
       }
 
-      final url = Uri.parse(
-        API_GET_MOVIMIENTOS_PAGINATED,
-      ).replace(queryParameters: queryParams);
-
-      final resp = await http.get(url, headers: _headers(token));
-      final Map<String, dynamic> data = jsonDecode(resp.body);
-
-      debugPrint("MOVIMIENTOS: $data");
-
-      if (resp.statusCode == 200) {
-        return Success(MovimientoPaginatedResponse.fromJson(data));
-      }
-
-      return ErrorData(
-        data['message'] ?? 'No fue posible obtener los movimientos.',
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<MovimientoPaginated>>(
+        body,
+        response.statusCode,
       );
     } catch (e) {
       debugPrint('ERROR GET MOVIMIENTOS: $e');
-      return ErrorData('No fue posible conectarse con el servidor.');
+      return ErrorData<ApiResponse<MovimientoPaginated>>(
+        'No se pudieron obtener los movimientos: $e',
+      );
     }
   }
 
   // *********************************************************
   // 3.- Obtener Movimiento por ID
   // *********************************************************
-  Future<Resource<MovimientoResponse>> getMovimientoById({
+  Future<Resource<ApiResponse<MovimientoData>>> getMovimientoById({
     required String token,
+    required int idEmpresa,
     required int idMovimiento,
   }) async {
     try {
-      final url = Uri.parse('$API_GET_MOVIMIENTO_BY_ID$idMovimiento');
+      // 1.- URL
+      final uri = Uri.parse(
+        '$API_GET_MOVIMIENTO_BY_ID$idMovimiento',
+      ).replace(queryParameters: {'id_empresa': idEmpresa.toString()});
 
-      final resp = await http.get(url, headers: _headers(token));
-      final Map<String, dynamic> data = jsonDecode(resp.body);
+      // 2.- Response
+      final response = await http.get(
+        uri,
+        headers: HttpServiceHelper.getHeaders(token),
+      );
 
-      if (resp.statusCode == 200) {
-        return Success(MovimientoResponse.fromJson(data));
+      final body = HttpServiceHelper.decodeResponse(response);
+
+      // 3.- Return JSON
+      if (HttpServiceHelper.isSuccess(response.statusCode)) {
+        final apiResponse = ApiResponse<MovimientoData>.fromJson(body, (
+          rawData,
+        ) {
+          return MovimientoData.fromJson(Map<String, dynamic>.from(rawData));
+        });
+
+        return Success<ApiResponse<MovimientoData>>(apiResponse);
       }
 
-      return ErrorData(
-        data['message'] ?? 'No fue posible obtener el movimiento.',
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<MovimientoData>>(
+        body,
+        response.statusCode,
       );
     } catch (e) {
       debugPrint('ERROR GET MOVIMIENTO BY ID: $e');
-      return ErrorData('No fue posible conectarse con el servidor.');
+      return ErrorData<ApiResponse<MovimientoData>>(
+        'No se pudo obtener el movimiento: $e',
+      );
     }
   }
 
   // *********************************************************
   // 4.- Actualizar Movimiento
   // *********************************************************
-  Future<Resource<MovimientoResponse>> updateMovimiento({
+  Future<Resource<ApiResponse<MovimientoData>>> updateMovimiento({
     required String token,
     required int idMovimiento,
-    required MovimientoRequest request,
+    required int idEmpresa,
+    required MovimientoUpdateRequest request,
   }) async {
     try {
-      final url = Uri.parse('$API_UPDATE_MOVIMIENTO$idMovimiento');
+      // 1.- URL
+      final url = Uri.parse(
+        '$API_UPDATE_MOVIMIENTO$idMovimiento',
+      ).replace(queryParameters: {'id_empresa': idEmpresa.toString()});
 
-      final resp = await http.put(
+      // 2.- Response
+      final response = await http.put(
         url,
-        headers: _headers(token),
+        headers: HttpServiceHelper.getHeaders(token),
         body: jsonEncode(request.toJson()),
       );
 
-      final Map<String, dynamic> data = jsonDecode(resp.body);
+      final body = HttpServiceHelper.decodeResponse(response);
 
-      if (resp.statusCode == 200) {
-        return Success(MovimientoResponse.fromJson(data));
+      // 3.- Return JSON
+      if (HttpServiceHelper.isSuccess(response.statusCode)) {
+        final apiResponse = ApiResponse<MovimientoData>.fromJson(
+          body,
+          (rawData) =>
+              MovimientoData.fromJson(Map<String, dynamic>.from(rawData)),
+        );
+
+        return Success<ApiResponse<MovimientoData>>(apiResponse);
       }
 
-      return ErrorData(data['message'] ?? 'Error al actualizar el movimiento.');
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<MovimientoData>>(
+        body,
+        response.statusCode,
+      );
     } catch (e) {
       debugPrint('ERROR UPDATE MOVIMIENTO: $e');
-      return ErrorData('No fue posible conectarse con el servidor.');
+      return ErrorData<ApiResponse<MovimientoData>>(
+        'No se pudo actualizar el movimiento: $e',
+      );
     }
   }
 
   // *********************************************************
   // 5.- Eliminar Movimiento
   // *********************************************************
-  Future<Resource<MovimientoResponse>> deleteMovimiento({
+  Future<Resource<ApiResponse<void>>> deleteMovimiento({
     required String token,
     required int idMovimiento,
+    required int idEmpresa,
   }) async {
     try {
+      // 1.- URL
       final url = Uri.parse('$API_DELETE_MOVIMIENTO$idMovimiento');
 
-      final resp = await http.delete(url, headers: _headers(token));
-      final Map<String, dynamic> data = jsonDecode(resp.body);
+      // 2.- Response
+      final response = await http.delete(
+        url,
+        headers: HttpServiceHelper.getHeaders(
+          token,
+          extraHeaders: {'id_empresa': idEmpresa.toString()},
+        ),
+      );
 
-      if (resp.statusCode == 200) {
-        return Success(MovimientoResponse.fromJson(data));
+      final body = HttpServiceHelper.decodeResponse(response);
+
+      // 3.- Return JSON
+      if (HttpServiceHelper.isSuccess(response.statusCode)) {
+        final apiResponse = ApiResponse<void>.fromJson(body, null);
+
+        return Success<ApiResponse<void>>(apiResponse);
       }
 
-      return ErrorData(data['message'] ?? 'Error al eliminar el movimiento.');
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<void>>(
+        body,
+        response.statusCode,
+      );
     } catch (e) {
       debugPrint('ERROR DELETE MOVIMIENTO: $e');
-      return ErrorData('No fue posible conectarse con el servidor.');
+      return ErrorData<ApiResponse<void>>(
+        'No se pudo eliminar el movimiento: $e',
+      );
     }
   }
 }

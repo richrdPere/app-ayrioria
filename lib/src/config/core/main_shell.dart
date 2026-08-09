@@ -16,73 +16,112 @@ class MainShell extends StatelessWidget {
 
   const MainShell({super.key, required this.child, required this.state});
 
-  bool get isHome => state.fullPath == "/home";
-
+  // ==========================================================
+  // RUTA ACTUAL
+  // ==========================================================
   String get currentLocation => state.matchedLocation;
+  String get currentFullPath => state.fullPath ?? currentLocation;
 
-  bool get showDrawer {
-    return currentLocation == '/home';
+  // ==========================================================
+  // HOME
+  // ==========================================================
+  bool get isHome => currentFullPath == '/home';
+
+  // ==========================================================
+  // RUTAS QUE USAN SU PROPIO APP BAR
+  // ==========================================================
+
+  bool get hasOwnAppBar {
+    switch (currentFullPath) {
+      // ======================================================
+      // CATEGORÍAS
+      // ======================================================
+      case '/categorias/crear':
+      case '/categorias/:idCategoria/editar':
+
+      // ======================================================
+      // PERÍODOS CONTABLES
+      // ======================================================
+      case '/periodos_contables/crear':
+      case '/periodos_contables/:idPeriodo/editar':
+
+      // ======================================================
+      // MOVIMIENTOS
+      // ======================================================
+      case '/movimientos/crear':
+      case '/movimientos/:idMovimiento/editar':
+        return true;
+
+      default:
+        return false;
+    }
   }
 
-  String get title {
-    final fullPath = state.fullPath ?? currentLocation;
+  // ==========================================================
+  // DRAWER
+  // ==========================================================
 
-    switch (fullPath) {
+  bool get showDrawer {
+    return currentFullPath == '/home' && !hasOwnAppBar;
+  }
+
+  // ==========================================================
+  // TITLE
+  // ==========================================================
+
+  String get title {
+    switch (currentFullPath) {
       case '/home':
         return '';
 
-      // Categorías
+      // ======================================================
+      // CATEGORÍAS
+      // ======================================================
       case '/categorias':
         return 'Categorías';
-
-      case '/categorias/crear':
-        return 'Nueva categoría';
 
       case '/categorias/:idCategoria':
         return 'Detalle de categoría';
 
-      case '/categorias/:idCategoria/editar':
-        return 'Editar categoría';
-
-      // Subcategorías
+      // ======================================================
+      // SUBCATEGORÍAS
+      // ======================================================
       case '/subcategorias':
-        return 'Subcategoria';
+        return 'Subcategorías';
 
-      // Flujo contable
+      // ======================================================
+      // FLUJO CONTABLE
+      // ======================================================
       case '/flujo_contable':
-        return 'Flujo Contable';
+        return 'Flujo contable';
 
-      // Períodos contables
+      // ======================================================
+      // PERÍODOS CONTABLES
+      // ======================================================
       case '/periodos_contables':
         return 'Períodos contables';
-
-      case '/periodos_contables/crear':
-        return 'Nuevo período';
 
       case '/periodos_contables/:idPeriodo':
         return 'Detalle del período';
 
-      case '/periodos_contables/:idPeriodo/editar':
-        return 'Editar período';
-
-      // Movimientos
+      // ======================================================
+      // MOVIMIENTOS
+      // ======================================================
       case '/movimientos':
         return 'Movimientos';
-
-      case '/movimientos/crear':
-        return 'Nuevo movimiento';
 
       case '/movimientos/:idMovimiento':
         return 'Detalle del movimiento';
 
-      case '/movimientos/:idMovimiento/editar':
-        return 'Editar movimiento';
-
-      // Reportes
+      // ======================================================
+      // REPORTES
+      // ======================================================
       case '/reportes':
         return 'Reportes';
 
-      // Configuración
+      // ======================================================
+      // CONFIGURACIÓN
+      // ======================================================
       case '/configuracion':
         return 'Configuración';
 
@@ -91,18 +130,29 @@ class MainShell extends StatelessWidget {
     }
   }
 
+  // ==========================================================
+  // NOMBRE USUARIO
+  // ==========================================================
+
   String formatNombreUsuario(Persona? persona) {
-    if (persona == null) return '';
+    if (persona == null) {
+      return '';
+    }
 
     final nombres = persona.nombres.trim().split(' ');
+
     final apellidos = persona.apellidos.trim().split(' ');
 
     final primerNombre = nombres.isNotEmpty ? nombres.first : '';
+
     final primerApellido = apellidos.isNotEmpty ? apellidos.first : '';
 
     return '$primerNombre $primerApellido'.trim();
   }
 
+  // ==========================================================
+  // BUILD
+  // ==========================================================
   @override
   Widget build(BuildContext context) {
     final session = context.watch<SessionBloc>().state;
@@ -110,19 +160,31 @@ class MainShell extends StatelessWidget {
 
     final persona = auth?.data.usuario.persona;
     final empresaNombre = session.empresaActiva?.nombreComercial ?? '';
-
     final nombreUsuario = formatNombreUsuario(persona);
 
     return Scaffold(
       key: AppScaffoldKeys.main,
-      drawer: showDrawer ? const AppDrawer() : null,
-      appBar: MainAppBar(
-        isHome: isHome,
-        nombreUsuario: nombreUsuario,
-        empresaNombre: empresaNombre,
-        title: title,
-      ),
 
+      // ======================================================
+      // DRAWER
+      // ======================================================
+      drawer: showDrawer ? const AppDrawer() : null,
+
+      // ======================================================
+      // APP BAR
+      // ======================================================
+      appBar: hasOwnAppBar
+          ? null
+          : MainAppBar(
+              isHome: isHome,
+              nombreUsuario: nombreUsuario,
+              empresaNombre: empresaNombre,
+              title: title,
+            ),
+
+      // ======================================================
+      // BODY
+      // ======================================================
       body: child,
     );
   }

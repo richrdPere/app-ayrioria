@@ -1,21 +1,22 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
-import 'package:app_aryoria/src/data/models/movimientos/movimiento_response.dart';
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
+import 'package:app_aryoria/src/data/models/movimientos/movimiento_query_params.dart';
+
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_event.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_state.dart';
-import 'package:app_aryoria/src/presentation/screens/movimiento/view/movimiento_content.dart';
+import 'package:app_aryoria/src/presentation/screens/movimiento/view/listado/movimiento_content.dart';
 
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_event.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_state.dart';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 class MovimientoPage extends StatefulWidget {
   const MovimientoPage({super.key});
@@ -132,14 +133,15 @@ class _MovimientoPageState extends State<MovimientoPage> {
       return;
     }
 
+    final queryParams = MovimientoQueryParams(
+      page: page,
+      limit: 10,
+      idPeriodo: periodoId,
+      search: search ?? _searchController.text.trim(),
+    );
+
     context.read<MovimientoBloc>().add(
-      GetMovimientosEvent(
-        idEmpresa: empresaId,
-        idPeriodo: periodoId,
-        page: page,
-        limit: 10,
-        search: search ?? _searchController.text.trim(),
-      ),
+      GetMovimientosEvent(idEmpresa: empresaId, queryParams: queryParams),
     );
   }
 
@@ -167,13 +169,17 @@ class _MovimientoPageState extends State<MovimientoPage> {
       return;
     }
 
+    final queryParams = MovimientoQueryParams(
+      page: state.page + 1,
+      limit: state.limit,
+      idPeriodo: state.idPeriodo!,
+      search: state.search,
+    );
+
     context.read<MovimientoBloc>().add(
       GetMovimientosEvent(
         idEmpresa: state.idEmpresa!,
-        idPeriodo: state.idPeriodo!,
-        page: state.page + 1,
-        limit: state.limit,
-        search: state.search,
+        queryParams: queryParams,
       ),
     );
   }
@@ -194,12 +200,13 @@ class _MovimientoPageState extends State<MovimientoPage> {
         return;
       }
 
+      final queryParams = MovimientoQueryParams(
+        idPeriodo: idPeriodo,
+        search: value.trim(),
+      );
+
       context.read<MovimientoBloc>().add(
-        SearchMovimientosEvent(
-          idEmpresa: idEmpresa,
-          idPeriodo: idPeriodo,
-          search: value.trim(),
-        ),
+        SearchMovimientosEvent(idEmpresa: idEmpresa, queryParams: queryParams),
       );
     });
   }
@@ -214,12 +221,10 @@ class _MovimientoPageState extends State<MovimientoPage> {
       return;
     }
 
+    final queryParams = MovimientoQueryParams(idPeriodo: idPeriodo, search: '');
+
     context.read<MovimientoBloc>().add(
-      SearchMovimientosEvent(
-        idEmpresa: idEmpresa,
-        idPeriodo: idPeriodo,
-        search: '',
-      ),
+      SearchMovimientosEvent(idEmpresa: idEmpresa, queryParams: queryParams),
     );
   }
 
@@ -240,12 +245,13 @@ class _MovimientoPageState extends State<MovimientoPage> {
       (state) => !state.isLoading && !state.isLoadingMore,
     );
 
+    final queryParams = MovimientoQueryParams(
+      idPeriodo: idPeriodo,
+      search: _searchController.text.trim(),
+    );
+
     bloc.add(
-      RefreshMovimientosEvent(
-        idEmpresa: idEmpresa,
-        idPeriodo: idPeriodo,
-        search: _searchController.text.trim(),
-      ),
+      RefreshMovimientosEvent(idEmpresa: idEmpresa, queryParams: queryParams),
     );
 
     await refreshCompleted;
@@ -268,10 +274,11 @@ class _MovimientoPageState extends State<MovimientoPage> {
       return;
     }
 
-    final bool? result = await context.push<bool>(
-      '/movimientos/crear',
-      extra: {'idEmpresa': idEmpresa, 'idPeriodo': idPeriodo},
-    );
+    // final bool? result = await context.push<bool>(
+    //   '/movimientos/crear',
+    //   extra: {'idEmpresa': idEmpresa, 'idPeriodo': idPeriodo},
+    // );
+    final result = await context.pushNamed('crear_movimiento');
 
     if (!mounted) {
       return;
@@ -342,11 +349,7 @@ class _MovimientoPageState extends State<MovimientoPage> {
     }
 
     context.read<MovimientoBloc>().add(
-      DeleteMovimientoEvent(
-        idMovimiento: idMovimiento,
-        idEmpresa: idEmpresa,
-        idPeriodo: idPeriodo,
-      ),
+      DeleteMovimientoEvent(idMovimiento: idMovimiento, idEmpresa: idEmpresa),
     );
   }
 
@@ -411,12 +414,12 @@ class _MovimientoPageState extends State<MovimientoPage> {
                 return;
               }
 
-              if (periodoId == null) {
-                _showError(
-                  'No existe un período contable abierto para esta empresa.',
-                );
-                return;
-              }
+              // if (periodoId == null) {
+              //   _showError(
+              //     'No existe un período contable abierto para esta empresa.',
+              //   );
+              //   return;
+              // }
 
               _loadMovimientos(
                 idEmpresa: empresaId,
@@ -439,21 +442,39 @@ class _MovimientoPageState extends State<MovimientoPage> {
             return previous.actionResponse != current.actionResponse;
           },
           listener: (context, state) {
-            final Resource<MovimientoResponse>? response = state.actionResponse;
+            final Resource? response = state.actionResponse;
 
-            if (response is Success<MovimientoResponse>) {
-              final String message = response.data.message.isNotEmpty
-                  ? response.data.message
-                  : 'Operación realizada correctamente.';
+            if (response == null) {
+              return;
+            }
+
+            // ==================================================
+            // SUCCESS
+            // ==================================================
+            if (response is Success) {
+              final dynamic data = response.data;
+
+              String message = 'Operación realizada correctamente.';
+
+              if (data is ApiResponse) {
+                if (data.message.trim().isNotEmpty) {
+                  message = data.message;
+                }
+              }
 
               _showSuccess(message);
 
               context.read<MovimientoBloc>().add(
                 const ClearMovimientoActionResponseEvent(),
               );
+
+              return;
             }
 
-            if (response is ErrorData<MovimientoResponse>) {
+            // ==================================================
+            // ERROR
+            // ==================================================
+            if (response is ErrorData) {
               _showError(response.displayMessage);
 
               context.read<MovimientoBloc>().add(

@@ -3,7 +3,6 @@
 // Environment
 import 'dart:convert';
 
-import 'package:app_aryoria/src/data/models/login/login_data_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:app_aryoria/src/config/constants/environment.dart'
@@ -16,8 +15,9 @@ import 'package:app_aryoria/src/domain/utils/Resource.dart';
 // Models
 import 'package:app_aryoria/src/data/models/common/api_response.dart';
 import 'package:app_aryoria/src/data/models/empresa/empresa_data.dart';
-import 'package:app_aryoria/src/data/models/empresa/empresa_request.dart';
 import 'package:app_aryoria/src/data/models/empresa/empresa_paginated.dart';
+import 'package:app_aryoria/src/data/models/empresa/empresa_request.dart';
+import 'package:app_aryoria/src/data/models/login/login_data_model.dart';
 
 class EmpresaService {
   // APIS
