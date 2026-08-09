@@ -113,7 +113,7 @@ class MovimientoContent extends StatelessWidget {
       final error =
           state.movimientoResponse as ErrorData<MovimientoPaginatedResponse>;
 
-      return _MovimientoError(message: error.error, onRetry: onRetry);
+      return _MovimientoError(message: error.displayMessage, onRetry: onRetry);
     }
 
     if (state.movimientos.isEmpty) {

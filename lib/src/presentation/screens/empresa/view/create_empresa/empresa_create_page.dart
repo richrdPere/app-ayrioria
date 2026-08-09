@@ -51,7 +51,7 @@ class EmpresaCreatePage extends StatelessWidget {
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(error.error),
+              content: Text(error.displayMessage),
               backgroundColor: Colors.redAccent,
             ),
           );
@@ -63,7 +63,7 @@ class EmpresaCreatePage extends StatelessWidget {
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(error.error),
+              content: Text(error.displayMessage),
               backgroundColor: Colors.redAccent,
             ),
           );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ConfiguracionPage extends StatelessWidget {
   const ConfiguracionPage({super.key});
@@ -122,7 +123,9 @@ class ConfiguracionPage extends StatelessWidget {
                     icon: Icons.palette,
                     title: "Tema",
                     subtitle: "Claro",
-                    onTap: () {},
+                    onTap: () {
+                      context.pushNamed('theme');
+                    },
                   ),
 
                   Divider(height: 1),

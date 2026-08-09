@@ -426,7 +426,7 @@ class _MovimientoPageState extends State<MovimientoPage> {
             }
 
             if (response is ErrorData) {
-              _showError(response.error);
+              _showError(response.displayMessage);
             }
           },
         ),
@@ -454,7 +454,7 @@ class _MovimientoPageState extends State<MovimientoPage> {
             }
 
             if (response is ErrorData<MovimientoResponse>) {
-              _showError(response.error);
+              _showError(response.displayMessage);
 
               context.read<MovimientoBloc>().add(
                 const ClearMovimientoActionResponseEvent(),

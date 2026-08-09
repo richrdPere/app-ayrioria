@@ -1,8 +1,18 @@
 // ignore_for_file: unnecessary_underscores
 
+// import 'package:app_aryoria/src/config/router/go_router_refresh_stream.dart';
+import 'package:app_aryoria/src/presentation/screens/flujo_contable/view/flujo_contable_page.dart';
+import 'package:app_aryoria/src/presentation/screens/subcategorias/view/listado/subcategoria_page.dart';
+import 'package:app_aryoria/src/presentation/shared/screens/theme/view/theme_changer_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+// Config
 import 'package:app_aryoria/src/config/core/main_shell.dart';
 import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
-// import 'package:app_aryoria/src/config/router/go_router_refresh_stream.dart';
+
+// Screen's
 import 'package:app_aryoria/src/presentation/screens/auth/login/view/login_page.dart';
 import 'package:app_aryoria/src/presentation/screens/auth/register/view/register_page.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/page/categoria_page.dart';
@@ -17,12 +27,11 @@ import 'package:app_aryoria/src/presentation/screens/periodo_contable/page/perio
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/periodo_contable_detalle/periodo_contable_detalle_page.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/periodo_contable_form/periodo_contable_form_page.dart';
 import 'package:app_aryoria/src/presentation/screens/reportes/view/reportes_page.dart';
+
+// Shared
 import 'package:app_aryoria/src/presentation/shared/screens/loading/view/loading_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/logout/view/logout_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/splash/view/splash_page.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 String? authRedirect(BuildContext context, GoRouterState state) {
   final session = context.read<SessionBloc>().state;
@@ -118,6 +127,12 @@ final GoRouter appRouter = GoRouter(
       },
       routes: [
         GoRoute(
+          path: '/theme',
+          name: 'theme',
+          builder: (_, __) => const ThemeChangerPage(),
+        ),
+
+        GoRoute(
           path: '/home',
           name: 'home',
           builder: (_, __) => const HomePage(),
@@ -127,6 +142,25 @@ final GoRouter appRouter = GoRouter(
           path: '/categorias',
           name: 'categorias',
           builder: (_, __) => const CategoriaPage(),
+        ),
+
+        // ==========================================================
+        // SUBCATEGORÍAS
+        // ==========================================================
+        GoRoute(
+          path: '/subcategorias',
+          name: 'subcategorias',
+          builder: (context, state) {
+            final session = context.read<SessionBloc>().state;
+
+            final idEmpresa = session.empresaActiva?.idEmpresa;
+
+            if (idEmpresa == null) {
+              return const Center(child: Text('No existe una empresa activa.'));
+            }
+
+            return SubcategoriaPage(idEmpresa: idEmpresa);
+          },
         ),
 
         // ==========================================================
@@ -221,6 +255,15 @@ final GoRouter appRouter = GoRouter(
               ],
             ),
           ],
+        ),
+
+        // ==========================================================
+        // FLUJO CONTABLE
+        // ==========================================================
+        GoRoute(
+          path: '/flujo-contable',
+          name: 'flujo_contable',
+          builder: (_, __) => const FlujoContablePage(),
         ),
 
         // ==========================================================

@@ -142,7 +142,7 @@ class _MovimientoFormPageState extends State<MovimientoFormPage> {
             }
 
             if (response is ErrorData<MovimientoResponse>) {
-              _showError(response.error);
+              _showError(response.displayMessage);
 
               context.read<MovimientoBloc>().add(
                 const ClearMovimientoActionResponseEvent(),
@@ -162,7 +162,7 @@ class _MovimientoFormPageState extends State<MovimientoFormPage> {
             final Resource? response = state.detailResponse;
 
             if (response is ErrorData) {
-              _showError(response.error);
+              _showError(response.displayMessage);
             }
           },
         ),

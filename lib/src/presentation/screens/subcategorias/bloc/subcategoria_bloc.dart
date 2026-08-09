@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Uses Cases
@@ -65,6 +66,8 @@ class SubcategoriaBloc extends Bloc<SubcategoriaEvent, SubcategoriaState> {
       idEmpresa: event.idEmpresa,
       queryParams: event.queryParams,
     );
+
+    debugPrint("response BLOC para paginado: ${response}");
 
     emit(state.copyWith(paginatedResponse: response));
   }

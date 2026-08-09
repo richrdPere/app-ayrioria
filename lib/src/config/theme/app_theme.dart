@@ -14,13 +14,33 @@ const colorList = <Color>[
 class AppTheme {
   final int selectedColor;
 
-  AppTheme({this.selectedColor = 0})
-    : assert(selectedColor >= 0, 'Selected color must be grater then 0'),
-      assert(
-        selectedColor < colorList.length,
-        'Selected color must be less or equal than ${colorList.length - 1}',
+  const AppTheme({this.selectedColor = 0})
+    : assert(
+        selectedColor >= 0 && selectedColor < colorList.length,
+        'selectedColor fuera del rango permitido',
       );
 
-  ThemeData getTheme() =>
-      ThemeData(useMaterial3: true, colorSchemeSeed: colorList[selectedColor]);
+  Color get seedColor => colorList[selectedColor];
+
+  ThemeData getLightTheme() {
+    return ThemeData(
+      useMaterial3: true,
+
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: seedColor,
+        brightness: Brightness.light,
+      ),
+    );
+  }
+
+  ThemeData getDarkTheme() {
+    return ThemeData(
+      useMaterial3: true,
+
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: seedColor,
+        brightness: Brightness.dark,
+      ),
+    );
+  }
 }

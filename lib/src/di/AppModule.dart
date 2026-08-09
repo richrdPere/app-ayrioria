@@ -40,6 +40,9 @@ abstract class AppModule {
   @injectable
   SubcategoriaService get subcategoriaService => SubcategoriaService();
 
+  @injectable
+  FlujoContableService get flujoContableService => FlujoContableService();
+
   // ==========================================================
   // 2. REPOSITORY
   // ==========================================================
@@ -82,6 +85,13 @@ abstract class AppModule {
   SubcategoriaRepository get subcategoriaRepository =>
       SubcategoriaRepositoryImpl(
         subcategoriaService: subcategoriaService,
+        authRepository: authRepository,
+      );
+
+  @injectable
+  FlujoContableRepository get flujoContableRepository =>
+      FlujoContableRepositoryImpl(
+        flujoContableService: flujoContableService,
         authRepository: authRepository,
       );
 
@@ -160,5 +170,12 @@ abstract class AppModule {
       subcategoriaRepository,
     ),
     updateSubcategoria: UpdateSubcategoriaUC(subcategoriaRepository),
+  );
+
+  @injectable
+  FlujoContableUsesCases get flujoContableUseCases => FlujoContableUsesCases(
+    getFlujoContableAnual: GetFlujoContableAnualUC(flujoContableRepository),
+    getFlujoContableMensual: GetFlujoContableMensualUC(flujoContableRepository),
+    getFlujoProyectado: GetFlujoProyectadoUC(flujoContableRepository),
   );
 }

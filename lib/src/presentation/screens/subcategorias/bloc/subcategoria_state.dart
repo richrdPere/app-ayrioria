@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
 import 'package:equatable/equatable.dart';
 
 // Resource
@@ -8,35 +9,23 @@ import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_data.dar
 import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_paginado.dart';
 
 class SubcategoriaState extends Equatable {
-  // *************************************************************************
-  // Listado paginado
-  // *************************************************************************
-  final Resource<SubcategoriaPaginated>? paginatedResponse;
+  // 1.- Paginado
+  final Resource<ApiResponse<SubcategoriaPaginated>>? paginatedResponse;
 
-  // *************************************************************************
-  // Subcategorias por categoria
-  // *************************************************************************
-  final Resource<List<SubcategoriaData>>? byCategoriaResponse;
+  // 2.- Por categoría
+  final Resource<ApiResponse<List<SubcategoriaData>>>? byCategoriaResponse;
 
-  // *************************************************************************
-  // Subcategorias por tipo
-  // *************************************************************************
-  final Resource<List<SubcategoriaData>>? byTipoResponse;
+  // 3.- Por tipo
+  final Resource<ApiResponse<List<SubcategoriaData>>>? byTipoResponse;
 
-  // *************************************************************************
-  // Detalle
-  // *************************************************************************
-  final Resource<SubcategoriaData>? detailResponse;
+  // 4.- Detalle
+  final Resource<ApiResponse<SubcategoriaData>>? detailResponse;
 
-  // *************************************************************************
-  // Crear / actualizar / cambiar estado
-  // *************************************************************************
-  final Resource<SubcategoriaData>? actionResponse;
+  // 5.- Crear / actualizar / cambiar estado
+  final Resource<ApiResponse<SubcategoriaData>>? actionResponse;
 
-  // *************************************************************************
-  // Eliminar
-  // *************************************************************************
-  final Resource<String>? deleteResponse;
+  // 6.- Eliminar
+  final Resource<ApiResponse<void>>? deleteResponse;
 
   const SubcategoriaState({
     this.paginatedResponse,
@@ -48,12 +37,12 @@ class SubcategoriaState extends Equatable {
   });
 
   SubcategoriaState copyWith({
-    Resource<SubcategoriaPaginated>? paginatedResponse,
-    Resource<List<SubcategoriaData>>? byCategoriaResponse,
-    Resource<List<SubcategoriaData>>? byTipoResponse,
-    Resource<SubcategoriaData>? detailResponse,
-    Resource<SubcategoriaData>? actionResponse,
-    Resource<String>? deleteResponse,
+    Resource<ApiResponse<SubcategoriaPaginated>>? paginatedResponse,
+    Resource<ApiResponse<List<SubcategoriaData>>>? byCategoriaResponse,
+    Resource<ApiResponse<List<SubcategoriaData>>>? byTipoResponse,
+    Resource<ApiResponse<SubcategoriaData>>? detailResponse,
+    Resource<ApiResponse<SubcategoriaData>>? actionResponse,
+    Resource<ApiResponse<void>>? deleteResponse,
 
     bool clearPaginatedResponse = false,
     bool clearByCategoriaResponse = false,

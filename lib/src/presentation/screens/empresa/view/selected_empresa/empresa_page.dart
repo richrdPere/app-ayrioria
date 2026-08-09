@@ -11,7 +11,6 @@ import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_bloc.d
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_state.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_event.dart';
 
-
 import 'empresa_content.dart';
 
 class EmpresaPage extends StatefulWidget {
@@ -48,7 +47,7 @@ class _EmpresaPageState extends State<EmpresaPage> {
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(error.error),
+              content: Text(error.displayMessage),
               backgroundColor: Colors.redAccent,
             ),
           );

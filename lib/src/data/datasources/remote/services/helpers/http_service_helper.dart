@@ -54,13 +54,17 @@ class HttpServiceHelper {
 
   // 3. BUILD ERROR
   static ErrorData<T> buildError<T>(Map<String, dynamic> body, int statusCode) {
-    final message = _extractMessage(body);
+    final message = body['message']?.toString().trim();
 
-    if (message != null && message.isNotEmpty) {
-      return ErrorData<T>(message);
-    }
+    final error = body['error']?.toString().trim();
 
-    return ErrorData<T>(getDefaultErrorMessage(statusCode));
+    return ErrorData<T>(
+      message != null && message.isNotEmpty
+          ? message
+          : getDefaultErrorMessage(statusCode),
+      error: error != null && error.isNotEmpty ? error : null,
+      statusCode: statusCode,
+    );
   }
 
   // 4. IS SUCCESS
@@ -101,20 +105,5 @@ class HttpServiceHelper {
       default:
         return 'Ocurrió un error al procesar la solicitud.';
     }
-  }
-
-  // 6. EXTRACT MESSAGE
-  static String? _extractMessage(Map<String, dynamic> body) {
-    final possibleValues = [body['message'], body['msg'], body['error']];
-
-    for (final value in possibleValues) {
-      final message = value?.toString().trim();
-
-      if (message != null && message.isNotEmpty) {
-        return message;
-      }
-    }
-
-    return null;
   }
 }

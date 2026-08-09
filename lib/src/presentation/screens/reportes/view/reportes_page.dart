@@ -88,7 +88,7 @@ class _ReportePageState extends State<ReportePage> {
             ..hideCurrentSnackBar()
             ..showSnackBar(
               SnackBar(
-                content: Text(response.error),
+                content: Text(response.displayMessage),
                 backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );

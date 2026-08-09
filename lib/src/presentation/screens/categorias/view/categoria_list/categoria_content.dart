@@ -213,7 +213,7 @@ class _CategoriaContentState extends State<CategoriaContent> {
             }
 
             if (response is ErrorData<CategoriaResponse>) {
-              _showError(response.error);
+              _showError(response.displayMessage);
             }
           },
         ),
@@ -225,7 +225,7 @@ class _CategoriaContentState extends State<CategoriaContent> {
             final response = state.categoriaResponse;
 
             if (response is ErrorData<CategoriaPaginatedResponse>) {
-              _showError(response.error);
+              _showError(response.displayMessage);
             }
           },
         ),
@@ -422,7 +422,7 @@ class _CategoriaContentState extends State<CategoriaContent> {
     if (response is ErrorData<CategoriaPaginatedResponse> &&
         state.categorias.isEmpty) {
       return CategoriaErrorState(
-        message: response.error,
+        message: response.displayMessage,
         onRefresh: _onRefresh,
         onRetry: _reloadCategorias,
       );

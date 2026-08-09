@@ -7,6 +7,7 @@ import 'package:app_aryoria/src/data/datasources/remote/services/sub_categoria_s
 import 'package:app_aryoria/src/domain/repositories/index_repository.dart';
 
 // Models
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
 import 'package:app_aryoria/src/data/models/sub_categoria/create_sub_categoria_req.dart';
 import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_data.dart';
 import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_paginado.dart';
@@ -25,7 +26,8 @@ class SubcategoriaRepositoryImpl implements SubcategoriaRepository {
   // 1.- Obtener subcategorias paginadas
   // *********************************************************
   @override
-  Future<Resource<SubcategoriaPaginated>> getSubcategoriasPaginated({
+  Future<Resource<ApiResponse<SubcategoriaPaginated>>>
+  getSubcategoriasPaginated({
     required int idEmpresa,
     required Map<String, dynamic> queryParams,
   }) async {
@@ -46,7 +48,8 @@ class SubcategoriaRepositoryImpl implements SubcategoriaRepository {
   // 2.- Obtener subcategorias por categoria
   // *********************************************************
   @override
-  Future<Resource<List<SubcategoriaData>>> getSubcategoriasByCategoria({
+  Future<Resource<ApiResponse<List<SubcategoriaData>>>>
+  getSubcategoriasByCategoria({
     required int idCategoria,
     required int idEmpresa,
   }) async {
@@ -67,7 +70,7 @@ class SubcategoriaRepositoryImpl implements SubcategoriaRepository {
   // 3.- Obtener subcategorias por tipo
   // *********************************************************
   @override
-  Future<Resource<List<SubcategoriaData>>> getSubcategoriasByTipo({
+  Future<Resource<ApiResponse<List<SubcategoriaData>>>> getSubcategoriasByTipo({
     required int idEmpresa,
     required String tipo,
   }) async {
@@ -88,7 +91,7 @@ class SubcategoriaRepositoryImpl implements SubcategoriaRepository {
   // 4.- Obtener subcategoria por ID
   // *********************************************************
   @override
-  Future<Resource<SubcategoriaData>> getSubcategoriaById({
+  Future<Resource<ApiResponse<SubcategoriaData>>> getSubcategoriaById({
     required int idEmpresa,
     required int idSubcategoria,
   }) async {
@@ -109,7 +112,7 @@ class SubcategoriaRepositoryImpl implements SubcategoriaRepository {
   // 5.- Crear subcategoria
   // *********************************************************
   @override
-  Future<Resource<SubcategoriaData>> createSubcategoria({
+  Future<Resource<ApiResponse<SubcategoriaData>>> createSubcategoria({
     required int idEmpresa,
     required CreateSubcategoriaRequest request,
   }) async {
@@ -130,7 +133,7 @@ class SubcategoriaRepositoryImpl implements SubcategoriaRepository {
   // 6.- Actualizar subcategoria
   // *********************************************************
   @override
-  Future<Resource<SubcategoriaData>> updateSubcategoria({
+  Future<Resource<ApiResponse<SubcategoriaData>>> updateSubcategoria({
     required int idEmpresa,
     required int idSubcategoria,
     required UpdateSubcategoriaRequest request,
@@ -153,7 +156,7 @@ class SubcategoriaRepositoryImpl implements SubcategoriaRepository {
   // 7.- Cambiar estado
   // *********************************************************
   @override
-  Future<Resource<SubcategoriaData>> changeSubcategoriaEstado({
+  Future<Resource<ApiResponse<SubcategoriaData>>> changeSubcategoriaEstado({
     required int idEmpresa,
     required int idSubcategoria,
     required bool estado,
@@ -176,7 +179,7 @@ class SubcategoriaRepositoryImpl implements SubcategoriaRepository {
   // 8.- Eliminar subcategoria
   // *********************************************************
   @override
-  Future<Resource<String>> deleteSubcategoria({
+  Future<Resource<ApiResponse<void>>> deleteSubcategoria({
     required int idEmpresa,
     required int idSubcategoria,
   }) async {

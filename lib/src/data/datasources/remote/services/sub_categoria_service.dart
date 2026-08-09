@@ -12,6 +12,7 @@ import 'package:app_aryoria/src/data/datasources/remote/services/helpers/http_Se
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 // Models
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
 import 'package:app_aryoria/src/data/models/sub_categoria/create_sub_categoria_req.dart';
 import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_data.dart';
 import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_paginado.dart';
@@ -32,7 +33,8 @@ class SubcategoriaService {
   // *********************************************************
   // 1.- Obtener subcategorias + Paginado
   // *********************************************************
-  Future<Resource<SubcategoriaPaginated>> getSubcategoriasPaginated({
+  Future<Resource<ApiResponse<SubcategoriaPaginated>>>
+  getSubcategoriasPaginated({
     required String token,
     required int idEmpresa,
     required Map<String, dynamic> queryParams,
@@ -43,7 +45,6 @@ class SubcategoriaService {
         'id_empresa': idEmpresa,
       };
 
-      // Eliminamos parámetros null o vacíos.
       params.removeWhere(
         (key, value) =>
             value == null || (value is String && value.trim().isEmpty),
@@ -63,28 +64,24 @@ class SubcategoriaService {
       final body = HttpServiceHelper.decodeResponse(response);
 
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        final data = body['data'];
-
-        if (data is! Map) {
-          return ErrorData<SubcategoriaPaginated>(
-            'La respuesta del servidor no contiene datos válidos.',
+        final apiResponse = ApiResponse<SubcategoriaPaginated>.fromJson(body, (
+          rawData,
+        ) {
+          return SubcategoriaPaginated.fromJson(
+            Map<String, dynamic>.from(rawData),
           );
-        }
+        });
 
-        final paginated = SubcategoriaPaginated.fromJson(
-          Map<String, dynamic>.from(data),
-        );
-
-        return Success<SubcategoriaPaginated>(paginated);
+        return Success<ApiResponse<SubcategoriaPaginated>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<SubcategoriaPaginated>(
+      return HttpServiceHelper.buildError<ApiResponse<SubcategoriaPaginated>>(
         body,
         response.statusCode,
       );
     } catch (error) {
-      return ErrorData<SubcategoriaPaginated>(
-        'No se pudo obtener las subcategorías: $error',
+      return ErrorData<ApiResponse<SubcategoriaPaginated>>(
+        'No se pudieron obtener las subcategorías: $error',
       );
     }
   }
@@ -92,7 +89,8 @@ class SubcategoriaService {
   // *****************************************************************************
   // 2.- Obtener subcategorias por categoria
   // *****************************************************************************
-  Future<Resource<List<SubcategoriaData>>> getSubcategoriasByCategoria({
+  Future<Resource<ApiResponse<List<SubcategoriaData>>>>
+  getSubcategoriasByCategoria({
     required String token,
     required int idEmpresa,
     required int idCategoria,
@@ -110,30 +108,30 @@ class SubcategoriaService {
       final body = HttpServiceHelper.decodeResponse(response);
 
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        final data = body['data'];
+        final apiResponse = ApiResponse<List<SubcategoriaData>>.fromJson(body, (
+          rawData,
+        ) {
+          if (rawData is! List) {
+            return <SubcategoriaData>[];
+          }
 
-        if (data is! List) {
-          return ErrorData<List<SubcategoriaData>>(
-            'La respuesta del servidor no contiene una lista válida de subcategorías.',
-          );
-        }
+          return rawData
+              .map(
+                (item) =>
+                    SubcategoriaData.fromJson(Map<String, dynamic>.from(item)),
+              )
+              .toList();
+        });
 
-        final subcategorias = data
-            .map(
-              (item) =>
-                  SubcategoriaData.fromJson(Map<String, dynamic>.from(item)),
-            )
-            .toList();
-
-        return Success<List<SubcategoriaData>>(subcategorias);
+        return Success<ApiResponse<List<SubcategoriaData>>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<List<SubcategoriaData>>(
+      return HttpServiceHelper.buildError<ApiResponse<List<SubcategoriaData>>>(
         body,
         response.statusCode,
       );
     } catch (error) {
-      return ErrorData<List<SubcategoriaData>>(
+      return ErrorData<ApiResponse<List<SubcategoriaData>>>(
         'No se pudieron obtener las subcategorías: $error',
       );
     }
@@ -142,7 +140,7 @@ class SubcategoriaService {
   // *****************************************************************************
   // 3.- Obtener subcategorias por tipo
   // *****************************************************************************
-  Future<Resource<List<SubcategoriaData>>> getSubcategoriasByTipo({
+  Future<Resource<ApiResponse<List<SubcategoriaData>>>> getSubcategoriasByTipo({
     required String token,
     required int idEmpresa,
     required String tipo,
@@ -151,7 +149,7 @@ class SubcategoriaService {
       final tipoNormalizado = tipo.trim().toUpperCase();
 
       if (tipoNormalizado != 'INGRESO' && tipoNormalizado != 'EGRESO') {
-        return ErrorData<List<SubcategoriaData>>(
+        return ErrorData<ApiResponse<List<SubcategoriaData>>>(
           'El tipo debe ser INGRESO o EGRESO.',
         );
       }
@@ -168,30 +166,30 @@ class SubcategoriaService {
       final body = HttpServiceHelper.decodeResponse(response);
 
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        final data = body['data'];
+        final apiResponse = ApiResponse<List<SubcategoriaData>>.fromJson(body, (
+          rawData,
+        ) {
+          if (rawData is! List) {
+            return <SubcategoriaData>[];
+          }
 
-        if (data is! List) {
-          return ErrorData<List<SubcategoriaData>>(
-            'La respuesta del servidor no contiene una lista válida de subcategorías.',
-          );
-        }
+          return rawData
+              .map(
+                (item) =>
+                    SubcategoriaData.fromJson(Map<String, dynamic>.from(item)),
+              )
+              .toList();
+        });
 
-        final subcategorias = data
-            .map(
-              (item) =>
-                  SubcategoriaData.fromJson(Map<String, dynamic>.from(item)),
-            )
-            .toList();
-
-        return Success<List<SubcategoriaData>>(subcategorias);
+        return Success<ApiResponse<List<SubcategoriaData>>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<List<SubcategoriaData>>(
+      return HttpServiceHelper.buildError<ApiResponse<List<SubcategoriaData>>>(
         body,
         response.statusCode,
       );
     } catch (error) {
-      return ErrorData<List<SubcategoriaData>>(
+      return ErrorData<ApiResponse<List<SubcategoriaData>>>(
         'No se pudieron obtener las subcategorías por tipo: $error',
       );
     }
@@ -200,7 +198,7 @@ class SubcategoriaService {
   // *****************************************************************************
   // 4.- Obtener subcategoria por ID
   // *****************************************************************************
-  Future<Resource<SubcategoriaData>> getSubcategoriaById({
+  Future<Resource<ApiResponse<SubcategoriaData>>> getSubcategoriaById({
     required String token,
     required int idEmpresa,
     required int idSubcategoria,
@@ -218,27 +216,21 @@ class SubcategoriaService {
       final body = HttpServiceHelper.decodeResponse(response);
 
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        final data = body['data'];
+        final apiResponse = ApiResponse<SubcategoriaData>.fromJson(body, (
+          rawData,
+        ) {
+          return SubcategoriaData.fromJson(Map<String, dynamic>.from(rawData));
+        });
 
-        if (data is! Map) {
-          return ErrorData<SubcategoriaData>(
-            'La subcategoría obtenida no es válida.',
-          );
-        }
-
-        final subcategoria = SubcategoriaData.fromJson(
-          Map<String, dynamic>.from(data),
-        );
-
-        return Success<SubcategoriaData>(subcategoria);
+        return Success<ApiResponse<SubcategoriaData>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<SubcategoriaData>(
+      return HttpServiceHelper.buildError<ApiResponse<SubcategoriaData>>(
         body,
         response.statusCode,
       );
     } catch (error) {
-      return ErrorData<SubcategoriaData>(
+      return ErrorData<ApiResponse<SubcategoriaData>>(
         'No se pudo obtener la subcategoría: $error',
       );
     }
@@ -247,7 +239,7 @@ class SubcategoriaService {
   // *****************************************************************************
   // 5.- Crear subcategoria
   // *****************************************************************************
-  Future<Resource<SubcategoriaData>> createSubcategoria({
+  Future<Resource<ApiResponse<SubcategoriaData>>> createSubcategoria({
     required String token,
     required int idEmpresa,
     required CreateSubcategoriaRequest request,
@@ -255,10 +247,7 @@ class SubcategoriaService {
     try {
       final uri = Uri.parse(API_CRETATE_SUBCATEGORIA);
 
-      final Map<String, dynamic> payload = {
-        ...request.toJson(),
-        'id_empresa': idEmpresa,
-      };
+      final payload = {...request.toJson(), 'id_empresa': idEmpresa};
 
       final response = await http.post(
         uri,
@@ -269,27 +258,21 @@ class SubcategoriaService {
       final body = HttpServiceHelper.decodeResponse(response);
 
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        final data = body['data'];
-
-        if (data is! Map) {
-          return ErrorData<SubcategoriaData>(
-            'La subcategoría creada no es válida.',
-          );
-        }
-
-        final subcategoria = SubcategoriaData.fromJson(
-          Map<String, dynamic>.from(data),
+        final apiResponse = ApiResponse<SubcategoriaData>.fromJson(
+          body,
+          (rawData) =>
+              SubcategoriaData.fromJson(Map<String, dynamic>.from(rawData)),
         );
 
-        return Success<SubcategoriaData>(subcategoria);
+        return Success<ApiResponse<SubcategoriaData>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<SubcategoriaData>(
+      return HttpServiceHelper.buildError<ApiResponse<SubcategoriaData>>(
         body,
         response.statusCode,
       );
     } catch (error) {
-      return ErrorData<SubcategoriaData>(
+      return ErrorData<ApiResponse<SubcategoriaData>>(
         'No se pudo crear la subcategoría: $error',
       );
     }
@@ -298,7 +281,7 @@ class SubcategoriaService {
   // *****************************************************************************
   // 6.- Actualizar subcategoria
   // *****************************************************************************
-  Future<Resource<SubcategoriaData>> updateSubcategoria({
+  Future<Resource<ApiResponse<SubcategoriaData>>> updateSubcategoria({
     required String token,
     required int idEmpresa,
     required int idSubcategoria,
@@ -307,10 +290,7 @@ class SubcategoriaService {
     try {
       final uri = Uri.parse('$API_UPDATE_SUBCATEGORIA/$idSubcategoria');
 
-      final Map<String, dynamic> payload = {
-        ...request.toJson(),
-        'id_empresa': idEmpresa,
-      };
+      final payload = {...request.toJson(), 'id_empresa': idEmpresa};
 
       final response = await http.put(
         uri,
@@ -321,27 +301,21 @@ class SubcategoriaService {
       final body = HttpServiceHelper.decodeResponse(response);
 
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        final data = body['data'];
-
-        if (data is! Map) {
-          return ErrorData<SubcategoriaData>(
-            'La subcategoría actualizada no es válida.',
-          );
-        }
-
-        final subcategoria = SubcategoriaData.fromJson(
-          Map<String, dynamic>.from(data),
+        final apiResponse = ApiResponse<SubcategoriaData>.fromJson(
+          body,
+          (rawData) =>
+              SubcategoriaData.fromJson(Map<String, dynamic>.from(rawData)),
         );
 
-        return Success<SubcategoriaData>(subcategoria);
+        return Success<ApiResponse<SubcategoriaData>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<SubcategoriaData>(
+      return HttpServiceHelper.buildError<ApiResponse<SubcategoriaData>>(
         body,
         response.statusCode,
       );
     } catch (error) {
-      return ErrorData<SubcategoriaData>(
+      return ErrorData<ApiResponse<SubcategoriaData>>(
         'No se pudo actualizar la subcategoría: $error',
       );
     }
@@ -350,7 +324,7 @@ class SubcategoriaService {
   // *****************************************************************************
   // 7.- Cambiar estado de la subcategoria
   // *****************************************************************************
-  Future<Resource<SubcategoriaData>> changeSubcategoriaEstado({
+  Future<Resource<ApiResponse<SubcategoriaData>>> changeSubcategoriaEstado({
     required String token,
     required int idEmpresa,
     required int idSubcategoria,
@@ -359,10 +333,7 @@ class SubcategoriaService {
     try {
       final uri = Uri.parse('$API_UPDATE_ESTADO_SUBCATEGORIA/$idSubcategoria');
 
-      final Map<String, dynamic> payload = {
-        'id_empresa': idEmpresa,
-        'estado': estado,
-      };
+      final payload = {'id_empresa': idEmpresa, 'estado': estado};
 
       final response = await http.patch(
         uri,
@@ -373,27 +344,21 @@ class SubcategoriaService {
       final body = HttpServiceHelper.decodeResponse(response);
 
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        final data = body['data'];
-
-        if (data is! Map) {
-          return ErrorData<SubcategoriaData>(
-            'La respuesta del cambio de estado no es válida.',
-          );
-        }
-
-        final subcategoria = SubcategoriaData.fromJson(
-          Map<String, dynamic>.from(data),
+        final apiResponse = ApiResponse<SubcategoriaData>.fromJson(
+          body,
+          (rawData) =>
+              SubcategoriaData.fromJson(Map<String, dynamic>.from(rawData)),
         );
 
-        return Success<SubcategoriaData>(subcategoria);
+        return Success<ApiResponse<SubcategoriaData>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<SubcategoriaData>(
+      return HttpServiceHelper.buildError<ApiResponse<SubcategoriaData>>(
         body,
         response.statusCode,
       );
     } catch (error) {
-      return ErrorData<SubcategoriaData>(
+      return ErrorData<ApiResponse<SubcategoriaData>>(
         'No se pudo cambiar el estado de la subcategoría: $error',
       );
     }
@@ -402,7 +367,7 @@ class SubcategoriaService {
   // *****************************************************************************
   // 8.- Eliminar subcategoria por ID
   // *****************************************************************************
-  Future<Resource<String>> deleteSubcategoria({
+  Future<Resource<ApiResponse<void>>> deleteSubcategoria({
     required String token,
     required int idEmpresa,
     required int idSubcategoria,
@@ -421,18 +386,19 @@ class SubcategoriaService {
       final body = HttpServiceHelper.decodeResponse(response);
 
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        final message = body['message']?.toString().trim();
+        final apiResponse = ApiResponse<void>.fromJson(body, null);
 
-        return Success<String>(
-          message != null && message.isNotEmpty
-              ? message
-              : 'Subcategoría eliminada correctamente.',
-        );
+        return Success<ApiResponse<void>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<String>(body, response.statusCode);
+      return HttpServiceHelper.buildError<ApiResponse<void>>(
+        body,
+        response.statusCode,
+      );
     } catch (error) {
-      return ErrorData<String>('No se pudo eliminar la subcategoría: $error');
+      return ErrorData<ApiResponse<void>>(
+        'No se pudo eliminar la subcategoría: $error',
+      );
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 // Models
@@ -8,51 +9,53 @@ import 'package:app_aryoria/src/data/models/sub_categoria/update_sub_categoria_r
 
 abstract class SubcategoriaRepository {
   /// 1.- Obtener subcategorias paginadas
-  Future<Resource<SubcategoriaPaginated>> getSubcategoriasPaginated({
+  Future<Resource<ApiResponse<SubcategoriaPaginated>>>
+  getSubcategoriasPaginated({
     required int idEmpresa,
     required Map<String, dynamic> queryParams,
   });
 
   /// 2.- Obtener subcategorias por categoria
-  Future<Resource<List<SubcategoriaData>>> getSubcategoriasByCategoria({
+  Future<Resource<ApiResponse<List<SubcategoriaData>>>>
+  getSubcategoriasByCategoria({
     required int idEmpresa,
     required int idCategoria,
   });
 
   /// 3.- Obtener subcategorias por tipo
-  Future<Resource<List<SubcategoriaData>>> getSubcategoriasByTipo({
+  Future<Resource<ApiResponse<List<SubcategoriaData>>>> getSubcategoriasByTipo({
     required int idEmpresa,
     required String tipo,
   });
 
   // 4.- Obtener subcategoria por ID
-  Future<Resource<SubcategoriaData>> getSubcategoriaById({
+  Future<Resource<ApiResponse<SubcategoriaData>>> getSubcategoriaById({
     required int idEmpresa,
     required int idSubcategoria,
   });
 
   /// 5.- Crear subcategoria
-  Future<Resource<SubcategoriaData>> createSubcategoria({
+  Future<Resource<ApiResponse<SubcategoriaData>>> createSubcategoria({
     required int idEmpresa,
     required CreateSubcategoriaRequest request,
   });
 
   /// 6.- Actualizar subcategoria
-  Future<Resource<SubcategoriaData>> updateSubcategoria({
+  Future<Resource<ApiResponse<SubcategoriaData>>> updateSubcategoria({
     required int idEmpresa,
     required int idSubcategoria,
     required UpdateSubcategoriaRequest request,
   });
 
   /// 7.- Cambiar estado
-  Future<Resource<SubcategoriaData>> changeSubcategoriaEstado({
+  Future<Resource<ApiResponse<SubcategoriaData>>> changeSubcategoriaEstado({
     required int idEmpresa,
     required int idSubcategoria,
     required bool estado,
   });
 
   /// 8.- Eliminar subcategoria
-  Future<Resource<String>> deleteSubcategoria({
+  Future<Resource<ApiResponse<void>>> deleteSubcategoria({
     required int idEmpresa,
     required int idSubcategoria,
   });

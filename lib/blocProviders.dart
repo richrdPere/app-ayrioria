@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/presentation/shared/screens/theme/bloc/theme_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:app_aryoria/injection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +18,7 @@ import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/reportes/bloc/reporte_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/subcategorias/bloc/subcategoria_bloc.dart';
+import 'package:app_aryoria/src/presentation/screens/flujo_contable/bloc/flujo_contable_bloc.dart';
 
 // Shared
 import 'package:app_aryoria/src/presentation/shared/screens/loading/bloc/loading_bloc.dart';
@@ -39,12 +41,14 @@ List<BlocProvider> blocProviders = [
   ),
 
   // ======================================================
-  // SPLASH
+  // SPLASH y THEME
   // ======================================================
   BlocProvider<SplashBloc>(
     create: (BuildContext context) =>
         SplashBloc(locator<AuthUsesCases>())..add(const SplashStarted()),
   ),
+
+  BlocProvider<ThemeBloc>(create: (_) => ThemeBloc()),
 
   // ======================================================
   // LOADING Y LOGOUT
@@ -112,5 +116,13 @@ List<BlocProvider> blocProviders = [
   BlocProvider<SubcategoriaBloc>(
     create: (BuildContext context) =>
         SubcategoriaBloc(locator<SubcategoriaUsesCases>()),
+  ),
+
+  // ======================================================
+  // FLUJO CONTABLE
+  // ======================================================
+  BlocProvider<FlujoContableBloc>(
+    create: (BuildContext context) =>
+        FlujoContableBloc(locator<FlujoContableUsesCases>()),
   ),
 ];

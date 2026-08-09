@@ -1,5 +1,3 @@
-
-
 // AUTH
 export 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/GetUserSessionUseCase.dart';
 export 'package:app_aryoria/src/domain/use_cases/auth/auth_use_cases/LoginUseCase.dart';
@@ -60,3 +58,9 @@ export 'package:app_aryoria/src/domain/use_cases/sub_categoria/sub_categoria_use
 export 'package:app_aryoria/src/domain/use_cases/sub_categoria/sub_categoria_uses_cases/GetSubcategoriasPaginatedUC.dart';
 export 'package:app_aryoria/src/domain/use_cases/sub_categoria/sub_categoria_uses_cases/UpdateSubcategoriaUC.dart';
 export 'package:app_aryoria/src/domain/use_cases/sub_categoria/SubcategoriaUsesCases.dart';
+
+// FLUJO CONTABLE
+export 'package:app_aryoria/src/domain/use_cases/flujo_contable/flujo_contable_uses_cases/GetFlujoContableAnualUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/flujo_contable/flujo_contable_uses_cases/GetFlujoContableMensualUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/flujo_contable/flujo_contable_uses_cases/GetFlujoProyectadoUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/flujo_contable/FlujoContableUsesCases.dart';

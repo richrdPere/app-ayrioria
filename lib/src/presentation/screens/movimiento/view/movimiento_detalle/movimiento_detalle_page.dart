@@ -179,7 +179,7 @@ class _MovimientoDetailPageState extends State<MovimientoDetailPage> {
             final Resource? response = state.detailResponse;
 
             if (response is ErrorData) {
-              _showError(response.error);
+              _showError(response.displayMessage);
             }
           },
         ),
@@ -209,7 +209,7 @@ class _MovimientoDetailPageState extends State<MovimientoDetailPage> {
             }
 
             if (response is ErrorData<MovimientoResponse>) {
-              _showError(response.error);
+              _showError(response.displayMessage);
 
               context.read<MovimientoBloc>().add(
                 const ClearMovimientoActionResponseEvent(),
@@ -232,7 +232,7 @@ class _MovimientoDetailPageState extends State<MovimientoDetailPage> {
 
           if (response is ErrorData) {
             return _MovimientoDetailError(
-              message: response.error,
+              message: response.displayMessage,
               onRetry: _loadMovimiento,
             );
           }

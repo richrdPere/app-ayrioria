@@ -32,7 +32,10 @@ class RegisterPage extends StatelessWidget {
           final error = state.response as ErrorData;
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error.error), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text(error.displayMessage),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       },

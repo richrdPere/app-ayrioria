@@ -68,7 +68,7 @@ class _EmpresaContentState extends State<EmpresaContent> {
                   final error = state.empresasResponse as ErrorData;
 
                   return EmpresaErrorState(
-                    message: error.error,
+                    message: error.displayMessage,
 
                     onRetry: () {
                       context.read<EmpresaBloc>().add(const GetEmpresasEvent());

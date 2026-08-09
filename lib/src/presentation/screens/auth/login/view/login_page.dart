@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
           final responseState = state.response;
           if (responseState is ErrorData) {
             Fluttertoast.showToast(
-              msg: responseState.error,
+              msg: responseState.displayMessage,
               toastLength: Toast.LENGTH_LONG,
             );
           } else if (responseState is Success) {
