@@ -1,18 +1,18 @@
+import 'package:app_aryoria/src/data/models/categoria/categoria_paginated.dart';
+import 'package:app_aryoria/src/data/models/categoria/categoria_query_params.dart';
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
 import 'package:app_aryoria/src/domain/repositories/categoria_repository.dart';
+import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 class GetCategoriasUseCase {
   CategoriaRepository categoriaRepository;
   GetCategoriasUseCase(this.categoriaRepository);
 
-  run({
-    int page = 1,
-    int limit = 10,
-    String search = '',
+  Future<Resource<ApiResponse<CategoriaPaginated>>> run({
     required int idEmpresa,
+    required CategoriasParams queryParams,
   }) => categoriaRepository.getCategorias(
-    page: page,
-    limit: limit,
-    search: search,
+    queryParams: queryParams,
     idEmpresa: idEmpresa,
   );
 }

@@ -1,6 +1,8 @@
 // ignore_for_file: unnecessary_underscores
 
 // import 'package:app_aryoria/src/config/router/go_router_refresh_stream.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/view/detalle/categoria_detalle_page.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/view/form/categoria_form_page.dart';
 import 'package:app_aryoria/src/presentation/screens/flujo_contable/view/flujo_contable_page.dart';
 import 'package:app_aryoria/src/presentation/screens/subcategorias/view/listado/subcategoria_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/theme/view/theme_changer_page.dart';
@@ -15,7 +17,7 @@ import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
 // Screen's
 import 'package:app_aryoria/src/presentation/screens/auth/login/view/login_page.dart';
 import 'package:app_aryoria/src/presentation/screens/auth/register/view/register_page.dart';
-import 'package:app_aryoria/src/presentation/screens/categorias/page/categoria_page.dart';
+import 'package:app_aryoria/src/presentation/screens/categorias/view/listado/categoria_page.dart';
 import 'package:app_aryoria/src/presentation/screens/configuracion/view/configuracion_page.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/view/create_empresa/empresa_create_page.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/view/selected_empresa/empresa_page.dart';
@@ -138,10 +140,78 @@ final GoRouter appRouter = GoRouter(
           builder: (_, __) => const HomePage(),
         ),
 
+        // ==========================================================
+        // CATEGORIAS
+        // ==========================================================
         GoRoute(
           path: '/categorias',
           name: 'categorias',
           builder: (_, __) => const CategoriaPage(),
+
+          routes: [
+            // ========================================================
+            // CREAR
+            // ========================================================
+            GoRoute(
+              path: 'crear',
+              name: 'crear_categoria',
+              pageBuilder: (context, state) {
+                return MaterialPage(
+                  key: state.pageKey,
+                  fullscreenDialog: true,
+                  child: const CategoriaFormPage(),
+                );
+              },
+            ),
+
+            // ========================================================
+            // DETALLE
+            // ========================================================
+            GoRoute(
+              path: ':idCategoria',
+              name: 'categoria_detalle',
+              pageBuilder: (context, state) {
+                final int? idCategoria = int.tryParse(
+                  state.pathParameters['idCategoria'] ?? '',
+                );
+
+                return MaterialPage(
+                  key: state.pageKey,
+                  fullscreenDialog: true,
+                  child: idCategoria == null
+                      ? const Scaffold(
+                          body: Center(child: Text('Categoría inválida.')),
+                        )
+                      : CategoriaDetallePage(idCategoria: idCategoria),
+                );
+              },
+
+              routes: [
+                // ====================================================
+                // EDITAR
+                // ====================================================
+                GoRoute(
+                  path: 'editar',
+                  name: 'editar_categoria',
+                  pageBuilder: (context, state) {
+                    final int? idCategoria = int.tryParse(
+                      state.pathParameters['idCategoria'] ?? '',
+                    );
+
+                    return MaterialPage(
+                      key: state.pageKey,
+                      fullscreenDialog: true,
+                      child: idCategoria == null
+                          ? const Scaffold(
+                              body: Center(child: Text('Categoría inválida.')),
+                            )
+                          : CategoriaFormPage(idCategoria: idCategoria),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
 
         // ==========================================================

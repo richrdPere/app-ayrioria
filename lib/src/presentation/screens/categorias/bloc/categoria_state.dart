@@ -1,95 +1,198 @@
 import 'package:equatable/equatable.dart';
 
-import 'package:app_aryoria/src/domain/utils/Resource.dart';
+// Models
 import 'package:app_aryoria/src/data/models/categoria/categoria_data.dart';
-import 'package:app_aryoria/src/data/models/categoria/categoria_paginated.dart';
-import 'package:app_aryoria/src/data/models/categoria/categoria_response.dart';
+
+// Resource
+import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 class CategoriaState extends Equatable {
-  /// Respuesta del listado paginado
-  final Resource<CategoriaPaginatedResponse>? categoriaResponse;
+  // ==========================================================
+  // DATA
+  // ==========================================================
 
-  /// Respuesta de crear, actualizar y eliminar
-  final Resource<CategoriaResponse>? actionResponse;
-
-  /// Respuesta del detalle
-  final Resource<CategoriaResponse>? detailResponse;
-
-  /// Lista acumulada
+  /// Categorías de la página cargada actualmente.
   final List<CategoriaData> categorias;
 
-  /// Paginación
+  /// Categorías obtenidas mediante el endpoint por tipo.
+  final List<CategoriaData> categoriasByTipo;
+
+  /// Categoría seleccionada mediante búsqueda por ID.
+  final CategoriaData? categoriaSelected;
+
+  // ==========================================================
+  // RESPUESTAS
+  // ==========================================================
+
+  /// Respuesta del listado paginado.
+  final Resource? response;
+
+  /// Respuesta para crear, actualizar o eliminar.
+  ///
+  /// Se mantiene como Resource porque:
+  /// - Create -> ApiResponse<CategoriaData>
+  /// - Update -> ApiResponse<CategoriaData>
+  /// - Delete -> ApiResponse<void>
+  final Resource? actionResponse;
+
+  /// Respuesta del detalle por ID.
+  final Resource? detailResponse;
+
+  /// Respuesta del listado por tipo.
+  final Resource? tipoResponse;
+
+  // ==========================================================
+  // PAGINACIÓN
+  // ==========================================================
+
+  /// Página actual.
   final int page;
+
+  /// Cantidad de registros por página.
   final int limit;
-  final int totalPages;
+
+  /// Total de registros.
   final int total;
 
-  /// Búsqueda
-  final String search;
+  /// Total de páginas.
+  final int totalPages;
 
-  /// Estados de carga
-  final bool isLoading;
+  /// Indica si existe una página siguiente.
+  final bool hasNextPage;
+
+  /// Indica si existe una página anterior.
+  final bool hasPreviousPage;
+
+  // ==========================================================
+  // LOADING
+  // ==========================================================
+
+  /// Indica si se está realizando una carga adicional
+  /// o cambio de página.
   final bool isLoadingMore;
-  final bool hasMore;
 
   const CategoriaState({
-    this.categoriaResponse,
+    this.categorias = const [],
+    this.categoriasByTipo = const [],
+    this.categoriaSelected,
+    this.response,
     this.actionResponse,
     this.detailResponse,
-    this.categorias = const [],
+    this.tipoResponse,
     this.page = 1,
     this.limit = 10,
-    this.totalPages = 0,
     this.total = 0,
-    this.search = '',
-    this.isLoading = false,
+    this.totalPages = 0,
+    this.hasNextPage = false,
+    this.hasPreviousPage = false,
     this.isLoadingMore = false,
-    this.hasMore = true,
   });
 
+  // ==========================================================
+  // HELPERS
+  // ==========================================================
+
+  bool get tieneCategorias => categorias.isNotEmpty;
+
+  bool get isEmpty => categorias.isEmpty;
+
+  bool get isFirstPage => page <= 1;
+
+  bool get isLastPage => !hasNextPage;
+
+  // ==========================================================
+  // COPY WITH
+  // ==========================================================
+
   CategoriaState copyWith({
-    Resource<CategoriaPaginatedResponse>? categoriaResponse,
-    Resource<CategoriaResponse>? actionResponse,
-    Resource<CategoriaResponse>? detailResponse,
     List<CategoriaData>? categorias,
+
+    List<CategoriaData>? categoriasByTipo,
+    bool clearCategoriasByTipo = false,
+
+    CategoriaData? categoriaSelected,
+    bool clearCategoriaSelected = false,
+
+    Resource? response,
+    bool clearResponse = false,
+
+    Resource? actionResponse,
+    bool clearActionResponse = false,
+
+    Resource? detailResponse,
+    bool clearDetailResponse = false,
+
+    Resource? tipoResponse,
+    bool clearTipoResponse = false,
+
     int? page,
     int? limit,
-    int? totalPages,
     int? total,
-    String? search,
-    bool? isLoading,
+    int? totalPages,
+    bool? hasNextPage,
+    bool? hasPreviousPage,
     bool? isLoadingMore,
-    bool? hasMore,
   }) {
     return CategoriaState(
-      categoriaResponse: categoriaResponse ?? this.categoriaResponse,
-      actionResponse: actionResponse ?? this.actionResponse,
-      detailResponse: detailResponse ?? this.detailResponse,
       categorias: categorias ?? this.categorias,
+
+      categoriasByTipo: clearCategoriasByTipo
+          ? const []
+          : categoriasByTipo ?? this.categoriasByTipo,
+
+      categoriaSelected: clearCategoriaSelected
+          ? null
+          : categoriaSelected ?? this.categoriaSelected,
+
+      response: clearResponse ? null : response ?? this.response,
+
+      actionResponse: clearActionResponse
+          ? null
+          : actionResponse ?? this.actionResponse,
+
+      detailResponse: clearDetailResponse
+          ? null
+          : detailResponse ?? this.detailResponse,
+
+      tipoResponse: clearTipoResponse
+          ? null
+          : tipoResponse ?? this.tipoResponse,
+
       page: page ?? this.page,
+
       limit: limit ?? this.limit,
-      totalPages: totalPages ?? this.totalPages,
+
       total: total ?? this.total,
-      search: search ?? this.search,
-      isLoading: isLoading ?? this.isLoading,
+
+      totalPages: totalPages ?? this.totalPages,
+
+      hasNextPage: hasNextPage ?? this.hasNextPage,
+
+      hasPreviousPage: hasPreviousPage ?? this.hasPreviousPage,
+
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-      hasMore: hasMore ?? this.hasMore,
     );
   }
 
+  // ==========================================================
+  // EQUATABLE
+  // ==========================================================
+
   @override
   List<Object?> get props => [
-    categoriaResponse,
+    categorias,
+    categoriasByTipo,
+    categoriaSelected,
+    response,
     actionResponse,
     detailResponse,
-    categorias,
+    tipoResponse,
     page,
     limit,
-    totalPages,
     total,
-    search,
-    isLoading,
+    totalPages,
+    hasNextPage,
+    hasPreviousPage,
     isLoadingMore,
-    hasMore,
   ];
 }

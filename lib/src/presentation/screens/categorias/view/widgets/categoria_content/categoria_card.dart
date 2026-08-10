@@ -1,161 +1,225 @@
-import 'package:app_aryoria/src/data/models/categoria/categoria_data.dart';
-import 'package:app_aryoria/src/presentation/screens/categorias/view/categoria_form_dialog.dart';
 import 'package:flutter/material.dart';
+
+import 'package:app_aryoria/src/data/models/categoria/categoria_data.dart';
 
 class CategoriaCard extends StatelessWidget {
   final CategoriaData categoria;
 
-  /// Callback que se ejecutará cuando el usuario confirme la eliminación.
-  final VoidCallback? onDelete;
+  /// Abrir detalle al tocar la card.
+  final VoidCallback? onTap;
 
-  /// Callback opcional para editar.
-  /// Si no se envía, se abrirá CategoriaFormDialog.
+  /// Editar categoría.
   final VoidCallback? onEdit;
+
+  /// Eliminar categoría.
+  final VoidCallback? onDelete;
 
   const CategoriaCard({
     super.key,
     required this.categoria,
-    this.onDelete,
+    this.onTap,
     this.onEdit,
+    this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = _parseColor(categoria.color);
-    final isIngreso = categoria.tipo.toUpperCase() == 'INGRESO';
+    final Color color = _parseColor(categoria.color);
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    final bool isIngreso =
+        categoria.tipo.trim().toUpperCase() == 'INGRESO';
+
+    return Card(
+      elevation: 2,
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: color.withOpacity(0.12),
-            child: Icon(_getIcon(categoria.icono), color: color),
-          ),
-
-          const SizedBox(width: 14),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  categoria.nombre,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  categoria.descripcion?.trim().isNotEmpty == true
-                      ? categoria.descripcion!
-                      : 'Sin descripción',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 10),
-
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: isIngreso
-                      ? Colors.green.withOpacity(0.12)
-                      : Colors.red.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  categoria.tipo,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: isIngreso ? Colors.green : Colors.red,
-                  ),
+              // =================================================
+              // ICONO
+              // =================================================
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: color.withValues(alpha: 0.12),
+                child: Icon(
+                  _getIcon(categoria.icono),
+                  color: color,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(width: 14),
 
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    tooltip: 'Editar categoría',
-                    visualDensity: VisualDensity.compact,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 36,
-                      minHeight: 36,
+              // =================================================
+              // INFORMACIÓN
+              // =================================================
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      categoria.nombre,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                    onPressed: () {
-                      if (onEdit != null) {
-                        onEdit!();
-                        return;
-                      }
 
-                      CategoriaFormDialog.show(context, categoria: categoria);
-                    },
-                    icon: Icon(Icons.edit_outlined, size: 21, color: color),
+                    const SizedBox(height: 4),
+
+                    Text(
+                      categoria.descripcion?.trim().isNotEmpty == true
+                          ? categoria.descripcion!
+                          : 'Sin descripción',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurfaceVariant,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _NaturalezaChip(
+                          naturaleza: categoria.naturaleza,
+                        ),
+                        _EstadoChip(
+                          estado: categoria.estado,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(width: 10),
+
+              // =================================================
+              // TIPO + MENÚ
+              // =================================================
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  // =================================================
+                  // TIPO
+                  // =================================================
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isIngreso
+                          ? Colors.green.withValues(alpha: 0.12)
+                          : Colors.red.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      categoria.tipo,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: isIngreso
+                            ? Colors.green.shade700
+                            : Colors.red.shade700,
+                      ),
+                    ),
                   ),
 
-                  IconButton(
-                    tooltip: 'Eliminar categoría',
-                    visualDensity: VisualDensity.compact,
+                  const SizedBox(height: 8),
+
+                  // =================================================
+                  // MENÚ 3 PUNTOS
+                  // =================================================
+                  PopupMenuButton<_CategoriaAction>(
+                    tooltip: 'Opciones',
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 36,
-                      minHeight: 36,
+                    icon: const Icon(
+                      Icons.more_vert,
                     ),
-                    onPressed: onDelete == null
-                        ? null
-                        : () => _confirmDelete(context),
-                    icon: Icon(
-                      Icons.delete_outline,
-                      size: 21,
-                      color: onDelete == null
-                          ? Colors.grey.shade400
-                          : Colors.red.shade600,
-                    ),
+                    onSelected: (action) {
+                      switch (action) {
+                        case _CategoriaAction.verDetalle:
+                          onTap?.call();
+                          break;
+
+                        case _CategoriaAction.editar:
+                          onEdit?.call();
+                          break;
+
+                        case _CategoriaAction.eliminar:
+                          _confirmDelete(context);
+                          break;
+                      }
+                    },
+                    itemBuilder: (context) {
+                      return [
+                        if (onTap != null)
+                          const PopupMenuItem<_CategoriaAction>(
+                            value: _CategoriaAction.verDetalle,
+                            child: _PopupOption(
+                              icon: Icons.visibility_outlined,
+                              label: 'Ver detalle',
+                            ),
+                          ),
+
+                        if (onEdit != null)
+                          const PopupMenuItem<_CategoriaAction>(
+                            value: _CategoriaAction.editar,
+                            child: _PopupOption(
+                              icon: Icons.edit_outlined,
+                              label: 'Editar',
+                            ),
+                          ),
+
+                        if (onDelete != null)
+                          const PopupMenuItem<_CategoriaAction>(
+                            value: _CategoriaAction.eliminar,
+                            child: _PopupOption(
+                              icon: Icons.delete_outline,
+                              label: 'Eliminar',
+                              isDanger: true,
+                            ),
+                          ),
+                      ];
+                    },
                   ),
                 ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Future<void> _confirmDelete(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
+  // ==========================================================
+  // CONFIRMAR ELIMINACIÓN
+  // ==========================================================
+  Future<void> _confirmDelete(
+    BuildContext context,
+  ) async {
+    if (onDelete == null) {
+      return;
+    }
+
+    final bool? confirmed = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
@@ -165,12 +229,18 @@ class CategoriaCard extends StatelessWidget {
           ),
           title: const Row(
             children: [
-              Icon(Icons.warning_amber_rounded, color: Colors.orange),
+              Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.orange,
+              ),
               SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Eliminar categoría',
-                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -179,25 +249,39 @@ class CategoriaCard extends StatelessWidget {
             '¿Estás seguro de eliminar la categoría '
             '"${categoria.nombre}"?\n\n'
             'Esta acción no se puede deshacer.',
-            style: const TextStyle(fontSize: 14, height: 1.4),
+            style: const TextStyle(
+              fontSize: 14,
+              height: 1.4,
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(dialogContext).pop(false);
+                Navigator.of(
+                  dialogContext,
+                ).pop(false);
               },
-              child: const Text('Cancelar'),
+              child: const Text(
+                'Cancelar',
+              ),
             ),
             FilledButton.icon(
               onPressed: () {
-                Navigator.of(dialogContext).pop(true);
+                Navigator.of(
+                  dialogContext,
+                ).pop(true);
               },
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              icon: const Icon(Icons.delete_outline, size: 19),
-              label: const Text('Eliminar'),
+              icon: const Icon(
+                Icons.delete_outline,
+                size: 19,
+              ),
+              label: const Text(
+                'Eliminar',
+              ),
             ),
           ],
         );
@@ -209,13 +293,20 @@ class CategoriaCard extends StatelessWidget {
     }
   }
 
-  Color _parseColor(String? hexColor) {
-    if (hexColor == null || hexColor.trim().isEmpty) {
+  // ==========================================================
+  // COLOR
+  // ==========================================================
+  Color _parseColor(
+    String? hexColor,
+  ) {
+    if (hexColor == null ||
+        hexColor.trim().isEmpty) {
       return Colors.blue;
     }
 
     try {
-      var cleanColor = hexColor.trim().replaceAll('#', '');
+      String cleanColor =
+          hexColor.trim().replaceAll('#', '');
 
       if (cleanColor.length == 6) {
         cleanColor = 'FF$cleanColor';
@@ -225,13 +316,23 @@ class CategoriaCard extends StatelessWidget {
         return Colors.blue;
       }
 
-      return Color(int.parse(cleanColor, radix: 16));
+      return Color(
+        int.parse(
+          cleanColor,
+          radix: 16,
+        ),
+      );
     } catch (_) {
       return Colors.blue;
     }
   }
 
-  IconData _getIcon(String? icono) {
+  // ==========================================================
+  // ICONOS
+  // ==========================================================
+  IconData _getIcon(
+    String? icono,
+  ) {
     switch (icono?.trim().toLowerCase()) {
       case 'wifi':
         return Icons.wifi;
@@ -249,7 +350,20 @@ class CategoriaCard extends StatelessWidget {
         return Icons.directions_car_outlined;
 
       case 'shopping':
+      case 'shopping_bag':
         return Icons.shopping_bag_outlined;
+
+      case 'account_balance':
+        return Icons.account_balance_outlined;
+
+      case 'account_balance_wallet':
+        return Icons.account_balance_wallet_outlined;
+
+      case 'business':
+        return Icons.business_outlined;
+
+      case 'admin_panel_settings':
+        return Icons.admin_panel_settings_outlined;
 
       case 'light':
       case 'lightbulb':
@@ -259,5 +373,129 @@ class CategoriaCard extends StatelessWidget {
       default:
         return Icons.category_outlined;
     }
+  }
+}
+
+// ==========================================================
+// ACCIONES DEL POPUP
+// ==========================================================
+enum _CategoriaAction {
+  verDetalle,
+  editar,
+  eliminar,
+}
+
+// ==========================================================
+// OPCIÓN DEL POPUP
+// ==========================================================
+class _PopupOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isDanger;
+
+  const _PopupOption({
+    required this.icon,
+    required this.label,
+    this.isDanger = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Color color = isDanger
+        ? Colors.red.shade600
+        : Theme.of(context).colorScheme.onSurface;
+
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 20,
+          color: color,
+        ),
+        const SizedBox(width: 12),
+        Text(
+          label,
+          style: TextStyle(
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ==========================================================
+// NATURALEZA
+// ==========================================================
+class _NaturalezaChip extends StatelessWidget {
+  final String naturaleza;
+
+  const _NaturalezaChip({
+    required this.naturaleza,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context)
+            .colorScheme
+            .secondaryContainer,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        naturaleza,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context)
+              .colorScheme
+              .onSecondaryContainer,
+        ),
+      ),
+    );
+  }
+}
+
+// ==========================================================
+// ESTADO
+// ==========================================================
+class _EstadoChip extends StatelessWidget {
+  final bool estado;
+
+  const _EstadoChip({
+    required this.estado,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        color: estado
+            ? Colors.green.withValues(alpha: 0.10)
+            : Colors.grey.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        estado
+            ? 'Activa'
+            : 'Inactiva',
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: estado
+              ? Colors.green.shade700
+              : Colors.grey.shade700,
+        ),
+      ),
+    );
   }
 }

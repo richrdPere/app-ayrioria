@@ -37,6 +37,7 @@ class MainShell extends StatelessWidget {
       // CATEGORÍAS
       // ======================================================
       case '/categorias/crear':
+      case '/categorias/:idCategoria':
       case '/categorias/:idCategoria/editar':
 
       // ======================================================
@@ -81,9 +82,6 @@ class MainShell extends StatelessWidget {
       // ======================================================
       case '/categorias':
         return 'Categorías';
-
-      case '/categorias/:idCategoria':
-        return 'Detalle de categoría';
 
       // ======================================================
       // SUBCATEGORÍAS

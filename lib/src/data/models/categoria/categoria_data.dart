@@ -4,11 +4,12 @@ class CategoriaData {
   final String nombre;
   final String tipo;
   final String? descripcion;
+  final String naturaleza;
   final String? color;
   final String? icono;
   final bool estado;
-  final String createdAt;
-  final String updatedAt;
+  final String? createdAt;
+  final String? updatedAt;
   final String? deletedAt;
 
   const CategoriaData({
@@ -17,27 +18,29 @@ class CategoriaData {
     required this.nombre,
     required this.tipo,
     this.descripcion,
+    required this.naturaleza,
     this.color,
     this.icono,
     required this.estado,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
     this.deletedAt,
   });
 
   factory CategoriaData.fromJson(Map<String, dynamic> json) {
     return CategoriaData(
-      idCategoria: json['id_categoria'] ?? 0,
-      idEmpresa: json['id_empresa'] ?? 0,
-      nombre: json['nombre'] ?? '',
-      tipo: json['tipo'] ?? '',
-      descripcion: json['descripcion'],
-      color: json['color'],
-      icono: json['icono'],
-      estado: json['estado'] ?? false,
-      createdAt: json['created_at'] ?? '',
-      updatedAt: json['updated_at'] ?? '',
-      deletedAt: json['deleted_at'],
+      idCategoria: _toInt(json['id_categoria']),
+      idEmpresa: _toInt(json['id_empresa']),
+      nombre: json['nombre']?.toString() ?? '',
+      tipo: json['tipo']?.toString() ?? '',
+      descripcion: json['descripcion']?.toString(),
+      naturaleza: json['naturaleza']?.toString() ?? 'OTRO',
+      color: json['color']?.toString(),
+      icono: json['icono']?.toString(),
+      estado: _toBool(json['estado']),
+      createdAt: json['created_at']?.toString(),
+      updatedAt: json['updated_at']?.toString(),
+      deletedAt: json['deleted_at']?.toString(),
     );
   }
 
@@ -48,6 +51,7 @@ class CategoriaData {
       'nombre': nombre,
       'tipo': tipo,
       'descripcion': descripcion,
+      'naturaleza': naturaleza,
       'color': color,
       'icono': icono,
       'estado': estado,
@@ -57,12 +61,19 @@ class CategoriaData {
     };
   }
 
+  bool get isIngreso => tipo.trim().toUpperCase() == 'INGRESO';
+
+  bool get isEgreso => tipo.trim().toUpperCase() == 'EGRESO';
+
+  bool get isActiva => estado;
+
   CategoriaData copyWith({
     int? idCategoria,
     int? idEmpresa,
     String? nombre,
     String? tipo,
     String? descripcion,
+    String? naturaleza,
     String? color,
     String? icono,
     bool? estado,
@@ -76,6 +87,7 @@ class CategoriaData {
       nombre: nombre ?? this.nombre,
       tipo: tipo ?? this.tipo,
       descripcion: descripcion ?? this.descripcion,
+      naturaleza: naturaleza ?? this.naturaleza,
       color: color ?? this.color,
       icono: icono ?? this.icono,
       estado: estado ?? this.estado,
@@ -83,5 +95,33 @@ class CategoriaData {
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
     );
+  }
+
+  static int _toInt(dynamic value) {
+    if (value is int) {
+      return value;
+    }
+
+    if (value is num) {
+      return value.toInt();
+    }
+
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static bool _toBool(dynamic value) {
+    if (value is bool) {
+      return value;
+    }
+
+    if (value is num) {
+      return value != 0;
+    }
+
+    if (value is String) {
+      return value.toLowerCase() == 'true';
+    }
+
+    return false;
   }
 }

@@ -154,6 +154,7 @@ class SubcategoriaService {
     required String tipo,
   }) async {
     try {
+      // 1.- Normalizar tipo
       final tipoNormalizado = tipo.trim().toUpperCase();
 
       if (tipoNormalizado != 'INGRESO' && tipoNormalizado != 'EGRESO') {
@@ -162,10 +163,12 @@ class SubcategoriaService {
         );
       }
 
+      // 2.- URL Base
       final uri = Uri.parse(
         '$API_GET_SUBCATEGORIA_BY_TIPO/$tipoNormalizado',
       ).replace(queryParameters: {'id_empresa': idEmpresa.toString()});
 
+      // 3.- Response
       final response = await http.get(
         uri,
         headers: HttpServiceHelper.getHeaders(token),
@@ -173,6 +176,7 @@ class SubcategoriaService {
 
       final body = HttpServiceHelper.decodeResponse(response);
 
+      // 4.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
         final apiResponse = ApiResponse<List<SubcategoriaData>>.fromJson(body, (
           rawData,
@@ -192,6 +196,7 @@ class SubcategoriaService {
         return Success<ApiResponse<List<SubcategoriaData>>>(apiResponse);
       }
 
+      // 5.- Return Error
       return HttpServiceHelper.buildError<ApiResponse<List<SubcategoriaData>>>(
         body,
         response.statusCode,

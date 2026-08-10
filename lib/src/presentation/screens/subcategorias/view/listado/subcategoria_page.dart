@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/data/models/categoria/categoria_query_params.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -47,8 +48,11 @@ class _SubcategoriaPageState extends State<SubcategoriaPage> {
     // ---------------------------------------------------------
     // Cargar categorías para filtros/formularios
     // ---------------------------------------------------------
+
+    final queryParams = CategoriasParams(page: 1, limit: 10);
+
     context.read<CategoriaBloc>().add(
-      GetCategoriasEvent(page: 1, limit: 100, idEmpresa: widget.idEmpresa),
+      GetCategoriasEvent(idEmpresa: widget.idEmpresa, queryParams: queryParams),
     );
   }
 

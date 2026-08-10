@@ -1,4 +1,5 @@
 import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
+import 'package:app_aryoria/src/data/models/categoria/categoria_query_params.dart';
 import 'package:app_aryoria/src/data/models/common/api_response.dart';
 import 'package:app_aryoria/src/data/models/movimientos/movimiento_data.dart';
 import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_data.dart';
@@ -106,8 +107,10 @@ class _MovimientoFormContentState extends State<MovimientoFormContent> {
       return;
     }
 
+    final queryParams = CategoriasParams(page: 1, limit: 10);
+
     context.read<CategoriaBloc>().add(
-      GetCategoriasEvent(idEmpresa: widget.idEmpresa, page: 1, limit: 100),
+      GetCategoriasEvent(idEmpresa: widget.idEmpresa, queryParams: queryParams),
     );
   }
 

@@ -189,7 +189,7 @@ class _PeriodoContableContentState extends State<PeriodoContableContent> {
             ],
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 20),
 
           // ====================================================
           // FILTROS AÑO / MES
@@ -459,7 +459,7 @@ class _PeriodoCard extends StatelessWidget {
     final ColorScheme colors = Theme.of(context).colorScheme;
 
     return Card(
-      elevation: 0,
+      elevation: 2,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
