@@ -3,6 +3,8 @@
 // Environment
 import 'dart:convert';
 
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_paginated.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_query_params.dart';
 import 'package:http/http.dart' as http;
 import 'package:app_aryoria/src/config/constants/environment.dart'
     as url_backend;
@@ -13,10 +15,9 @@ import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 // Models
 import 'package:app_aryoria/src/data/models/common/api_response.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/create_sub_categoria_req.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_data.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_paginado.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/update_sub_categoria_req.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_create_req.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_data.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_update_req.dart';
 
 class SubcategoriaService {
   String get API_BASE => '${url_backend.Environment.mainUrl}/subcategorias';
@@ -37,12 +38,12 @@ class SubcategoriaService {
   getSubcategoriasPaginated({
     required String token,
     required int idEmpresa,
-    required Map<String, dynamic> queryParams,
+    required SubcategoriasParams queryParams,
   }) async {
     try {
       // 1.- URL Base
       final Map<String, dynamic> params = {
-        ...queryParams,
+        ...queryParams.toQueryParams(),
         'id_empresa': idEmpresa,
       };
 
@@ -259,7 +260,7 @@ class SubcategoriaService {
   Future<Resource<ApiResponse<SubcategoriaData>>> createSubcategoria({
     required String token,
     required int idEmpresa,
-    required CreateSubcategoriaRequest request,
+    required SubcategoriaCreateRequest request,
   }) async {
     try {
       final uri = Uri.parse(API_CRETATE_SUBCATEGORIA);
@@ -302,7 +303,7 @@ class SubcategoriaService {
     required String token,
     required int idEmpresa,
     required int idSubcategoria,
-    required UpdateSubcategoriaRequest request,
+    required SubcategoriaUpdateRequest request,
   }) async {
     try {
       // 1.- URL

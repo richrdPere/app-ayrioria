@@ -1,6 +1,6 @@
 import 'package:app_aryoria/src/data/models/common/api_response.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_data.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/update_sub_categoria_req.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_data.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_update_req.dart';
 import 'package:app_aryoria/src/domain/repositories/index_repository.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
@@ -11,7 +11,7 @@ class UpdateSubcategoriaUC {
   Future<Resource<ApiResponse<SubcategoriaData>>> run({
     required int idEmpresa,
     required int idSubcategoria,
-    required UpdateSubcategoriaRequest request,
+    required SubcategoriaUpdateRequest request,
   }) => subcategoriaRepository.updateSubcategoria(
     idEmpresa: idEmpresa,
     idSubcategoria: idSubcategoria,

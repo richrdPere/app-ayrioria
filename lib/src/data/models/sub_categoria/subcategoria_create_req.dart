@@ -1,11 +1,11 @@
-class CreateSubcategoriaRequest {
+class SubcategoriaCreateRequest {
   final int idCategoria;
   final String nombre;
   final String? descripcion;
   final int orden;
   final bool estado;
 
-  const CreateSubcategoriaRequest({
+  const SubcategoriaCreateRequest({
     required this.idCategoria,
     required this.nombre,
     this.descripcion,
@@ -23,14 +23,14 @@ class CreateSubcategoriaRequest {
     };
   }
 
-  CreateSubcategoriaRequest copyWith({
+  SubcategoriaCreateRequest copyWith({
     int? idCategoria,
     String? nombre,
     String? descripcion,
     int? orden,
     bool? estado,
   }) {
-    return CreateSubcategoriaRequest(
+    return SubcategoriaCreateRequest(
       idCategoria: idCategoria ?? this.idCategoria,
       nombre: nombre ?? this.nombre,
       descripcion: descripcion ?? this.descripcion,

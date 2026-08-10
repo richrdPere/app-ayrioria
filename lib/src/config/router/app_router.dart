@@ -4,6 +4,8 @@
 import 'package:app_aryoria/src/presentation/screens/categorias/view/detalle/categoria_detalle_page.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/view/form/categoria_form_page.dart';
 import 'package:app_aryoria/src/presentation/screens/flujo_contable/view/flujo_contable_page.dart';
+import 'package:app_aryoria/src/presentation/screens/subcategorias/view/detalle/subcategoria_detail_page.dart';
+import 'package:app_aryoria/src/presentation/screens/subcategorias/view/form/subcategoria_form_page.dart';
 import 'package:app_aryoria/src/presentation/screens/subcategorias/view/listado/subcategoria_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/theme/view/theme_changer_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -223,14 +225,85 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) {
             final session = context.read<SessionBloc>().state;
 
-            final idEmpresa = session.empresaActiva?.idEmpresa;
+            final int? idEmpresa = session.empresaActiva?.idEmpresa;
 
             if (idEmpresa == null) {
-              return const Center(child: Text('No existe una empresa activa.'));
+              return const Scaffold(
+                body: Center(child: Text('No existe una empresa activa.')),
+              );
             }
 
             return SubcategoriaPage(idEmpresa: idEmpresa);
           },
+
+          routes: [
+            // ========================================================
+            // CREAR SUBCATEGORÍA
+            // ========================================================
+            GoRoute(
+              path: 'crear',
+              name: 'crear_subcategoria',
+              pageBuilder: (context, state) {
+                return MaterialPage(
+                  key: state.pageKey,
+                  fullscreenDialog: true,
+                  child: const SubcategoriaFormPage(),
+                );
+              },
+            ),
+
+            // ========================================================
+            // DETALLE SUBCATEGORÍA
+            // ========================================================
+            GoRoute(
+              path: ':idSubcategoria',
+              name: 'subcategoria_detalle',
+              pageBuilder: (context, state) {
+                final int? idSubcategoria = int.tryParse(
+                  state.pathParameters['idSubcategoria'] ?? '',
+                );
+
+                return MaterialPage(
+                  key: state.pageKey,
+                  fullscreenDialog: true,
+                  child: idSubcategoria == null
+                      ? const Scaffold(
+                          body: Center(child: Text('Subcategoría inválida.')),
+                        )
+                      : SubcategoriaDetallePage(idSubcategoria: idSubcategoria),
+                );
+              },
+
+              routes: [
+                // ====================================================
+                // EDITAR SUBCATEGORÍA
+                // ====================================================
+                GoRoute(
+                  path: 'editar',
+                  name: 'editar_subcategoria',
+                  pageBuilder: (context, state) {
+                    final int? idSubcategoria = int.tryParse(
+                      state.pathParameters['idSubcategoria'] ?? '',
+                    );
+
+                    return MaterialPage(
+                      key: state.pageKey,
+                      fullscreenDialog: true,
+                      child: idSubcategoria == null
+                          ? const Scaffold(
+                              body: Center(
+                                child: Text('Subcategoría inválida.'),
+                              ),
+                            )
+                          : SubcategoriaFormPage(
+                              idSubcategoria: idSubcategoria,
+                            ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
 
         // ==========================================================

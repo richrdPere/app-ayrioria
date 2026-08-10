@@ -1,17 +1,18 @@
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_query_params.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 // Service
-import 'package:app_aryoria/src/data/datasources/remote/services/sub_categoria_service.dart';
+import 'package:app_aryoria/src/data/datasources/remote/services/subcategoria_service.dart';
 
 // Repository
 import 'package:app_aryoria/src/domain/repositories/index_repository.dart';
 
 // Models
 import 'package:app_aryoria/src/data/models/common/api_response.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/create_sub_categoria_req.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_data.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_paginado.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/update_sub_categoria_req.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_create_req.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_data.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_paginated.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_update_req.dart';
 
 class SubcategoriaRepositoryImpl implements SubcategoriaRepository {
   final SubcategoriaService subcategoriaService;
@@ -29,7 +30,7 @@ class SubcategoriaRepositoryImpl implements SubcategoriaRepository {
   Future<Resource<ApiResponse<SubcategoriaPaginated>>>
   getSubcategoriasPaginated({
     required int idEmpresa,
-    required Map<String, dynamic> queryParams,
+    required SubcategoriasParams queryParams,
   }) async {
     final token = await authRepository.getToken();
 
@@ -114,7 +115,7 @@ class SubcategoriaRepositoryImpl implements SubcategoriaRepository {
   @override
   Future<Resource<ApiResponse<SubcategoriaData>>> createSubcategoria({
     required int idEmpresa,
-    required CreateSubcategoriaRequest request,
+    required SubcategoriaCreateRequest request,
   }) async {
     final token = await authRepository.getToken();
 
@@ -136,7 +137,7 @@ class SubcategoriaRepositoryImpl implements SubcategoriaRepository {
   Future<Resource<ApiResponse<SubcategoriaData>>> updateSubcategoria({
     required int idEmpresa,
     required int idSubcategoria,
-    required UpdateSubcategoriaRequest request,
+    required SubcategoriaUpdateRequest request,
   }) async {
     final token = await authRepository.getToken();
 

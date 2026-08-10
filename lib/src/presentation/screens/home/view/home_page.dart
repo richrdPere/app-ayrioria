@@ -124,14 +124,6 @@ class HomePage extends StatelessWidget {
                       spacing: spacing,
                       children: [
                         DashboardCard(
-                          titulo: 'Tus Empresas',
-                          descripcion:
-                              'Gestiona las empresas vinculadas a tu cuenta.',
-                          icon: Icons.business,
-                          onTap: () => context.pushNamed('empresas'),
-                        ),
-
-                        DashboardCard(
                           titulo: 'Flujo Contable',
                           descripcion:
                               'Analiza saldos, ingresos, egresos y proyecciones.',
@@ -147,13 +139,21 @@ class HomePage extends StatelessWidget {
                           onTap: () => context.pushNamed('reportes'),
                         ),
 
-                        DashboardCard(
-                          titulo: 'Configuración',
-                          descripcion:
-                              'Personaliza las opciones generales de la aplicación.',
-                          icon: Icons.settings,
-                          onTap: () => context.pushNamed('configuracion'),
-                        ),
+                        // DashboardCard(
+                        //   titulo: 'Tus Empresas',
+                        //   descripcion:
+                        //       'Gestiona las empresas vinculadas a tu cuenta.',
+                        //   icon: Icons.business,
+                        //   onTap: () => context.pushNamed('empresas'),
+                        // ),
+
+                        // DashboardCard(
+                        //   titulo: 'Configuración',
+                        //   descripcion:
+                        //       'Personaliza las opciones generales de la aplicación.',
+                        //   icon: Icons.settings,
+                        //   onTap: () => context.pushNamed('configuracion'),
+                        // ),
                       ],
                     ),
 

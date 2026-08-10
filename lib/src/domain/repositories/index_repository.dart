@@ -1,6 +1,6 @@
 export 'package:app_aryoria/src/domain/repositories/flujo_contable_repository.dart';
 
-export 'package:app_aryoria/src/domain/repositories/sub_categoria_repository.dart';
+export 'package:app_aryoria/src/domain/repositories/subcategoria_repository.dart';
 
 export 'package:app_aryoria/src/domain/repositories/auth_repository.dart';
 

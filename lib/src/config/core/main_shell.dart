@@ -41,6 +41,12 @@ class MainShell extends StatelessWidget {
       case '/categorias/:idCategoria/editar':
 
       // ======================================================
+      // SUBCATEGORÍAS
+      // ======================================================
+      case '/subcategorias/crear':
+      case '/subcategorias/:idSubcategoria':
+      case '/subcategorias/:idSubcategoria/editar':
+      // ======================================================
       // PERÍODOS CONTABLES
       // ======================================================
       case '/periodos_contables/crear':

@@ -2,7 +2,7 @@ import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
 import 'package:app_aryoria/src/data/models/categoria/categoria_query_params.dart';
 import 'package:app_aryoria/src/data/models/common/api_response.dart';
 import 'package:app_aryoria/src/data/models/movimientos/movimiento_data.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_data.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_data.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_bloc.dart';

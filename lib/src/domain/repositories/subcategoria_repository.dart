@@ -1,18 +1,19 @@
 import 'package:app_aryoria/src/data/models/common/api_response.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_paginated.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_query_params.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 // Models
-import 'package:app_aryoria/src/data/models/sub_categoria/create_sub_categoria_req.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_data.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_paginado.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/update_sub_categoria_req.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_create_req.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_data.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_update_req.dart';
 
 abstract class SubcategoriaRepository {
   /// 1.- Obtener subcategorias paginadas
   Future<Resource<ApiResponse<SubcategoriaPaginated>>>
   getSubcategoriasPaginated({
     required int idEmpresa,
-    required Map<String, dynamic> queryParams,
+    required SubcategoriasParams queryParams,
   });
 
   /// 2.- Obtener subcategorias por categoria
@@ -37,14 +38,14 @@ abstract class SubcategoriaRepository {
   /// 5.- Crear subcategoria
   Future<Resource<ApiResponse<SubcategoriaData>>> createSubcategoria({
     required int idEmpresa,
-    required CreateSubcategoriaRequest request,
+    required SubcategoriaCreateRequest request,
   });
 
   /// 6.- Actualizar subcategoria
   Future<Resource<ApiResponse<SubcategoriaData>>> updateSubcategoria({
     required int idEmpresa,
     required int idSubcategoria,
-    required UpdateSubcategoriaRequest request,
+    required SubcategoriaUpdateRequest request,
   });
 
   /// 7.- Cambiar estado

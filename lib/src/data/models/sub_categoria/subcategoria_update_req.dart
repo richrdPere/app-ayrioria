@@ -1,4 +1,4 @@
-class UpdateSubcategoriaRequest {
+class SubcategoriaUpdateRequest {
   final int? idCategoria;
   final String? nombre;
   final String? descripcion;
@@ -6,7 +6,7 @@ class UpdateSubcategoriaRequest {
   final int? orden;
   final bool? estado;
 
-  const UpdateSubcategoriaRequest({
+  const SubcategoriaUpdateRequest({
     this.idCategoria,
     this.nombre,
     this.descripcion,
@@ -45,8 +45,8 @@ class UpdateSubcategoriaRequest {
     return data;
   }
 
-  factory UpdateSubcategoriaRequest.fromJson(Map<String, dynamic> json) {
-    return UpdateSubcategoriaRequest(
+  factory SubcategoriaUpdateRequest.fromJson(Map<String, dynamic> json) {
+    return SubcategoriaUpdateRequest(
       idCategoria: json['id_categoria'],
       nombre: json['nombre']?.toString(),
       descripcion: json['descripcion']?.toString(),
@@ -56,7 +56,7 @@ class UpdateSubcategoriaRequest {
     );
   }
 
-  UpdateSubcategoriaRequest copyWith({
+  SubcategoriaUpdateRequest copyWith({
     int? idCategoria,
     String? nombre,
     String? descripcion,
@@ -64,7 +64,7 @@ class UpdateSubcategoriaRequest {
     int? orden,
     bool? estado,
   }) {
-    return UpdateSubcategoriaRequest(
+    return SubcategoriaUpdateRequest(
       idCategoria: idCategoria ?? this.idCategoria,
       nombre: nombre ?? this.nombre,
       descripcion: descripcion ?? this.descripcion,

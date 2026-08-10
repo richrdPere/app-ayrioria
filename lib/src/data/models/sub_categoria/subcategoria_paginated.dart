@@ -1,4 +1,4 @@
-import 'package:app_aryoria/src/data/models/sub_categoria/sub_categoria_data.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_data.dart';
 
 class SubcategoriaPaginated {
   final List<SubcategoriaData> items;

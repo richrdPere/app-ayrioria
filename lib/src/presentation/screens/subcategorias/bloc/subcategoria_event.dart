@@ -1,8 +1,9 @@
 import 'package:equatable/equatable.dart';
 
 // Models
-import 'package:app_aryoria/src/data/models/sub_categoria/create_sub_categoria_req.dart';
-import 'package:app_aryoria/src/data/models/sub_categoria/update_sub_categoria_req.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_create_req.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_update_req.dart';
+import 'package:app_aryoria/src/data/models/sub_categoria/subcategoria_query_params.dart';
 
 abstract class SubcategoriaEvent extends Equatable {
   const SubcategoriaEvent();
@@ -12,39 +13,27 @@ abstract class SubcategoriaEvent extends Equatable {
 }
 
 // *****************************************************************************
-// 1.- Obtener subcategorias paginadas
+// 1.- OBTENER SUBCATEGORÍAS PAGINADAS
 // *****************************************************************************
 class GetSubcategoriasPaginatedEvent extends SubcategoriaEvent {
   final int idEmpresa;
-  final Map<String, dynamic> queryParams;
+  final SubcategoriasParams queryParams;
+
+  /// Indica que la consulta debe considerarse una recarga del listado.
+  final bool refresh;
 
   const GetSubcategoriasPaginatedEvent({
     required this.idEmpresa,
     required this.queryParams,
+    this.refresh = false,
   });
 
   @override
-  List<Object?> get props => [idEmpresa, queryParams];
+  List<Object?> get props => [idEmpresa, queryParams, refresh];
 }
 
 // *****************************************************************************
-// 2.- Refrescar subcategorias paginadas
-// *****************************************************************************
-class RefreshSubcategoriasEvent extends SubcategoriaEvent {
-  final int idEmpresa;
-  final Map<String, dynamic> queryParams;
-
-  const RefreshSubcategoriasEvent({
-    required this.idEmpresa,
-    required this.queryParams,
-  });
-
-  @override
-  List<Object?> get props => [idEmpresa, queryParams];
-}
-
-// *****************************************************************************
-// 3.- Obtener subcategorias por categoria
+// 2.- OBTENER SUBCATEGORÍAS POR CATEGORÍA
 // *****************************************************************************
 class GetSubcategoriasByCategoriaEvent extends SubcategoriaEvent {
   final int idEmpresa;
@@ -60,7 +49,7 @@ class GetSubcategoriasByCategoriaEvent extends SubcategoriaEvent {
 }
 
 // *****************************************************************************
-// 4.- Obtener subcategorias por tipo
+// 3.- OBTENER SUBCATEGORÍAS POR TIPO
 // *****************************************************************************
 class GetSubcategoriasByTipoEvent extends SubcategoriaEvent {
   final int idEmpresa;
@@ -76,7 +65,7 @@ class GetSubcategoriasByTipoEvent extends SubcategoriaEvent {
 }
 
 // *****************************************************************************
-// 5.- Obtener subcategoria por ID
+// 4.- OBTENER SUBCATEGORÍA POR ID
 // *****************************************************************************
 class GetSubcategoriaByIdEvent extends SubcategoriaEvent {
   final int idEmpresa;
@@ -92,11 +81,11 @@ class GetSubcategoriaByIdEvent extends SubcategoriaEvent {
 }
 
 // *****************************************************************************
-// 6.- Crear subcategoria
+// 5.- CREAR SUBCATEGORÍA
 // *****************************************************************************
 class CreateSubcategoriaEvent extends SubcategoriaEvent {
   final int idEmpresa;
-  final CreateSubcategoriaRequest request;
+  final SubcategoriaCreateRequest request;
 
   const CreateSubcategoriaEvent({
     required this.idEmpresa,
@@ -108,12 +97,12 @@ class CreateSubcategoriaEvent extends SubcategoriaEvent {
 }
 
 // *****************************************************************************
-// 7.- Actualizar subcategoria
+// 6.- ACTUALIZAR SUBCATEGORÍA
 // *****************************************************************************
 class UpdateSubcategoriaEvent extends SubcategoriaEvent {
   final int idEmpresa;
   final int idSubcategoria;
-  final UpdateSubcategoriaRequest request;
+  final SubcategoriaUpdateRequest request;
 
   const UpdateSubcategoriaEvent({
     required this.idEmpresa,
@@ -126,7 +115,7 @@ class UpdateSubcategoriaEvent extends SubcategoriaEvent {
 }
 
 // *****************************************************************************
-// 8.- Cambiar estado de subcategoria
+// 7.- CAMBIAR ESTADO
 // *****************************************************************************
 class ChangeSubcategoriaEstadoEvent extends SubcategoriaEvent {
   final int idEmpresa;
@@ -144,7 +133,7 @@ class ChangeSubcategoriaEstadoEvent extends SubcategoriaEvent {
 }
 
 // *****************************************************************************
-// 9.- Eliminar subcategoria
+// 8.- ELIMINAR SUBCATEGORÍA
 // *****************************************************************************
 class DeleteSubcategoriaEvent extends SubcategoriaEvent {
   final int idEmpresa;
@@ -160,22 +149,29 @@ class DeleteSubcategoriaEvent extends SubcategoriaEvent {
 }
 
 // *****************************************************************************
-// 10.- Limpiar respuesta de acciones
+// 9.- LIMPIAR RESPUESTA DE ACCIÓN
 // *****************************************************************************
 class ClearSubcategoriaActionResponseEvent extends SubcategoriaEvent {
   const ClearSubcategoriaActionResponseEvent();
 }
 
 // *****************************************************************************
-// 11.- Limpiar detalle seleccionado
+// 10.- LIMPIAR DETALLE
 // *****************************************************************************
 class ClearSubcategoriaDetailEvent extends SubcategoriaEvent {
   const ClearSubcategoriaDetailEvent();
 }
 
 // *****************************************************************************
-// 12.- Limpiar listas auxiliares
+// 11.- LIMPIAR LISTAS AUXILIARES
 // *****************************************************************************
 class ClearSubcategoriaAuxiliaryListsEvent extends SubcategoriaEvent {
   const ClearSubcategoriaAuxiliaryListsEvent();
+}
+
+// *****************************************************************************
+// 12.- RESET GENERAL
+// *****************************************************************************
+class ResetSubcategoriaStateEvent extends SubcategoriaEvent {
+  const ResetSubcategoriaStateEvent();
 }
