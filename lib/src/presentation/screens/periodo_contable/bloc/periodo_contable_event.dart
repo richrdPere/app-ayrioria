@@ -1,5 +1,8 @@
 import 'package:equatable/equatable.dart';
 
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_query_params.dart';
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_request.dart';
+
 abstract class PeriodoContableEvent extends Equatable {
   const PeriodoContableEvent();
 
@@ -12,23 +15,17 @@ abstract class PeriodoContableEvent extends Equatable {
 // ==========================================================
 class GetPeriodosContablesEvent extends PeriodoContableEvent {
   final int idEmpresa;
-  final int page;
-  final int limit;
-  final String? search;
-  final String? estado;
+  final PeriodosContablesParams queryParams;
   final bool refresh;
 
   const GetPeriodosContablesEvent({
     required this.idEmpresa,
-    this.page = 1,
-    this.limit = 10,
-    this.search,
-    this.estado,
+    required this.queryParams,
     this.refresh = false,
   });
 
   @override
-  List<Object?> get props => [idEmpresa, page, limit, search, estado, refresh];
+  List<Object?> get props => [idEmpresa, queryParams, refresh];
 }
 
 // ==========================================================
@@ -51,37 +48,12 @@ class GetPeriodoContableByIdEvent extends PeriodoContableEvent {
 // CREAR PERÍODO CONTABLE
 // ==========================================================
 class CreatePeriodoContableEvent extends PeriodoContableEvent {
-  final int idEmpresa;
-  final String nombre;
-  final int anio;
-  final int mes;
-  final String fechaInicio;
-  final String fechaFin;
-  final double saldoInicial;
-  final String? observacion;
+  final PeriodoContableRequest request;
 
-  const CreatePeriodoContableEvent({
-    required this.idEmpresa,
-    required this.nombre,
-    required this.anio,
-    required this.mes,
-    required this.fechaInicio,
-    required this.fechaFin,
-    required this.saldoInicial,
-    this.observacion,
-  });
+  const CreatePeriodoContableEvent({required this.request});
 
   @override
-  List<Object?> get props => [
-    idEmpresa,
-    nombre,
-    anio,
-    mes,
-    fechaInicio,
-    fechaFin,
-    saldoInicial,
-    observacion,
-  ];
+  List<Object?> get props => [request];
 }
 
 // ==========================================================
@@ -90,38 +62,16 @@ class CreatePeriodoContableEvent extends PeriodoContableEvent {
 class UpdatePeriodoContableEvent extends PeriodoContableEvent {
   final int idPeriodo;
   final int idEmpresa;
-  final String nombre;
-  final int anio;
-  final int mes;
-  final String fechaInicio;
-  final String fechaFin;
-  final double saldoInicial;
-  final String? observacion;
+  final PeriodoContableRequest request;
 
   const UpdatePeriodoContableEvent({
     required this.idPeriodo,
     required this.idEmpresa,
-    required this.nombre,
-    required this.anio,
-    required this.mes,
-    required this.fechaInicio,
-    required this.fechaFin,
-    required this.saldoInicial,
-    this.observacion,
+    required this.request,
   });
 
   @override
-  List<Object?> get props => [
-    idPeriodo,
-    idEmpresa,
-    nombre,
-    anio,
-    mes,
-    fechaInicio,
-    fechaFin,
-    saldoInicial,
-    observacion,
-  ];
+  List<Object?> get props => [idPeriodo, idEmpresa, request];
 }
 
 // ==========================================================
@@ -142,7 +92,6 @@ class DeletePeriodoContableEvent extends PeriodoContableEvent {
 
 // ==========================================================
 // CAMBIAR ESTADO DEL PERÍODO
-// Por ejemplo: ABIERTO o CERRADO
 // ==========================================================
 class ChangeEstadoPeriodoContableEvent extends PeriodoContableEvent {
   final int idPeriodo;

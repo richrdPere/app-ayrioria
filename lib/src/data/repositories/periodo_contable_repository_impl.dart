@@ -1,16 +1,15 @@
-import 'package:flutter/foundation.dart';
-
 // Models
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_data.dart';
 import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_paginated.dart';
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_query_params.dart';
 import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_request.dart';
-import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_response.dart';
 
 // Services
 import 'package:app_aryoria/src/data/datasources/remote/services/periodo_contable_service.dart';
 
 // Repositories
-import 'package:app_aryoria/src/domain/repositories/auth_repository.dart';
-import 'package:app_aryoria/src/domain/repositories/periodo_contable_repository.dart';
+import 'package:app_aryoria/src/domain/repositories/index_repository.dart';
 
 // Resource
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
@@ -24,199 +23,141 @@ class PeriodoContableRepositoryImpl implements PeriodoContableRepository {
     required this.authRepository,
   });
 
-  // OBTENER TOKEN DE LA SESIÓN
-  Future<String?> _getToken() async {
-    try {
-      final token = await authRepository.getToken();
+  // *********************************************************
+  // 1.- Crear Periodo Contable
+  // *********************************************************
+  @override
+  Future<Resource<ApiResponse<PeriodoContableData>>> createPeriodoContable(
+    PeriodoContableRequest request,
+  ) async {
+    final token = await authRepository.getToken();
 
-      if (token == null || token.isEmpty) {
-        return null;
-      }
-
-      return token;
-    } catch (error) {
-      debugPrint('ERROR OBTENIENDO TOKEN DE SESIÓN: $error');
-
-      return null;
+    if (token == null) {
+      return ErrorData("No existe una sesión iniciada.");
     }
-  }
 
-  ErrorData<T> _sessionError<T>() {
-    return ErrorData<T>(
-      'No existe una sesión válida. Inicie sesión nuevamente.',
+    return await periodoService.createPeriodoContable(
+      token: token,
+      request: request,
     );
   }
 
-  /// 1. CREAR PERÍODO CONTABLE
+  // *********************************************************
+  // 2.- OBTENER PERÍODOS CONTABLES PAGINADOS
+  // *********************************************************
   @override
-  Future<Resource<PeriodoContableResponse>> createPeriodoContable(
-    PeriodoContableRequest request,
-  ) async {
-    try {
-      final token = await _getToken();
-
-      if (token == null) {
-        return _sessionError<PeriodoContableResponse>();
-      }
-
-      return await periodoService.createPeriodoContable(
-        token: token,
-        request: request,
-      );
-    } catch (error) {
-      debugPrint('ERROR REPOSITORY CREAR PERIODO: $error');
-
-      return ErrorData<PeriodoContableResponse>(
-        'No se pudo crear el período contable.',
-      );
-    }
-  }
-
-  /// 2. LISTAR PERÍODOS CONTABLES
-  @override
-  Future<Resource<PeriodoContablePaginatedResponse>> getPeriodosContables({
+  Future<Resource<ApiResponse<PeriodoContablePaginated>>> getPeriodosContables({
     required int idEmpresa,
-    required Map<String, dynamic> queryParams,
+    required PeriodosContablesParams queryParams,
   }) async {
-    try {
-      final token = await _getToken();
+    final token = await authRepository.getToken();
 
-      if (token == null) {
-        return _sessionError<PeriodoContablePaginatedResponse>();
-      }
-
-      return await periodoService.getPeriodosContables(
-        token: token,
-        idEmpresa: idEmpresa,
-        queryParams: queryParams,
-      );
-    } catch (error) {
-      debugPrint('ERROR REPOSITORY LISTAR PERIODOS: $error');
-
-      return ErrorData<PeriodoContablePaginatedResponse>(
-        'No se pudieron obtener los períodos contables.',
-      );
+    if (token == null) {
+      return ErrorData("No existe una sesión iniciada.");
     }
+
+    return await periodoService.getPeriodosContables(
+      token: token,
+      idEmpresa: idEmpresa,
+      queryParams: queryParams,
+    );
   }
 
-  /// 3. OBTENER PERÍODO POR ID
+  // *********************************************************
+  // 3.- Obtener Periodo Contable por Id
+  // *********************************************************
   @override
-  Future<Resource<PeriodoContableResponse>> getPeriodoContableById({
+  Future<Resource<ApiResponse<PeriodoContableData>>> getPeriodoContableById({
     required int idPeriodo,
     required int idEmpresa,
   }) async {
-    try {
-      final token = await _getToken();
+    final token = await authRepository.getToken();
 
-      if (token == null) {
-        return _sessionError<PeriodoContableResponse>();
-      }
-
-      return await periodoService.getPeriodoContableById(
-        token: token,
-        idPeriodo: idPeriodo,
-        idEmpresa: idEmpresa,
-      );
-    } catch (error) {
-      debugPrint('ERROR REPOSITORY DETALLE PERIODO: $error');
-
-      return ErrorData<PeriodoContableResponse>(
-        'No se pudo obtener el período contable.',
-      );
+    if (token == null) {
+      return ErrorData("No existe una sesión iniciada.");
     }
+
+    return await periodoService.getPeriodoContableById(
+      token: token,
+      idPeriodo: idPeriodo,
+      idEmpresa: idEmpresa,
+    );
   }
 
-  /// 4. ACTUALIZAR PERÍODO CONTABLE
+  // *********************************************************
+  // 4.- Actualizar Periodo Contable
+  // *********************************************************
   @override
-  Future<Resource<PeriodoContableResponse>> updatePeriodoContable({
+  Future<Resource<ApiResponse<PeriodoContableData>>> updatePeriodoContable({
     required int idPeriodo,
     required int idEmpresa,
     required PeriodoContableRequest request,
   }) async {
-    try {
-      final token = await _getToken();
+    final token = await authRepository.getToken();
 
-      if (token == null) {
-        return _sessionError<PeriodoContableResponse>();
-      }
-
-      return await periodoService.updatePeriodoContable(
-        token: token,
-        idPeriodo: idPeriodo,
-        idEmpresa: idEmpresa,
-        request: request,
-      );
-    } catch (error) {
-      debugPrint('ERROR REPOSITORY ACTUALIZAR PERIODO: $error');
-
-      return ErrorData<PeriodoContableResponse>(
-        'No se pudo actualizar el período contable.',
-      );
+    if (token == null) {
+      return ErrorData("No existe una sesión iniciada.");
     }
+
+    return await periodoService.updatePeriodoContable(
+      token: token,
+      idPeriodo: idPeriodo,
+      idEmpresa: idEmpresa,
+      request: request,
+    );
   }
 
-  /// 5. ELIMINAR PERÍODO CONTABLE
+  // *********************************************************
+  // 5.- Eliminar Periodo Contable
+  // *********************************************************
   @override
-  Future<Resource<PeriodoContableResponse>> deletePeriodoContable({
+  Future<Resource<ApiResponse<void>>> deletePeriodoContable({
     required int idPeriodo,
     required int idEmpresa,
   }) async {
-    try {
-      final token = await _getToken();
+    final token = await authRepository.getToken();
 
-      if (token == null) {
-        return _sessionError<PeriodoContableResponse>();
-      }
-
-      return await periodoService.deletePeriodoContable(
-        token: token,
-        idPeriodo: idPeriodo,
-        idEmpresa: idEmpresa,
-      );
-    } catch (error) {
-      debugPrint('ERROR REPOSITORY ELIMINAR PERIODO: $error');
-
-      return ErrorData<PeriodoContableResponse>(
-        'No se pudo eliminar el período contable.',
-      );
+    if (token == null) {
+      return ErrorData("No existe una sesión iniciada.");
     }
+
+    return await periodoService.deletePeriodoContable(
+      token: token,
+      idPeriodo: idPeriodo,
+      idEmpresa: idEmpresa,
+    );
   }
 
-  /// 6. CAMBIAR ESTADO DEL PERÍODO
+  // *********************************************************
+  // 6.- Cambiar Estado de Periodo Contable
+  // *********************************************************
   @override
-  Future<Resource<PeriodoContableResponse>> changeEstadoPeriodoContable({
+  Future<Resource<ApiResponse<PeriodoContableData>>>
+  changeEstadoPeriodoContable({
     required int idPeriodo,
     required int idEmpresa,
     required String estado,
   }) async {
-    try {
-      final token = await _getToken();
+    final token = await authRepository.getToken();
 
-      if (token == null) {
-        return _sessionError<PeriodoContableResponse>();
-      }
+    if (token == null) {
+      return ErrorData("No existe una sesión iniciada.");
+    }
 
-      final normalizedEstado = estado.trim().toUpperCase();
+    final normalizedEstado = estado.trim().toUpperCase();
 
-      if (!_isValidEstado(normalizedEstado)) {
-        return ErrorData<PeriodoContableResponse>(
-          'El estado del período contable no es válido.',
-        );
-      }
-
-      return await periodoService.changeEstadoPeriodoContable(
-        token: token,
-        idPeriodo: idPeriodo,
-        idEmpresa: idEmpresa,
-        estado: normalizedEstado,
-      );
-    } catch (error) {
-      debugPrint('ERROR REPOSITORY CAMBIAR ESTADO PERIODO: $error');
-
-      return ErrorData<PeriodoContableResponse>(
-        'No se pudo cambiar el estado del período contable.',
+    if (!_isValidEstado(normalizedEstado)) {
+      return ErrorData<ApiResponse<PeriodoContableData>>(
+        'El estado del período contable no es válido.',
       );
     }
+
+    return await periodoService.changeEstadoPeriodoContable(
+      token: token,
+      idPeriodo: idPeriodo,
+      idEmpresa: idEmpresa,
+      estado: normalizedEstado,
+    );
   }
 
   bool _isValidEstado(String estado) {

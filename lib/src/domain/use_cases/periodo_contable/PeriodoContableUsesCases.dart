@@ -1,9 +1,6 @@
-import 'package:app_aryoria/src/domain/use_cases/periodo_contable/periodo_contable_uses_cases/ChangeEstadoPeriodoCUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/periodo_contable/periodo_contable_uses_cases/CreatePeriodoCUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/periodo_contable/periodo_contable_uses_cases/DeletePeriodoCUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/periodo_contable/periodo_contable_uses_cases/GetPeriodoCByIdUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/periodo_contable/periodo_contable_uses_cases/GetPeriodoCUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/periodo_contable/periodo_contable_uses_cases/UpdatePeriodoCUseCase.dart';
+
+
+import 'package:app_aryoria/src/domain/use_cases/index_uses_cases.dart';
 
 class PeriodoContableUsesCases {
   ChangeEstadoPeriodoCUseCase changeEstadoPeriodoC;

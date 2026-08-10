@@ -4,7 +4,7 @@ import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_da
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 class PeriodoContableState extends Equatable {
-  /// Lista acumulada de períodos contables.
+  /// Lista de períodos contables.
   final List<PeriodoContableData> periodos;
 
   /// Período obtenido mediante búsqueda por ID.
@@ -19,22 +19,30 @@ class PeriodoContableState extends Equatable {
   /// Respuesta al obtener el detalle por ID.
   final Resource? detailResponse;
 
+  // ==========================================================
+  // PAGINACIÓN
+  // ==========================================================
+
   /// Página cargada actualmente.
   final int page;
 
-  /// Límite de registros por página.
+  /// Cantidad de registros solicitados por página.
   final int limit;
+
+  /// Total de registros encontrados.
+  final int total;
 
   /// Total de páginas devuelto por el backend.
   final int totalPages;
 
-  /// Indica si todavía existen más páginas.
-  final bool hasMore;
+  /// Indica si existe una página siguiente.
+  final bool hasNextPage;
+
+  /// Indica si existe una página anterior.
+  final bool hasPreviousPage;
 
   /// Indica si se está cargando una página adicional.
   final bool isLoadingMore;
-
-  /// Periodo contable activo
 
   const PeriodoContableState({
     this.periodos = const [],
@@ -44,8 +52,10 @@ class PeriodoContableState extends Equatable {
     this.detailResponse,
     this.page = 1,
     this.limit = 10,
-    this.totalPages = 1,
-    this.hasMore = true,
+    this.total = 0,
+    this.totalPages = 0,
+    this.hasNextPage = false,
+    this.hasPreviousPage = false,
     this.isLoadingMore = false,
   });
 
@@ -74,19 +84,39 @@ class PeriodoContableState extends Equatable {
   /// Indica si existe un período contable abierto.
   bool get tienePeriodoActivo => periodoActivo != null;
 
+  // ==========================================================
+  // HELPERS PAGINACIÓN
+  // ==========================================================
+  bool get isFirstPage => page <= 1;
+  bool get isLastPage => !hasNextPage;
+  bool get tienePeriodos => periodos.isNotEmpty;
+  bool get isEmpty => periodos.isEmpty;
+
+  // ==========================================================
+  // COPY WITH
+  // ==========================================================
+
   PeriodoContableState copyWith({
     List<PeriodoContableData>? periodos,
+
     PeriodoContableData? periodoSelected,
     bool clearPeriodoSelected = false,
+
     Resource? response,
+    bool clearResponse = false,
+
     Resource? actionResponse,
     bool clearActionResponse = false,
+
     Resource? detailResponse,
     bool clearDetailResponse = false,
+
     int? page,
     int? limit,
+    int? total,
     int? totalPages,
-    bool? hasMore,
+    bool? hasNextPage,
+    bool? hasPreviousPage,
     bool? isLoadingMore,
   }) {
     return PeriodoContableState(
@@ -94,7 +124,7 @@ class PeriodoContableState extends Equatable {
       periodoSelected: clearPeriodoSelected
           ? null
           : periodoSelected ?? this.periodoSelected,
-      response: response ?? this.response,
+      response: clearResponse ? null : response ?? this.response,
       actionResponse: clearActionResponse
           ? null
           : actionResponse ?? this.actionResponse,
@@ -103,12 +133,17 @@ class PeriodoContableState extends Equatable {
           : detailResponse ?? this.detailResponse,
       page: page ?? this.page,
       limit: limit ?? this.limit,
+      total: total ?? this.total,
       totalPages: totalPages ?? this.totalPages,
-      hasMore: hasMore ?? this.hasMore,
+      hasNextPage: hasNextPage ?? this.hasNextPage,
+      hasPreviousPage: hasPreviousPage ?? this.hasPreviousPage,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
     );
   }
 
+  // ==========================================================
+  // EQUATABLE
+  // ==========================================================
   @override
   List<Object?> get props => [
     periodos,
@@ -118,8 +153,10 @@ class PeriodoContableState extends Equatable {
     detailResponse,
     page,
     limit,
+    total,
     totalPages,
-    hasMore,
+    hasNextPage,
+    hasPreviousPage,
     isLoadingMore,
   ];
 }

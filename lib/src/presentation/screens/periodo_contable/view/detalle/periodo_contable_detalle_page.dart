@@ -1,13 +1,22 @@
-import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
-import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_data.dart';
-import 'package:app_aryoria/src/domain/utils/Resource.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_event.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+// Session
+import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
+
+// Models
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_data.dart';
+
+// Resource
+import 'package:app_aryoria/src/domain/utils/Resource.dart';
+
+// Bloc
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_event.dart';
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_state.dart';
+
+// Content
 import 'periodo_contable_detalle_content.dart';
 
 class PeriodoContableDetallePage extends StatefulWidget {
@@ -26,10 +35,16 @@ class _PeriodoContableDetallePageState
 
   late PeriodoContableBloc _periodoContableBloc;
 
+  // ==========================================================
+  // EMPRESA ACTIVA
+  // ==========================================================
   int? get _idEmpresa {
     return context.read<SessionBloc>().state.empresaActiva?.idEmpresa;
   }
 
+  // ==========================================================
+  // DEPENDENCIAS
+  // ==========================================================
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -37,13 +52,30 @@ class _PeriodoContableDetallePageState
     _periodoContableBloc = context.read<PeriodoContableBloc>();
   }
 
+  // ==========================================================
+  // INIT
+  // ==========================================================
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(_loadPeriodo);
+    Future.microtask(() {
+      if (!mounted) {
+        return;
+      }
+
+      // Limpiar cualquier detalle anterior.
+      context.read<PeriodoContableBloc>().add(
+        const ClearPeriodoContableSelectedEvent(),
+      );
+
+      _loadPeriodo();
+    });
   }
 
+  // ==========================================================
+  // DISPOSE
+  // ==========================================================
   @override
   void dispose() {
     _periodoContableBloc.add(const ClearPeriodoContableSelectedEvent());
@@ -70,136 +102,19 @@ class _PeriodoContableDetallePageState
   }
 
   // ==========================================================
-  // EDITAR
+  // CERRAR FULLSCREEN DIALOG
   // ==========================================================
-  Future<void> _onEdit() async {
-    final result = await context.push(
-      '/periodos_contables/${widget.idPeriodo}/editar',
-    );
-
+  void _close({bool result = false}) {
     if (!mounted) {
       return;
     }
 
-    if (result == true) {
-      _loadPeriodo();
-    }
+    context.pop(result);
   }
 
   // ==========================================================
-  // CAMBIAR ESTADO
+  // MENSAJE SUCCESS
   // ==========================================================
-  Future<void> _onChangeEstado(PeriodoContableData periodo) async {
-    final int? idEmpresa = _idEmpresa;
-
-    if (idEmpresa == null) {
-      _showError('No se encontró la empresa activa.');
-
-      return;
-    }
-
-    final bool isOpen = periodo.estado.toUpperCase() == 'ABIERTO';
-
-    final String nuevoEstado = isOpen ? 'CERRADO' : 'ABIERTO';
-
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(isOpen ? 'Cerrar período' : 'Abrir período'),
-          content: Text(
-            isOpen
-                ? '¿Está seguro de cerrar el período "${periodo.nombre}"?'
-                : '¿Está seguro de abrir nuevamente el período "${periodo.nombre}"?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext, false);
-              },
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              onPressed: () {
-                Navigator.pop(dialogContext, true);
-              },
-              child: Text(isOpen ? 'Cerrar' : 'Abrir'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmed != true || !mounted) {
-      return;
-    }
-
-    _isDeleting = false;
-
-    context.read<PeriodoContableBloc>().add(
-      ChangeEstadoPeriodoContableEvent(
-        idPeriodo: periodo.idPeriodo,
-        idEmpresa: idEmpresa,
-        estado: nuevoEstado,
-      ),
-    );
-  }
-
-  // ==========================================================
-  // ELIMINAR
-  // ==========================================================
-  Future<void> _onDelete(PeriodoContableData periodo) async {
-    final int? idEmpresa = _idEmpresa;
-
-    if (idEmpresa == null) {
-      _showError('No se encontró la empresa activa.');
-
-      return;
-    }
-
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Eliminar período'),
-          content: Text(
-            '¿Está seguro de eliminar el período '
-            '"${periodo.nombre}"?\n\n'
-            'Esta acción podría no estar permitida si existen movimientos asociados.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext, false);
-              },
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: Colors.red),
-              onPressed: () {
-                Navigator.pop(dialogContext, true);
-              },
-              child: const Text('Eliminar'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmed != true || !mounted) {
-      return;
-    }
-
-    _isDeleting = true;
-
-    context.read<PeriodoContableBloc>().add(
-      DeletePeriodoContableEvent(
-        idPeriodo: periodo.idPeriodo,
-        idEmpresa: idEmpresa,
-      ),
-    );
-  }
-
   String _getSuccessMessage(Resource response) {
     if (response is Success) {
       final dynamic result = response.data;
@@ -218,21 +133,27 @@ class _PeriodoContableDetallePageState
     return 'Operación realizada correctamente.';
   }
 
+  // ==========================================================
+  // MENSAJE ERROR
+  // ==========================================================
   String _getErrorMessage(ErrorData response) {
-    try {
-      final dynamic message = response.error;
+    final dynamic error = response.error;
 
-      if (message != null && message.toString().trim().isNotEmpty) {
-        return message.toString();
-      }
-    } catch (_) {
-      // Compatibilidad con Resource anterior.
+    if (error != null && error.toString().trim().isNotEmpty) {
+      return error.toString();
     }
 
-    return response.error.toString();
+    return 'Ocurrió un error inesperado.';
   }
 
+  // ==========================================================
+  // MOSTRAR ERROR
+  // ==========================================================
   void _showError(String message) {
+    if (!mounted) {
+      return;
+    }
+
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -240,16 +161,27 @@ class _PeriodoContableDetallePageState
       );
   }
 
+  // ==========================================================
+  // BUILD
+  // ==========================================================
   @override
   Widget build(BuildContext context) {
     final int? idEmpresa = _idEmpresa;
 
     return BlocListener<PeriodoContableBloc, PeriodoContableState>(
-      listenWhen: (previous, current) =>
-          previous.actionResponse != current.actionResponse,
+      listenWhen: (previous, current) {
+        return previous.actionResponse != current.actionResponse;
+      },
+
+      // ========================================================
+      // LISTENER DE ACCIONES
+      // ========================================================
       listener: (context, state) {
         final Resource? response = state.actionResponse;
 
+        // ======================================================
+        // SUCCESS
+        // ======================================================
         if (response is Success) {
           final String message = _getSuccessMessage(response);
 
@@ -263,14 +195,28 @@ class _PeriodoContableDetallePageState
               SnackBar(content: Text(message), backgroundColor: Colors.green),
             );
 
+          // ====================================================
+          // ELIMINADO
+          // ====================================================
           if (_isDeleting) {
-            context.pop(true);
+            _isDeleting = false;
+
+            _close(result: true);
+
             return;
           }
 
+          // ====================================================
+          // CAMBIO DE ESTADO
+          // ====================================================
           _loadPeriodo();
+
+          return;
         }
 
+        // ======================================================
+        // ERROR
+        // ======================================================
         if (response is ErrorData) {
           _isDeleting = false;
 
@@ -281,53 +227,76 @@ class _PeriodoContableDetallePageState
           );
         }
       },
-      child: idEmpresa == null
-          ? const _EmpresaNoSeleccionada()
-          : BlocBuilder<PeriodoContableBloc, PeriodoContableState>(
-              buildWhen: (previous, current) =>
-                  previous.detailResponse != current.detailResponse ||
-                  previous.periodoSelected != current.periodoSelected ||
-                  previous.actionResponse != current.actionResponse,
-              builder: (context, state) {
-                if (state.detailResponse is Loading) {
-                  return const _PeriodoDetalleLoading();
-                }
 
-                if (state.detailResponse is ErrorData) {
-                  final ErrorData error = state.detailResponse as ErrorData;
+      // ========================================================
+      // FULLSCREEN DIALOG
+      // ========================================================
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            tooltip: 'Cerrar',
+            onPressed: () {
+              _close();
+            },
+            icon: const Icon(Icons.close),
+          ),
+          title: const Text('Detalle del período'),
+        ),
 
-                  return _PeriodoDetalleError(
-                    message: _getErrorMessage(error),
-                    onRetry: _loadPeriodo,
-                  );
-                }
+        body: idEmpresa == null
+            ? const _EmpresaNoSeleccionada()
+            : BlocBuilder<PeriodoContableBloc, PeriodoContableState>(
+                buildWhen: (previous, current) {
+                  return previous.detailResponse != current.detailResponse ||
+                      previous.periodoSelected != current.periodoSelected ||
+                      previous.actionResponse != current.actionResponse;
+                },
+                builder: (context, state) {
+                  // =============================================
+                  // LOADING
+                  // =============================================
+                  if (state.detailResponse is Loading) {
+                    return const _PeriodoDetalleLoading();
+                  }
 
-                final PeriodoContableData? periodo = state.periodoSelected;
+                  // =============================================
+                  // ERROR
+                  // =============================================
+                  if (state.detailResponse is ErrorData) {
+                    final ErrorData error = state.detailResponse as ErrorData;
 
-                if (periodo == null) {
-                  return _PeriodoDetalleError(
-                    message: 'No se encontró el período contable.',
-                    onRetry: _loadPeriodo,
-                  );
-                }
+                    return _PeriodoDetalleError(
+                      message: _getErrorMessage(error),
+                      onRetry: _loadPeriodo,
+                    );
+                  }
 
-                return PeriodoContableDetalleContent(
-                  periodo: periodo,
-                  isProcessing: state.actionResponse is Loading,
-                  onEdit: _onEdit,
-                  onDelete: () {
-                    _onDelete(periodo);
-                  },
-                  onChangeEstado: () {
-                    _onChangeEstado(periodo);
-                  },
-                );
-              },
-            ),
+                  // =============================================
+                  // DATA
+                  // =============================================
+                  final PeriodoContableData? periodo = state.periodoSelected;
+
+                  if (periodo == null) {
+                    return _PeriodoDetalleError(
+                      message: 'No se encontró el período contable.',
+                      onRetry: _loadPeriodo,
+                    );
+                  }
+
+                  // =============================================
+                  // CONTENT
+                  // =============================================
+                  return PeriodoContableDetalleContent(periodo: periodo);
+                },
+              ),
+      ),
     );
   }
 }
 
+// ==========================================================
+// EMPRESA NO SELECCIONADA
+// ==========================================================
 class _EmpresaNoSeleccionada extends StatelessWidget {
   const _EmpresaNoSeleccionada();
 
@@ -343,11 +312,13 @@ class _EmpresaNoSeleccionada extends StatelessWidget {
             SizedBox(height: 16),
             Text(
               'No hay una empresa activa.',
+              textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8),
             Text(
-              'Seleccione una empresa para consultar el período contable.',
+              'Seleccione una empresa para consultar '
+              'el período contable.',
               textAlign: TextAlign.center,
             ),
           ],
@@ -357,6 +328,9 @@ class _EmpresaNoSeleccionada extends StatelessWidget {
   }
 }
 
+// ==========================================================
+// LOADING DETALLE
+// ==========================================================
 class _PeriodoDetalleLoading extends StatelessWidget {
   const _PeriodoDetalleLoading();
 
@@ -366,6 +340,9 @@ class _PeriodoDetalleLoading extends StatelessWidget {
   }
 }
 
+// ==========================================================
+// ERROR DETALLE
+// ==========================================================
 class _PeriodoDetalleError extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;

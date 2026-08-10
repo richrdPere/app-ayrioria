@@ -233,7 +233,9 @@ class MovimientoService {
   }) async {
     try {
       // 1.- URL
-      final url = Uri.parse('$API_DELETE_MOVIMIENTO$idMovimiento');
+      final url = Uri.parse(
+        '$API_DELETE_MOVIMIENTO$idMovimiento',
+      ).replace(queryParameters: {'id_empresa': idEmpresa.toString()});
 
       // 2.- Response
       final response = await http.delete(

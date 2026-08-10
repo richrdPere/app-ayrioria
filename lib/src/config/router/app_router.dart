@@ -23,9 +23,9 @@ import 'package:app_aryoria/src/presentation/screens/home/view/home_page.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/view/listado/movimiento_page.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/view/detalle/movimiento_detalle_page.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/view/form/movimiento_form_page.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/page/periodo_contable_page.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/periodo_contable_detalle/periodo_contable_detalle_page.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/periodo_contable_form/periodo_contable_form_page.dart';
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/listado/periodo_contable_page.dart';
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/detalle/periodo_contable_detalle_page.dart';
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/form/periodo_contable_form_page.dart';
 import 'package:app_aryoria/src/presentation/screens/reportes/view/reportes_page.dart';
 
 // Shared
@@ -194,7 +194,13 @@ final GoRouter appRouter = GoRouter(
                   state.pathParameters['idPeriodo'] ?? '',
                 );
 
-                return PeriodoContableDetallePage(idPeriodo: idPeriodo!);
+                if (idPeriodo == null) {
+                  return const Scaffold(
+                    body: Center(child: Text('Período contable inválido')),
+                  );
+                }
+
+                return PeriodoContableDetallePage(idPeriodo: idPeriodo);
               },
               routes: [
                 // - Actualizar
@@ -206,19 +212,23 @@ final GoRouter appRouter = GoRouter(
                       state.pathParameters['idPeriodo'] ?? '',
                     );
 
+                    if (idPeriodo == null) {
+                      return MaterialPage(
+                        key: state.pageKey,
+                        child: const Scaffold(
+                          body: Center(
+                            child: Text('Período contable inválido'),
+                          ),
+                        ),
+                      );
+                    }
+
                     return MaterialPage(
                       key: state.pageKey,
                       fullscreenDialog: true,
                       child: PeriodoContableFormPage(idPeriodo: idPeriodo),
                     );
                   },
-                  // builder: (context, state) {
-                  //   final idPeriodo = int.tryParse(
-                  //     state.pathParameters['idPeriodo'] ?? '',
-                  //   );
-
-                  //   return PeriodoContableFormPage(idPeriodo: idPeriodo);
-                  // },
                 ),
               ],
             ),

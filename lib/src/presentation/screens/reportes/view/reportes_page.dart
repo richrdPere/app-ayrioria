@@ -1,4 +1,5 @@
 import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_query_params.dart';
 
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
@@ -42,17 +43,10 @@ class _ReportePageState extends State<ReportePage> {
       return;
     }
 
-    // final session = context.read<SessionBloc>().state;
-    // final idEmpresa = session.empresaActiva?.idEmpresa;
-
-    // if (idEmpresa == null) {
-    //   return;
-    // }
-
-    // _idEmpresa = idEmpresa;
+    final queryParams = PeriodosContablesParams(page: 1, limit: 10);
 
     context.read<PeriodoContableBloc>().add(
-      GetPeriodosContablesEvent(idEmpresa: idEmpresa, page: 1),
+      GetPeriodosContablesEvent(idEmpresa: idEmpresa, queryParams: queryParams),
     );
   }
 

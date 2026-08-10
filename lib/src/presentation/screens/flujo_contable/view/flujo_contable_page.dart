@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_query_params.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -66,8 +67,10 @@ class _FlujoContablePageState extends State<FlujoContablePage> {
       return;
     }
 
+    final queryParams = PeriodosContablesParams(page: 1, limit: 10);
+
     context.read<PeriodoContableBloc>().add(
-      GetPeriodosContablesEvent(idEmpresa: idEmpresa, page: 1),
+      GetPeriodosContablesEvent(idEmpresa: idEmpresa, queryParams: queryParams),
     );
   }
 

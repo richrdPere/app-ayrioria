@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_query_params.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -106,12 +107,16 @@ class _MovimientoPageState extends State<MovimientoPage> {
 
     _isLoadingPeriodoActivo = true;
 
+    final queryParams = PeriodosContablesParams(
+      page: 1,
+      limit: 10,
+      estado: 'ABIERTO',
+    );
+
     context.read<PeriodoContableBloc>().add(
       GetPeriodosContablesEvent(
         idEmpresa: idEmpresa,
-        page: 1,
-        limit: 10,
-        estado: 'ABIERTO',
+        queryParams: queryParams,
         refresh: true,
       ),
     );

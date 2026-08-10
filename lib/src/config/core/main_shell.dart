@@ -43,6 +43,7 @@ class MainShell extends StatelessWidget {
       // PERÍODOS CONTABLES
       // ======================================================
       case '/periodos_contables/crear':
+      case '/periodos_contables/:idPeriodo':
       case '/periodos_contables/:idPeriodo/editar':
 
       // ======================================================
@@ -93,8 +94,8 @@ class MainShell extends StatelessWidget {
       // ======================================================
       // FLUJO CONTABLE
       // ======================================================
-      case '/flujo_contable':
-        return 'Flujo contable';
+      case '/flujo-contable':
+        return 'Flujo Contable';
 
       // ======================================================
       // PERÍODOS CONTABLES

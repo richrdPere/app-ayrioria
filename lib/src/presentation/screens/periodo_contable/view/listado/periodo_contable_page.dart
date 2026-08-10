@@ -1,12 +1,23 @@
-import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
-import 'package:app_aryoria/src/domain/utils/Resource.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_event.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_state.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/periodo_contable_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+// Session
+import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
+
+// Models
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_query_params.dart';
+
+// Resource
+import 'package:app_aryoria/src/domain/utils/Resource.dart';
+
+// Bloc
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_event.dart';
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_state.dart';
+
+// Content
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/listado/periodo_contable_content.dart';
 
 class PeriodoContablePage extends StatefulWidget {
   const PeriodoContablePage({super.key});
@@ -17,7 +28,15 @@ class PeriodoContablePage extends StatefulWidget {
 
 class _PeriodoContablePageState extends State<PeriodoContablePage> {
   final TextEditingController _searchController = TextEditingController();
+
+  // ==========================================================
+  // FILTROS
+  // ==========================================================
   String? _estadoSeleccionado;
+  int? _anioSeleccionado;
+  int? _mesSeleccionado;
+
+  static const int _defaultLimit = 10;
 
   // ==========================================================
   // EMPRESA ACTIVA
@@ -26,38 +45,67 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
     return context.read<SessionBloc>().state.empresaActiva?.idEmpresa;
   }
 
+  // ==========================================================
+  // INIT
+  // ==========================================================
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(_loadPeriodos);
+    Future.microtask(() {
+      if (!mounted) {
+        return;
+      }
+
+      _loadPeriodos(page: 1, refresh: true);
+    });
   }
 
+  // ==========================================================
+  // DISPOSE
+  // ==========================================================
   @override
   void dispose() {
     _searchController.dispose();
+
     super.dispose();
+  }
+
+  // ==========================================================
+  // CONSTRUIR QUERY PARAMS
+  // ==========================================================
+  PeriodosContablesParams _buildQueryParams({required int page, int? limit}) {
+    final String search = _searchController.text.trim();
+
+    return PeriodosContablesParams(
+      page: page,
+      limit: limit ?? _defaultLimit,
+      search: search.isEmpty ? null : search,
+      estado: _estadoSeleccionado,
+      anio: _anioSeleccionado,
+      mes: _mesSeleccionado,
+    );
   }
 
   // ==========================================================
   // CARGAR PERÍODOS
   // ==========================================================
-  void _loadPeriodos({int page = 1, bool refresh = false}) {
+  void _loadPeriodos({int page = 1, int? limit, bool refresh = false}) {
     final int? idEmpresa = _idEmpresa;
-
-    debugPrint("ID EMPRESA: $idEmpresa");
 
     if (idEmpresa == null) {
       return;
     }
 
+    final PeriodosContablesParams queryParams = _buildQueryParams(
+      page: page,
+      limit: limit,
+    );
+
     context.read<PeriodoContableBloc>().add(
       GetPeriodosContablesEvent(
         idEmpresa: idEmpresa,
-        page: page,
-        limit: 10,
-        search: _searchController.text.trim(),
-        estado: _estadoSeleccionado,
+        queryParams: queryParams,
         refresh: refresh,
       ),
     );
@@ -71,7 +119,7 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
   }
 
   // ==========================================================
-  // CAMBIAR FILTRO
+  // CAMBIAR ESTADO
   // ==========================================================
   void _onEstadoChanged(String? estado) {
     setState(() {
@@ -82,22 +130,59 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
   }
 
   // ==========================================================
-  // CARGAR SIGUIENTE PÁGINA
+  // CAMBIAR AÑO
   // ==========================================================
-  void _loadMore() {
+  void _onAnioChanged(int? anio) {
+    setState(() {
+      _anioSeleccionado = anio;
+    });
+
+    _loadPeriodos(page: 1, refresh: true);
+  }
+
+  // ==========================================================
+  // CAMBIAR MES
+  // ==========================================================
+  void _onMesChanged(int? mes) {
+    setState(() {
+      _mesSeleccionado = mes;
+    });
+
+    _loadPeriodos(page: 1, refresh: true);
+  }
+
+  // ==========================================================
+  // SIGUIENTE PÁGINA
+  // ==========================================================
+  void _onNextPage() {
     final PeriodoContableState state = context
         .read<PeriodoContableBloc>()
         .state;
 
-    if (!state.hasMore || state.isLoadingMore) {
+    if (state.isLoadingMore || !state.hasNextPage) {
       return;
     }
 
-    _loadPeriodos(page: state.page + 1);
+    _loadPeriodos(page: state.page + 1, limit: state.limit);
   }
 
   // ==========================================================
-  // ACTUALIZAR LISTA
+  // PÁGINA ANTERIOR
+  // ==========================================================
+  void _onPreviousPage() {
+    final PeriodoContableState state = context
+        .read<PeriodoContableBloc>()
+        .state;
+
+    if (state.isLoadingMore || !state.hasPreviousPage) {
+      return;
+    }
+
+    _loadPeriodos(page: state.page - 1, limit: state.limit);
+  }
+
+  // ==========================================================
+  // REFRESH
   // ==========================================================
   Future<void> _onRefresh() async {
     _loadPeriodos(page: 1, refresh: true);
@@ -154,7 +239,12 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
     }
 
     if (result == true) {
-      _loadPeriodos(page: 1, refresh: true);
+      /*
+       * Después de editar, mantenemos la página actual.
+       */
+      final state = context.read<PeriodoContableBloc>().state;
+
+      _loadPeriodos(page: state.page, limit: state.limit, refresh: true);
     }
   }
 
@@ -171,22 +261,24 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
       return;
     }
 
-    final String nuevoEstado = estadoActual.toUpperCase() == 'ABIERTO'
+    final String nuevoEstado = estadoActual.trim().toUpperCase() == 'ABIERTO'
         ? 'CERRADO'
         : 'ABIERTO';
+
+    final bool cerrar = nuevoEstado == 'CERRADO';
 
     final bool? confirmar = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
-        final bool cerrar = nuevoEstado == 'CERRADO';
-
         return AlertDialog(
           title: Text(cerrar ? 'Cerrar período' : 'Abrir período'),
           content: Text(
             cerrar
                 ? '¿Está seguro de cerrar este período contable? '
-                      'Luego de cerrarlo no deberían registrarse nuevos movimientos.'
-                : '¿Está seguro de abrir nuevamente este período contable?',
+                      'Luego de cerrarlo no deberían registrarse '
+                      'nuevos movimientos.'
+                : '¿Está seguro de abrir nuevamente este '
+                      'período contable?',
           ),
           actions: [
             TextButton(
@@ -268,7 +360,7 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
   }
 
   // ==========================================================
-  // MENSAJE DEL BACKEND
+  // MENSAJE SUCCESS
   // ==========================================================
   String _getSuccessMessage(Resource response) {
     if (response is Success) {
@@ -281,37 +373,43 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
           return message;
         }
       } catch (_) {
-        // La respuesta podría no contener message.
+        // La respuesta puede no contener message.
       }
     }
 
     return 'Operación realizada correctamente.';
   }
 
+  // ==========================================================
+  // MENSAJE ERROR
+  // ==========================================================
   String _getErrorMessage(ErrorData response) {
-    try {
-      final dynamic message = response.error;
+    final dynamic error = response.error;
 
-      if (message != null && message.toString().trim().isNotEmpty) {
-        return message.toString();
-      }
-    } catch (_) {
-      // Compatibilidad con versiones anteriores de ErrorData.
+    if (error != null && error.toString().trim().isNotEmpty) {
+      return error.toString();
     }
 
-    return response.error.toString();
+    return 'Ocurrió un error inesperado.';
   }
 
+  // ==========================================================
+  // BUILD
+  // ==========================================================
   @override
   Widget build(BuildContext context) {
     final int? idEmpresa = _idEmpresa;
 
     return BlocListener<PeriodoContableBloc, PeriodoContableState>(
-      listenWhen: (previous, current) =>
-          previous.actionResponse != current.actionResponse,
+      listenWhen: (previous, current) {
+        return previous.actionResponse != current.actionResponse;
+      },
       listener: (context, state) {
         final Resource? response = state.actionResponse;
 
+        // ====================================================
+        // SUCCESS
+        // ====================================================
         if (response is Success) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
@@ -325,8 +423,13 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
           context.read<PeriodoContableBloc>().add(
             const ClearPeriodoContableActionResponseEvent(),
           );
+
+          return;
         }
 
+        // ====================================================
+        // ERROR
+        // ====================================================
         if (response is ErrorData) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
@@ -352,10 +455,17 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
                 : PeriodoContableContent(
                     searchController: _searchController,
                     estadoSeleccionado: _estadoSeleccionado,
+                    anioSeleccionado: _anioSeleccionado,
+                    mesSeleccionado: _mesSeleccionado,
                     onSearch: _onSearch,
                     onEstadoChanged: _onEstadoChanged,
+                    onAnioChanged: _onAnioChanged,
+                    onMesChanged: _onMesChanged,
                     onRefresh: _onRefresh,
-                    onLoadMore: _loadMore,
+                    onPreviousPage: state.hasPreviousPage
+                        ? _onPreviousPage
+                        : null,
+                    onNextPage: state.hasNextPage ? _onNextPage : null,
                     onRetry: () {
                       _loadPeriodos(page: 1, refresh: true);
                     },
@@ -365,11 +475,12 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
                     onDelete: _onDelete,
                     onChangeEstado: _onChangeEstado,
                   ),
+
             floatingActionButton: idEmpresa != null && existenPeriodos
                 ? FloatingActionButton.extended(
                     onPressed: _onCreate,
                     icon: const Icon(Icons.add),
-                    label: const Text('Período'),
+                    label: const Text('Nuevo'),
                   )
                 : null,
           );
@@ -379,6 +490,9 @@ class _PeriodoContablePageState extends State<PeriodoContablePage> {
   }
 }
 
+// ==========================================================
+// EMPRESA NO SELECCIONADA
+// ==========================================================
 class _EmpresaNoSeleccionada extends StatelessWidget {
   const _EmpresaNoSeleccionada();
 
@@ -399,7 +513,8 @@ class _EmpresaNoSeleccionada extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              'Seleccione una empresa para consultar sus períodos contables.',
+              'Seleccione una empresa para consultar '
+              'sus períodos contables.',
               textAlign: TextAlign.center,
             ),
           ],

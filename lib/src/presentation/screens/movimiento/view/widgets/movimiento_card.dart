@@ -246,11 +246,12 @@ class MovimientoCard extends StatelessWidget {
                           value: 'editar',
                           child: Row(
                             children: [
-                              Icon(Icons.edit_outlined, color: colors.primary),
+                              // Icon(Icons.edit_outlined, color: colors.primary),
+                              Icon(Icons.edit_outlined),
                               const SizedBox(width: 12),
                               Text(
                                 'Editar',
-                                style: TextStyle(color: colors.primary),
+                                // style: TextStyle(color: colors.primary),
                               ),
                             ],
                           ),

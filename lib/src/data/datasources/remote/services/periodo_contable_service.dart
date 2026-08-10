@@ -10,12 +10,14 @@ import 'package:app_aryoria/src/config/constants/environment.dart'
 
 // Helpers
 import 'package:app_aryoria/src/data/datasources/remote/services/helpers/http_Service_helper.dart';
+import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
 // Models
-import 'package:app_aryoria/src/domain/utils/Resource.dart';
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_data.dart';
 import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_paginated.dart';
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_query_params.dart';
 import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_request.dart';
-import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_response.dart';
 
 class PeriodoContableService {
   // APIS
@@ -31,13 +33,15 @@ class PeriodoContableService {
   // *********************************************************
   // 1.- Crear Periodo Contable
   // *********************************************************
-  Future<Resource<PeriodoContableResponse>> createPeriodoContable({
+  Future<Resource<ApiResponse<PeriodoContableData>>> createPeriodoContable({
     required String token,
     required PeriodoContableRequest request,
   }) async {
     try {
+      // 1.- URL Base
       final url = Uri.parse(API_CREATE_PERIODO_C);
 
+      // 2.- Response
       final response = await http.post(
         url,
         headers: HttpServiceHelper.getHeaders(token),
@@ -46,21 +50,27 @@ class PeriodoContableService {
 
       final body = HttpServiceHelper.decodeResponse(response);
 
+      // 3.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        return Success<PeriodoContableResponse>(
-          PeriodoContableResponse.fromJson(body),
+        final apiResponse = ApiResponse<PeriodoContableData>.fromJson(
+          body,
+          (rawData) =>
+              PeriodoContableData.fromJson(Map<String, dynamic>.from(rawData)),
         );
+
+        return Success<ApiResponse<PeriodoContableData>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<PeriodoContableResponse>(
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<PeriodoContableData>>(
         body,
         response.statusCode,
       );
-    } catch (error) {
-      debugPrint('ERROR CREAR PERIODO CONTABLE: $error');
+    } catch (e) {
+      debugPrint('ERROR CREAR PERIODO CONTABLE: $e');
 
-      return ErrorData<PeriodoContableResponse>(
-        'No se pudo crear el período contable.',
+      return ErrorData<ApiResponse<PeriodoContableData>>(
+        'No se pudo crear el periodo contable: $e',
       );
     }
   }
@@ -68,14 +78,14 @@ class PeriodoContableService {
   // *********************************************************
   // 2.- OBTENER PERÍODOS CONTABLES PAGINADOS
   // *********************************************************
-  Future<Resource<PeriodoContablePaginatedResponse>> getPeriodosContables({
+  Future<Resource<ApiResponse<PeriodoContablePaginated>>> getPeriodosContables({
     required String token,
     required int idEmpresa,
-    required Map<String, dynamic> queryParams,
+    required PeriodosContablesParams queryParams,
   }) async {
     try {
       final Map<String, dynamic> params = {
-        ...queryParams,
+        ...queryParams.toQueryParams(),
         'id_empresa': idEmpresa,
       };
 
@@ -85,10 +95,7 @@ class PeriodoContableService {
         ),
       );
 
-      debugPrint('URL LISTAR PERIODOS: $url');
-      debugPrint('ID EMPRESA SERVICE: $idEmpresa');
-      debugPrint('QUERY PARAMS PERIODOS: $params');
-
+      // 2.- Response
       final response = await http.get(
         url,
         headers: HttpServiceHelper.getHeaders(token),
@@ -96,36 +103,48 @@ class PeriodoContableService {
 
       final body = HttpServiceHelper.decodeResponse(response);
 
-      debugPrint('RESPONSE LISTAR PERIODOS: $body');
-
+      // 3.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        return Success(PeriodoContablePaginatedResponse.fromJson(body));
+        final apiResponse = ApiResponse<PeriodoContablePaginated>.fromJson(
+          body,
+          (rawData) {
+            return PeriodoContablePaginated.fromJson(
+              Map<String, dynamic>.from(rawData),
+            );
+          },
+        );
+
+        return Success<ApiResponse<PeriodoContablePaginated>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<PeriodoContablePaginatedResponse>(
-        body,
-        response.statusCode,
-      );
-    } catch (error) {
-      debugPrint('ERROR LISTAR PERIODOS: $error');
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<
+        ApiResponse<PeriodoContablePaginated>
+      >(body, response.statusCode);
+    } catch (e) {
+      debugPrint('ERROR LISTAR PERIODOS: $e');
 
-      return ErrorData('No se pudieron obtener los períodos contables.');
+      return ErrorData<ApiResponse<PeriodoContablePaginated>>(
+        'No se pudieron obtener los periodos contables: $e',
+      );
     }
   }
 
   // *********************************************************
   // 3.- Obtener Periodo Contable por Id
   // *********************************************************
-  Future<Resource<PeriodoContableResponse>> getPeriodoContableById({
+  Future<Resource<ApiResponse<PeriodoContableData>>> getPeriodoContableById({
     required String token,
     required int idPeriodo,
     required int idEmpresa,
   }) async {
     try {
+      // 1.- URL
       final url = Uri.parse(
         '$API_GET_PERIODO_C_BY_ID$idPeriodo',
       ).replace(queryParameters: {'id_empresa': idEmpresa.toString()});
 
+      // 2.- Response
       final response = await http.get(
         url,
         headers: HttpServiceHelper.getHeaders(token),
@@ -133,35 +152,49 @@ class PeriodoContableService {
 
       final body = HttpServiceHelper.decodeResponse(response);
 
+      // 3.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        return Success(PeriodoContableResponse.fromJson(body));
+        final apiResponse = ApiResponse<PeriodoContableData>.fromJson(body, (
+          rawData,
+        ) {
+          return PeriodoContableData.fromJson(
+            Map<String, dynamic>.from(rawData),
+          );
+        });
+
+        return Success<ApiResponse<PeriodoContableData>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<PeriodoContableResponse>(
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<PeriodoContableData>>(
         body,
         response.statusCode,
       );
-    } catch (error) {
-      debugPrint('ERROR DETALLE PERIODO: $error');
+    } catch (e) {
+      debugPrint('ERROR DETALLE PERIODO: $e');
 
-      return ErrorData('No se pudo obtener el período contable.');
+      return ErrorData<ApiResponse<PeriodoContableData>>(
+        'No se pudo obtener el periodo contable: $e',
+      );
     }
   }
 
   // *********************************************************
   // 4.- Actualizar Periodo Contable
   // *********************************************************
-  Future<Resource<PeriodoContableResponse>> updatePeriodoContable({
+  Future<Resource<ApiResponse<PeriodoContableData>>> updatePeriodoContable({
     required String token,
     required int idPeriodo,
     required int idEmpresa,
     required PeriodoContableRequest request,
   }) async {
     try {
+      // 1.- URL
       final url = Uri.parse(
         '$API_UPDATE_PERIODO_C$idPeriodo',
       ).replace(queryParameters: {'id_empresa': idEmpresa.toString()});
 
+      // 2.- Response
       final response = await http.put(
         url,
         headers: HttpServiceHelper.getHeaders(token),
@@ -170,70 +203,94 @@ class PeriodoContableService {
 
       final body = HttpServiceHelper.decodeResponse(response);
 
+      // 3.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        return Success(PeriodoContableResponse.fromJson(body));
+        final apiResponse = ApiResponse<PeriodoContableData>.fromJson(
+          body,
+          (rawData) =>
+              PeriodoContableData.fromJson(Map<String, dynamic>.from(rawData)),
+        );
+
+        return Success<ApiResponse<PeriodoContableData>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<PeriodoContableResponse>(
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<PeriodoContableData>>(
         body,
         response.statusCode,
       );
-    } catch (error) {
-      debugPrint('ERROR ACTUALIZAR PERIODO: $error');
+    } catch (e) {
+      debugPrint('ERROR ACTUALIZAR PERIODO: $e');
 
-      return ErrorData('No se pudo actualizar el período.');
+      return ErrorData<ApiResponse<PeriodoContableData>>(
+        'No se pudo actualizar el periodo contable: $e',
+      );
     }
   }
 
   // *********************************************************
   // 5.- Eliminar Periodo Contable
   // *********************************************************
-  Future<Resource<PeriodoContableResponse>> deletePeriodoContable({
+  Future<Resource<ApiResponse<void>>> deletePeriodoContable({
     required String token,
     required int idPeriodo,
     required int idEmpresa,
   }) async {
     try {
+      // 1.- URL
       final url = Uri.parse(
         '$API_DELETE_PERIODO_C$idPeriodo',
       ).replace(queryParameters: {'id_empresa': idEmpresa.toString()});
 
+      // 2.- Response
       final response = await http.delete(
         url,
-        headers: HttpServiceHelper.getHeaders(token),
+        headers: HttpServiceHelper.getHeaders(
+          token,
+          extraHeaders: {'id_empresa': idEmpresa.toString()},
+        ),
       );
 
       final body = HttpServiceHelper.decodeResponse(response);
 
+      // 3.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        return Success(PeriodoContableResponse.fromJson(body));
+        final apiResponse = ApiResponse<void>.fromJson(body, null);
+
+        return Success<ApiResponse<void>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<PeriodoContableResponse>(
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<void>>(
         body,
         response.statusCode,
       );
-    } catch (error) {
-      debugPrint('ERROR ELIMINAR PERIODO: $error');
+    } catch (e) {
+      debugPrint('ERROR ELIMINAR PERIODO: $e');
 
-      return ErrorData('No se pudo eliminar el período.');
+      return ErrorData<ApiResponse<void>>(
+        'No se pudo eliminar el periodo contable: $e',
+      );
     }
   }
 
   // *********************************************************
   // 6.- Cambiar Estado de Periodo Contable
   // *********************************************************
-  Future<Resource<PeriodoContableResponse>> changeEstadoPeriodoContable({
+  Future<Resource<ApiResponse<PeriodoContableData>>>
+  changeEstadoPeriodoContable({
     required String token,
     required int idPeriodo,
     required int idEmpresa,
     required String estado,
   }) async {
     try {
+      // 1.- URL
       final url = Uri.parse(
         '$API_CHANGE_ESTADO_PERIODO_C$idPeriodo',
       ).replace(queryParameters: {'id_empresa': idEmpresa.toString()});
 
+      // 2.- Response
       final response = await http.patch(
         url,
         headers: HttpServiceHelper.getHeaders(token),
@@ -242,18 +299,28 @@ class PeriodoContableService {
 
       final body = HttpServiceHelper.decodeResponse(response);
 
+      // 3.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
-        return Success(PeriodoContableResponse.fromJson(body));
+        final apiResponse = ApiResponse<PeriodoContableData>.fromJson(
+          body,
+          (rawData) =>
+              PeriodoContableData.fromJson(Map<String, dynamic>.from(rawData)),
+        );
+
+        return Success<ApiResponse<PeriodoContableData>>(apiResponse);
       }
 
-      return HttpServiceHelper.buildError<PeriodoContableResponse>(
+      // 4.- Return Error
+      return HttpServiceHelper.buildError<ApiResponse<PeriodoContableData>>(
         body,
         response.statusCode,
       );
-    } catch (error) {
-      debugPrint('ERROR CAMBIAR ESTADO PERIODO: $error');
+    } catch (e) {
+      debugPrint('ERROR CAMBIAR ESTADO PERIODO: $e');
 
-      return ErrorData('No se pudo cambiar el estado del período.');
+      return ErrorData<ApiResponse<PeriodoContableData>>(
+        'No se pudo cambiar el estado del periodo contable: $e',
+      );
     }
   }
 }

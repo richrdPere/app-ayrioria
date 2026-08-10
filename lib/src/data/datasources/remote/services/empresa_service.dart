@@ -3,7 +3,6 @@
 // Environment
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:app_aryoria/src/config/constants/environment.dart'
     as url_backend;
@@ -269,10 +268,6 @@ class EmpresaService {
       );
 
       final body = HttpServiceHelper.decodeResponse(response);
-
-      debugPrint('SELECT EMPRESA STATUS: ${response.statusCode}');
-
-      debugPrint('SELECT EMPRESA BODY: $body');
 
       // 3.- Return JSON
       if (HttpServiceHelper.isSuccess(response.statusCode)) {

@@ -1,20 +1,37 @@
-import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_data.dart';
-import 'package:app_aryoria/src/domain/utils/Resource.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_state.dart';
-import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_module_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+// Models
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_data.dart';
+
+// Resource
+import 'package:app_aryoria/src/domain/utils/Resource.dart';
+
+// Bloc
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
+import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_state.dart';
+
+// Shared
+import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_module_header.dart';
+import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_paginated_list.dart';
+
 class PeriodoContableContent extends StatefulWidget {
   final TextEditingController searchController;
+
   final String? estadoSeleccionado;
+  final int? anioSeleccionado;
+  final int? mesSeleccionado;
 
   final ValueChanged<String> onSearch;
   final ValueChanged<String?> onEstadoChanged;
+  final ValueChanged<int?> onAnioChanged;
+  final ValueChanged<int?> onMesChanged;
 
   final Future<void> Function() onRefresh;
-  final VoidCallback onLoadMore;
+
+  final VoidCallback? onPreviousPage;
+  final VoidCallback? onNextPage;
+
   final VoidCallback onRetry;
   final VoidCallback onCreate;
 
@@ -32,10 +49,15 @@ class PeriodoContableContent extends StatefulWidget {
     super.key,
     required this.searchController,
     required this.estadoSeleccionado,
+    required this.anioSeleccionado,
+    required this.mesSeleccionado,
     required this.onSearch,
     required this.onEstadoChanged,
+    required this.onAnioChanged,
+    required this.onMesChanged,
     required this.onRefresh,
-    required this.onLoadMore,
+    required this.onPreviousPage,
+    required this.onNextPage,
     required this.onRetry,
     required this.onCreate,
     required this.onViewDetail,
@@ -49,36 +71,6 @@ class PeriodoContableContent extends StatefulWidget {
 }
 
 class _PeriodoContableContentState extends State<PeriodoContableContent> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController
-      ..removeListener(_onScroll)
-      ..dispose();
-
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (!_scrollController.hasClients) {
-      return;
-    }
-
-    final position = _scrollController.position;
-
-    if (position.pixels >= position.maxScrollExtent - 250) {
-      widget.onLoadMore();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PeriodoContableBloc, PeriodoContableState>(
@@ -87,8 +79,9 @@ class _PeriodoContableContentState extends State<PeriodoContableContent> {
 
         return Column(
           children: [
-            // Header
-            // _buildHeader(context),
+            // ==================================================
+            // HEADER
+            // ==================================================
             const AppModuleHeader(
               icon: Icons.calendar_month_outlined,
               title: 'Gestiona tus períodos',
@@ -96,11 +89,14 @@ class _PeriodoContableContentState extends State<PeriodoContableContent> {
                   'Administra la apertura y cierre de los períodos contables de tu empresa.',
             ),
 
-            // Search
-            //_buildSearch(),
-            if (existenPeriodos) _buildSearch(),
+            // ==================================================
+            // FILTROS
+            // ==================================================
+            if (existenPeriodos || _hasFilters) _buildSearch(),
 
-            // Listado
+            // ==================================================
+            // BODY
+            // ==================================================
             Expanded(child: _buildBody(state)),
           ],
         );
@@ -109,133 +105,101 @@ class _PeriodoContableContentState extends State<PeriodoContableContent> {
   }
 
   // ==========================================================
-  // HEADER
+  // TIENE FILTROS
   // ==========================================================
-  // Widget _buildHeader(BuildContext context) {
-  //   return Container(
-  //     width: double.infinity,
-  //     margin: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-  //     padding: const EdgeInsets.all(18),
-  //     decoration: BoxDecoration(
-  //       color: Theme.of(context).colorScheme.primaryContainer,
-  //       borderRadius: BorderRadius.circular(20),
-  //     ),
-  //     child: Row(
-  //       children: [
-  //         Container(
-  //           width: 52,
-  //           height: 52,
-  //           decoration: BoxDecoration(
-  //             color: Theme.of(context).colorScheme.primary,
-  //             borderRadius: BorderRadius.circular(16),
-  //           ),
-  //           child: Icon(
-  //             Icons.calendar_month_outlined,
-  //             color: Theme.of(context).colorScheme.onPrimary,
-  //           ),
-  //         ),
-  //         const SizedBox(width: 14),
-  //         const Expanded(
-  //           child: Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               Text(
-  //                 'Períodos contables',
-  //                 style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-  //               ),
-  //               SizedBox(height: 4),
-  //               Text(
-  //                 'Administra la apertura y cierre de los períodos de tu empresa.',
-  //                 style: TextStyle(fontSize: 13),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+  bool get _hasFilters {
+    return widget.estadoSeleccionado != null ||
+        widget.anioSeleccionado != null ||
+        widget.mesSeleccionado != null ||
+        widget.searchController.text.trim().isNotEmpty;
+  }
 
   // ==========================================================
-  // BUSCADOR Y FILTRO
+  // BUSCADOR Y FILTROS
   // ==========================================================
   Widget _buildSearch() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: TextField(
-              controller: widget.searchController,
-              textInputAction: TextInputAction.search,
-              onSubmitted: widget.onSearch,
-              decoration: InputDecoration(
-                hintText: 'Buscar período...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: widget.searchController.text.isEmpty
-                    ? null
-                    : IconButton(
-                        tooltip: 'Limpiar',
-                        onPressed: () {
-                          widget.searchController.clear();
+          // ====================================================
+          // BUSCADOR + FILTRO GENERAL
+          // ====================================================
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: widget.searchController,
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: widget.onSearch,
+                  onChanged: (_) {
+                    setState(() {});
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Buscar período...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: widget.searchController.text.isEmpty
+                        ? null
+                        : IconButton(
+                            tooltip: 'Limpiar búsqueda',
+                            onPressed: () {
+                              widget.searchController.clear();
 
-                          setState(() {});
+                              setState(() {});
 
-                          widget.onSearch('');
-                        },
-                        icon: const Icon(Icons.clear),
-                      ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
-              onChanged: (_) {
-                setState(() {});
-              },
-            ),
-          ),
-          const SizedBox(width: 10),
-          PopupMenuButton<String?>(
-            tooltip: 'Filtrar por estado',
-            initialValue: widget.estadoSeleccionado,
-            onSelected: widget.onEstadoChanged,
-            itemBuilder: (context) => const [
-              PopupMenuItem<String?>(
-                value: null,
-                child: Text('Todos los estados'),
-              ),
-              PopupMenuItem<String?>(value: 'ABIERTO', child: Text('Abiertos')),
-              PopupMenuItem<String?>(value: 'CERRADO', child: Text('Cerrados')),
-            ],
-            child: Container(
-              height: 56,
-              width: 56,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  const Icon(Icons.filter_list),
-                  if (widget.estadoSeleccionado != null)
-                    Positioned(
-                      right: 9,
-                      top: 9,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
+                              widget.onSearch('');
+                            },
+                            icon: const Icon(Icons.clear),
+                          ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                ],
+                  ),
+                ),
               ),
-            ),
+
+              const SizedBox(width: 10),
+
+              // ==================================================
+              // ESTADO
+              // ==================================================
+              PopupMenuButton<String?>(
+                tooltip: 'Filtrar por estado',
+                initialValue: widget.estadoSeleccionado,
+                onSelected: widget.onEstadoChanged,
+                itemBuilder: (context) => const [
+                  PopupMenuItem<String?>(
+                    value: null,
+                    child: Text('Todos los estados'),
+                  ),
+                  PopupMenuItem<String?>(
+                    value: 'ABIERTO',
+                    child: Text('Abiertos'),
+                  ),
+                  PopupMenuItem<String?>(
+                    value: 'CERRADO',
+                    child: Text('Cerrados'),
+                  ),
+                ],
+                child: _FilterButton(
+                  active: widget.estadoSeleccionado != null,
+                  icon: Icons.filter_list,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          // ====================================================
+          // FILTROS AÑO / MES
+          // ====================================================
+          Row(
+            children: [
+              Expanded(child: _buildAnioFilter()),
+              const SizedBox(width: 10),
+              Expanded(child: _buildMesFilter()),
+            ],
           ),
         ],
       ),
@@ -243,15 +207,87 @@ class _PeriodoContableContentState extends State<PeriodoContableContent> {
   }
 
   // ==========================================================
-  // CUERPO SEGÚN ESTADO
+  // FILTRO AÑO
+  // ==========================================================
+  Widget _buildAnioFilter() {
+    final int currentYear = DateTime.now().year;
+
+    final List<int> years = List.generate(6, (index) => currentYear - index);
+
+    return DropdownButtonFormField<int?>(
+      value: widget.anioSeleccionado,
+      decoration: InputDecoration(
+        labelText: 'Año',
+        prefixIcon: const Icon(Icons.calendar_today_outlined),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+      ),
+      items: [
+        const DropdownMenuItem<int?>(value: null, child: Text('Todos')),
+        ...years.map(
+          (year) =>
+              DropdownMenuItem<int?>(value: year, child: Text(year.toString())),
+        ),
+      ],
+      onChanged: widget.onAnioChanged,
+    );
+  }
+
+  // ==========================================================
+  // FILTRO MES
+  // ==========================================================
+  Widget _buildMesFilter() {
+    const List<String> meses = [
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre',
+    ];
+
+    return DropdownButtonFormField<int?>(
+      value: widget.mesSeleccionado,
+      decoration: InputDecoration(
+        labelText: 'Mes',
+        prefixIcon: const Icon(Icons.date_range_outlined),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+      ),
+      items: [
+        const DropdownMenuItem<int?>(value: null, child: Text('Todos')),
+        ...List.generate(
+          meses.length,
+          (index) => DropdownMenuItem<int?>(
+            value: index + 1,
+            child: Text(meses[index]),
+          ),
+        ),
+      ],
+      onChanged: widget.onMesChanged,
+    );
+  }
+
+  // ==========================================================
+  // BODY SEGÚN ESTADO
   // ==========================================================
   Widget _buildBody(PeriodoContableState state) {
     final Resource? response = state.response;
 
+    // ========================================================
+    // LOADING INICIAL
+    // ========================================================
     if (response is Loading && state.periodos.isEmpty) {
       return const _PeriodoLoading();
     }
 
+    // ========================================================
+    // ERROR INICIAL
+    // ========================================================
     if (response is ErrorData && state.periodos.isEmpty) {
       return _PeriodoError(
         message: _getErrorMessage(response),
@@ -259,79 +295,145 @@ class _PeriodoContableContentState extends State<PeriodoContableContent> {
       );
     }
 
+    // ========================================================
+    // EMPTY
+    // ========================================================
     if (state.periodos.isEmpty) {
       return _PeriodoEmpty(
-        hasFilters:
-            widget.estadoSeleccionado != null ||
-            widget.searchController.text.trim().isNotEmpty,
+        hasFilters: _hasFilters,
         onCreate: widget.onCreate,
-        onClearFilters: () {
-          widget.searchController.clear();
-          widget.onEstadoChanged(null);
-        },
+        onClearFilters: _clearFilters,
       );
     }
 
+    // ========================================================
+    // LISTADO
+    // ========================================================
     return _buildPeriodoList(state);
   }
 
   // ==========================================================
-  // LISTADO
+  // LISTADO PAGINADO
   // ==========================================================
   Widget _buildPeriodoList(PeriodoContableState state) {
-    return RefreshIndicator(
+    return AppPaginatedList<PeriodoContableData>(
+      items: state.periodos,
+      page: state.page,
+      limit: state.limit,
+      totalPages: state.totalPages,
+      totalItems: state.total,
+      isLoading: state.response is Loading,
+      isLoadingMore: state.isLoadingMore,
       onRefresh: widget.onRefresh,
-      child: ListView.separated(
-        controller: _scrollController,
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: state.periodos.length + (state.isLoadingMore ? 1 : 0),
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          if (index >= state.periodos.length) {
-            return const Padding(
-              padding: EdgeInsets.all(18),
-              child: Center(child: CircularProgressIndicator()),
+      onPreviousPage: state.hasPreviousPage ? widget.onPreviousPage : null,
+      onNextPage: state.hasNextPage ? widget.onNextPage : null,
+      itemBuilder: (context, periodo, index) {
+        return _PeriodoCard(
+          periodo: periodo,
+          onTap: () {
+            widget.onViewDetail(periodo.idPeriodo);
+          },
+          onEdit: () {
+            widget.onEdit(periodo.idPeriodo);
+          },
+          onDelete: () {
+            widget.onDelete(periodo.idPeriodo);
+          },
+          onChangeEstado: () {
+            widget.onChangeEstado(
+              idPeriodo: periodo.idPeriodo,
+              estadoActual: periodo.estado,
             );
-          }
-
-          final PeriodoContableData periodo = state.periodos[index];
-
-          return _PeriodoCard(
-            periodo: periodo,
-            onTap: () {
-              widget.onViewDetail(periodo.idPeriodo);
-            },
-            onEdit: () {
-              widget.onEdit(periodo.idPeriodo);
-            },
-            onDelete: () {
-              widget.onDelete(periodo.idPeriodo);
-            },
-            onChangeEstado: () {
-              widget.onChangeEstado(
-                idPeriodo: periodo.idPeriodo,
-                estadoActual: periodo.estado,
-              );
-            },
-          );
-        },
-      ),
+          },
+        );
+      },
     );
   }
 
-  String _getErrorMessage(ErrorData response) {
-    try {
-      final dynamic message = response.error;
+  // ==========================================================
+  // LIMPIAR FILTROS
+  // ==========================================================
+  void _clearFilters() {
+    widget.searchController.clear();
 
-      if (message != null && message.toString().trim().isNotEmpty) {
-        return message.toString();
-      }
-    } catch (_) {
-      // Compatibilidad con Resource anterior.
+    setState(() {});
+
+    if (widget.estadoSeleccionado != null) {
+      widget.onEstadoChanged(null);
     }
 
-    return response.error.toString();
+    if (widget.anioSeleccionado != null) {
+      widget.onAnioChanged(null);
+    }
+
+    if (widget.mesSeleccionado != null) {
+      widget.onMesChanged(null);
+    }
+
+    /*
+     * Si únicamente había búsqueda activa, los callbacks
+     * anteriores no dispararán una nueva consulta.
+     */
+    if (widget.estadoSeleccionado == null &&
+        widget.anioSeleccionado == null &&
+        widget.mesSeleccionado == null) {
+      widget.onSearch('');
+    }
+  }
+
+  // ==========================================================
+  // ERROR MESSAGE
+  // ==========================================================
+  String _getErrorMessage(ErrorData response) {
+    final dynamic error = response.error;
+
+    if (error != null && error.toString().trim().isNotEmpty) {
+      return error.toString();
+    }
+
+    return 'No se pudieron obtener los períodos contables.';
+  }
+}
+
+// ==========================================================
+// FILTER BUTTON
+// ==========================================================
+class _FilterButton extends StatelessWidget {
+  final bool active;
+  final IconData icon;
+
+  const _FilterButton({required this.active, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 56,
+      width: 56,
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(icon),
+
+          if (active)
+            Positioned(
+              right: 9,
+              top: 9,
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 

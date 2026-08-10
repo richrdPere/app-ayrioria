@@ -1,42 +1,57 @@
 import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_data.dart';
 
-class PeriodoContablePaginatedResponse {
-  final bool success;
-  final String message;
-  final List<PeriodoContableData> data;
+class PeriodoContablePaginated {
+  final List<PeriodoContableData> items;
   final PeriodoContablePagination pagination;
 
-  const PeriodoContablePaginatedResponse({
-    required this.success,
-    required this.message,
-    required this.data,
+  const PeriodoContablePaginated({
+    required this.items,
     required this.pagination,
   });
 
-  factory PeriodoContablePaginatedResponse.fromJson(Map<String, dynamic> json) {
-    final Map<String, dynamic> responseData =
-        json['data'] is Map<String, dynamic>
-        ? json['data'] as Map<String, dynamic>
-        : <String, dynamic>{};
+  factory PeriodoContablePaginated.fromJson(Map<String, dynamic> json) {
+    final itemsJson = json['items'];
+    final paginationJson = json['pagination'];
 
-    final List<dynamic> periodosJson = responseData['periodos'] is List
-        ? responseData['periodos'] as List<dynamic>
-        : <dynamic>[];
-
-    final Map<String, dynamic> paginationJson =
-        responseData['pagination'] is Map<String, dynamic>
-        ? responseData['pagination'] as Map<String, dynamic>
-        : <String, dynamic>{};
-
-    return PeriodoContablePaginatedResponse(
-      success: json['success'] == true,
-      message: json['message']?.toString() ?? '',
-      data: periodosJson
-          .whereType<Map<String, dynamic>>()
-          .map(PeriodoContableData.fromJson)
-          .toList(),
-      pagination: PeriodoContablePagination.fromJson(paginationJson),
+    return PeriodoContablePaginated(
+      items: itemsJson is List
+          ? itemsJson
+                .whereType<Map<String, dynamic>>()
+                .map(PeriodoContableData.fromJson)
+                .toList()
+          : <PeriodoContableData>[],
+      pagination: paginationJson is Map<String, dynamic>
+          ? PeriodoContablePagination.fromJson(paginationJson)
+          : const PeriodoContablePagination(
+              total: 0,
+              page: 1,
+              limit: 10,
+              totalPages: 0,
+              hasNextPage: false,
+              hasPreviousPage: false,
+            ),
     );
+  }
+
+  factory PeriodoContablePaginated.empty() {
+    return const PeriodoContablePaginated(
+      items: [],
+      pagination: PeriodoContablePagination(
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      ),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'items': items.map((item) => item.toJson()).toList(),
+      'pagination': pagination.toJson(),
+    };
   }
 }
 
@@ -45,12 +60,16 @@ class PeriodoContablePagination {
   final int page;
   final int limit;
   final int totalPages;
+  final bool hasNextPage;
+  final bool hasPreviousPage;
 
   const PeriodoContablePagination({
     required this.total,
     required this.page,
     required this.limit,
     required this.totalPages,
+    required this.hasNextPage,
+    required this.hasPreviousPage,
   });
 
   factory PeriodoContablePagination.fromJson(Map<String, dynamic> json) {
@@ -58,8 +77,21 @@ class PeriodoContablePagination {
       total: _toInt(json['total']),
       page: _toInt(json['page'], fallback: 1),
       limit: _toInt(json['limit'], fallback: 10),
-      totalPages: _toInt(json['totalPages'], fallback: 1),
+      totalPages: _toInt(json['totalPages']),
+      hasNextPage: _toBool(json['hasNextPage']),
+      hasPreviousPage: _toBool(json['hasPreviousPage']),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total': total,
+      'page': page,
+      'limit': limit,
+      'totalPages': totalPages,
+      'hasNextPage': hasNextPage,
+      'hasPreviousPage': hasPreviousPage,
+    };
   }
 
   static int _toInt(dynamic value, {int fallback = 0}) {
@@ -68,5 +100,21 @@ class PeriodoContablePagination {
     }
 
     return int.tryParse(value?.toString() ?? '') ?? fallback;
+  }
+
+  static bool _toBool(dynamic value) {
+    if (value is bool) {
+      return value;
+    }
+
+    if (value is String) {
+      return value.toLowerCase() == 'true';
+    }
+
+    if (value is num) {
+      return value != 0;
+    }
+
+    return false;
   }
 }

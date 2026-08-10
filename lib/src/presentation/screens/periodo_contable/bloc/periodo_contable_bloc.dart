@@ -1,8 +1,7 @@
-import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_request.dart';
-import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_response.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Models
+import 'package:app_aryoria/src/data/models/common/api_response.dart';
 import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_data.dart';
 import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_paginated.dart';
 
@@ -37,22 +36,21 @@ class PeriodoContableBloc
     GetPeriodosContablesEvent event,
     Emitter<PeriodoContableState> emit,
   ) async {
-    final bool isFirstPage = event.page == 1;
-    final bool shouldClearList = isFirstPage || event.refresh;
+    final bool isFirstPage = event.queryParams.page == 1;
 
-    // Evitar solicitudes duplicadas al cargar más páginas.
-    if (!shouldClearList && (state.isLoadingMore || !state.hasMore)) {
-      return;
-    }
-
-    if (shouldClearList) {
+    // ========================================================
+    // LOADING
+    // ========================================================
+    if (isFirstPage || event.refresh) {
       emit(
         state.copyWith(
           response: Loading(),
           periodos: const [],
           page: 1,
-          totalPages: 1,
-          hasMore: true,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPreviousPage: false,
           isLoadingMore: false,
         ),
       );
@@ -61,52 +59,54 @@ class PeriodoContableBloc
     }
 
     // ========================================================
-    // CONSTRUIR QUERY PARAMS
+    // CONSULTA
     // ========================================================
-    final Map<String, dynamic> queryParams = {
-      'page': event.page,
-      'limit': event.limit,
-    };
-
-    // Solo se envían los filtros cuando contienen un valor válido.
-    final String? search = event.search?.trim();
-
-    if (search != null && search.isNotEmpty) {
-      queryParams['search'] = search;
-    }
-
-    final String? estado = event.estado?.trim();
-
-    if (estado != null && estado.isNotEmpty) {
-      queryParams['estado'] = estado;
-    }
-
-    final Resource<PeriodoContablePaginatedResponse> response =
+    final Resource<ApiResponse<PeriodoContablePaginated>> response =
         await periodoContableUsesCases.getPeriodoC.run(
           idEmpresa: event.idEmpresa,
-          queryParams: queryParams,
+          queryParams: event.queryParams,
         );
 
-    if (response is Success<PeriodoContablePaginatedResponse>) {
-      final PeriodoContablePaginatedResponse paginated = response.data;
+    // ========================================================
+    // SUCCESS
+    // ========================================================
+    if (response is Success<ApiResponse<PeriodoContablePaginated>>) {
+      final ApiResponse<PeriodoContablePaginated> apiResponse = response.data;
 
-      final List<PeriodoContableData> nuevosPeriodos = paginated.data;
+      final PeriodoContablePaginated? paginated = apiResponse.data;
 
-      final List<PeriodoContableData> periodosActualizados = shouldClearList
-          ? nuevosPeriodos
-          : _mergePeriodos(actuales: state.periodos, nuevos: nuevosPeriodos);
+      if (paginated == null) {
+        emit(
+          state.copyWith(
+            response: response,
+            periodos: const [],
+            total: 0,
+            totalPages: 0,
+            hasNextPage: false,
+            hasPreviousPage: false,
+            isLoadingMore: false,
+          ),
+        );
 
-      final bool hasMore =
-          paginated.pagination.page < paginated.pagination.totalPages;
+        return;
+      }
+
+      final pagination = paginated.pagination;
 
       emit(
         state.copyWith(
           response: response,
-          periodos: periodosActualizados,
-          page: paginated.pagination.page,
-          limit: event.limit,
-          totalPages: paginated.pagination.totalPages,
-          hasMore: hasMore,
+
+          // IMPORTANTE:
+          // Se reemplaza la página actual, no se acumula.
+          periodos: paginated.items,
+
+          page: pagination.page,
+          limit: pagination.limit,
+          total: pagination.total,
+          totalPages: pagination.totalPages,
+          hasNextPage: pagination.hasNextPage,
+          hasPreviousPage: pagination.hasPreviousPage,
           isLoadingMore: false,
         ),
       );
@@ -114,6 +114,9 @@ class PeriodoContableBloc
       return;
     }
 
+    // ========================================================
+    // ERROR
+    // ========================================================
     emit(state.copyWith(response: response, isLoadingMore: false));
   }
 
@@ -126,17 +129,20 @@ class PeriodoContableBloc
   ) async {
     emit(state.copyWith(detailResponse: Loading(), clearPeriodoSelected: true));
 
-    final Resource<PeriodoContableResponse> response =
+    final Resource<ApiResponse<PeriodoContableData>> response =
         await periodoContableUsesCases.getPeriodoCById.run(
           idPeriodo: event.idPeriodo,
           idEmpresa: event.idEmpresa,
         );
 
-    if (response is Success<PeriodoContableResponse>) {
+    if (response is Success<ApiResponse<PeriodoContableData>>) {
+      final PeriodoContableData? periodo = response.data.data;
+
       emit(
         state.copyWith(
           detailResponse: response,
-          periodoSelected: response.data.data,
+          periodoSelected: periodo,
+          clearPeriodoSelected: periodo == null,
         ),
       );
 
@@ -155,42 +161,57 @@ class PeriodoContableBloc
   ) async {
     emit(state.copyWith(actionResponse: Loading()));
 
-    final PeriodoContableRequest request = PeriodoContableRequest(
-      idEmpresa: event.idEmpresa,
-      nombre: event.nombre,
-      anio: event.anio,
-      mes: event.mes,
-      fechaInicio: event.fechaInicio,
-      fechaFin: event.fechaFin,
-      saldoInicial: event.saldoInicial,
-      observacion: event.observacion,
-    );
+    final Resource<ApiResponse<PeriodoContableData>> response =
+        await periodoContableUsesCases.createPeriodoC.run(event.request);
 
-    final Resource<PeriodoContableResponse> response =
-        await periodoContableUsesCases.createPeriodoC.run(request);
-
-    if (response is Success<PeriodoContableResponse>) {
-      final PeriodoContableResponse periodoResponse = response.data;
-
-      final PeriodoContableData? periodoCreado = periodoResponse.data;
+    if (response is Success<ApiResponse<PeriodoContableData>>) {
+      final PeriodoContableData? periodoCreado = response.data.data;
 
       if (periodoCreado != null) {
-        final List<PeriodoContableData> nuevosPeriodos =
-            List<PeriodoContableData>.from(state.periodos);
+        /*
+         * Solo insertamos localmente si estamos en la primera página.
+         *
+         * Si estamos en página 2, 3, etc., insertar el nuevo período
+         * rompería la representación de la página devuelta por backend.
+         */
+        if (state.page == 1) {
+          final List<PeriodoContableData> periodosActualizados = [
+            periodoCreado,
+            ...state.periodos.where(
+              (periodo) => periodo.idPeriodo != periodoCreado.idPeriodo,
+            ),
+          ];
 
-        nuevosPeriodos.insert(0, periodoCreado);
+          // Respetamos el límite actual de la página.
+          final List<PeriodoContableData> periodosLimitados =
+              periodosActualizados.length > state.limit
+              ? periodosActualizados.take(state.limit).toList()
+              : periodosActualizados;
 
-        emit(
-          state.copyWith(actionResponse: response, periodos: nuevosPeriodos),
-        );
+          final int nuevoTotal = state.total + 1;
+          final int nuevosTotalPages = state.limit > 0
+              ? (nuevoTotal / state.limit).ceil()
+              : 0;
 
-        return;
+          emit(
+            state.copyWith(
+              actionResponse: response,
+              periodos: periodosLimitados,
+              total: nuevoTotal,
+              totalPages: nuevosTotalPages,
+              hasNextPage: state.page < nuevosTotalPages,
+            ),
+          );
+
+          return;
+        }
       }
 
       emit(state.copyWith(actionResponse: response));
 
       return;
     }
+
     emit(state.copyWith(actionResponse: response));
   }
 
@@ -203,25 +224,14 @@ class PeriodoContableBloc
   ) async {
     emit(state.copyWith(actionResponse: Loading()));
 
-    final PeriodoContableRequest request = PeriodoContableRequest(
-      idEmpresa: event.idEmpresa,
-      nombre: event.nombre,
-      anio: event.anio,
-      mes: event.mes,
-      fechaInicio: event.fechaInicio,
-      fechaFin: event.fechaFin,
-      saldoInicial: event.saldoInicial,
-      observacion: event.observacion,
-    );
-
-    final Resource<PeriodoContableResponse> response =
+    final Resource<ApiResponse<PeriodoContableData>> response =
         await periodoContableUsesCases.updatePeriodoC.run(
           idPeriodo: event.idPeriodo,
           idEmpresa: event.idEmpresa,
-          request: request,
+          request: event.request,
         );
 
-    if (response is Success<PeriodoContableResponse>) {
+    if (response is Success<ApiResponse<PeriodoContableData>>) {
       final PeriodoContableData? periodoActualizado = response.data.data;
 
       if (periodoActualizado != null) {
@@ -235,11 +245,14 @@ class PeriodoContableBloc
             })
             .toList();
 
+        final bool isSelected =
+            state.periodoSelected?.idPeriodo == periodoActualizado.idPeriodo;
+
         emit(
           state.copyWith(
             actionResponse: response,
             periodos: periodosActualizados,
-            periodoSelected: periodoActualizado,
+            periodoSelected: isSelected ? periodoActualizado : null,
           ),
         );
 
@@ -259,23 +272,34 @@ class PeriodoContableBloc
   ) async {
     emit(state.copyWith(actionResponse: Loading()));
 
-    final Resource response = await periodoContableUsesCases.deletePeriodoC.run(
-      idPeriodo: event.idPeriodo,
-      idEmpresa: event.idEmpresa,
-    );
+    final Resource<ApiResponse<void>> response = await periodoContableUsesCases
+        .deletePeriodoC
+        .run(idPeriodo: event.idPeriodo, idEmpresa: event.idEmpresa);
 
-    if (response is Success) {
-      final periodosActualizados = state.periodos.where((periodo) {
-        return periodo.idPeriodo != event.idPeriodo;
-      }).toList();
+    if (response is Success<ApiResponse<void>>) {
+      final List<PeriodoContableData> periodosActualizados = state.periodos
+          .where((periodo) {
+            return periodo.idPeriodo != event.idPeriodo;
+          })
+          .toList();
 
       final bool selectedWasDeleted =
           state.periodoSelected?.idPeriodo == event.idPeriodo;
+
+      final int nuevoTotal = state.total > 0 ? state.total - 1 : 0;
+
+      final int nuevosTotalPages = state.limit > 0
+          ? (nuevoTotal / state.limit).ceil()
+          : 0;
 
       emit(
         state.copyWith(
           actionResponse: response,
           periodos: periodosActualizados,
+          total: nuevoTotal,
+          totalPages: nuevosTotalPages,
+          hasNextPage: state.page < nuevosTotalPages,
+          hasPreviousPage: state.page > 1,
           clearPeriodoSelected: selectedWasDeleted,
         ),
       );
@@ -287,7 +311,7 @@ class PeriodoContableBloc
   }
 
   // ==========================================================
-  // 6. CAMBIAR ESTADO: ABRIR O CERRAR PERÍODO
+  // 6. CAMBIAR ESTADO DEL PERÍODO
   // ==========================================================
   Future<void> _onChangeEstadoPeriodoContable(
     ChangeEstadoPeriodoContableEvent event,
@@ -295,14 +319,14 @@ class PeriodoContableBloc
   ) async {
     emit(state.copyWith(actionResponse: Loading()));
 
-    final Resource<PeriodoContableResponse> response =
+    final Resource<ApiResponse<PeriodoContableData>> response =
         await periodoContableUsesCases.changeEstadoPeriodoC.run(
           idPeriodo: event.idPeriodo,
           idEmpresa: event.idEmpresa,
           estado: event.estado,
         );
 
-    if (response is Success<PeriodoContableResponse>) {
+    if (response is Success<ApiResponse<PeriodoContableData>>) {
       final PeriodoContableData? periodoActualizado = response.data.data;
 
       if (periodoActualizado == null) {
@@ -313,9 +337,11 @@ class PeriodoContableBloc
 
       final List<PeriodoContableData> periodosActualizados = state.periodos.map(
         (periodo) {
-          return periodo.idPeriodo == periodoActualizado.idPeriodo
-              ? periodoActualizado
-              : periodo;
+          if (periodo.idPeriodo == periodoActualizado.idPeriodo) {
+            return periodoActualizado;
+          }
+
+          return periodo;
         },
       ).toList();
 
@@ -354,25 +380,5 @@ class PeriodoContableBloc
     Emitter<PeriodoContableState> emit,
   ) {
     emit(state.copyWith(clearPeriodoSelected: true, clearDetailResponse: true));
-  }
-
-  // ==========================================================
-  // EVITAR DUPLICADOS EN LA PAGINACIÓN
-  // ==========================================================
-  List<PeriodoContableData> _mergePeriodos({
-    required List<PeriodoContableData> actuales,
-    required List<PeriodoContableData> nuevos,
-  }) {
-    final Map<int, PeriodoContableData> periodosMap = {};
-
-    for (final periodo in actuales) {
-      periodosMap[periodo.idPeriodo] = periodo;
-    }
-
-    for (final periodo in nuevos) {
-      periodosMap[periodo.idPeriodo] = periodo;
-    }
-
-    return periodosMap.values.toList();
   }
 }
