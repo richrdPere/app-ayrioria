@@ -9,7 +9,7 @@ import 'package:app_aryoria/src/domain/utils/Resource.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_event.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_state.dart';
-import 'package:app_aryoria/src/presentation/screens/movimiento/view/movimiento_form/movimiento_form_content.dart';
+import 'package:app_aryoria/src/presentation/screens/movimiento/view/form/movimiento_form_content.dart';
 
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
 

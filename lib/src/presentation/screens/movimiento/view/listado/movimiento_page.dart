@@ -274,11 +274,38 @@ class _MovimientoPageState extends State<MovimientoPage> {
       return;
     }
 
-    // final bool? result = await context.push<bool>(
-    //   '/movimientos/crear',
-    //   extra: {'idEmpresa': idEmpresa, 'idPeriodo': idPeriodo},
-    // );
     final result = await context.pushNamed('crear_movimiento');
+
+    if (!mounted) {
+      return;
+    }
+
+    if (result == true) {
+      _loadMovimientos(page: 1);
+    }
+  }
+
+  // ==========================================================
+  // EDITAR MOVIMIENTO
+  // ==========================================================
+  Future<void> _onEditMovimiento(int idMovimiento) async {
+    final int? idEmpresa = _idEmpresa;
+    final int? idPeriodo = _idPeriodo;
+
+    if (idEmpresa == null) {
+      _showError('Debes seleccionar una empresa.');
+      return;
+    }
+
+    if (idPeriodo == null) {
+      _showError('Debes tener un período contable abierto.');
+      return;
+    }
+
+    final result = await context.pushNamed(
+      'editar_movimiento',
+      pathParameters: {'idMovimiento': idMovimiento.toString()},
+    );
 
     if (!mounted) {
       return;
@@ -494,6 +521,7 @@ class _MovimientoPageState extends State<MovimientoPage> {
         onRefresh: _onRefresh,
         onCreateMovimiento: _onCreateMovimiento,
         onMovimientoSelected: _onMovimientoSelected,
+        onEditMovimiento: _onEditMovimiento,
         onDeleteMovimiento: _onDeleteMovimiento,
         onRetry: () {
           if (_idPeriodo != null) {

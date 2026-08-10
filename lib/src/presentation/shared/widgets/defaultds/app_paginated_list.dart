@@ -6,6 +6,7 @@ class AppPaginatedList<T> extends StatelessWidget {
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
 
   final int page;
+  final int limit;
   final int totalPages;
   final int totalItems;
 
@@ -30,6 +31,7 @@ class AppPaginatedList<T> extends StatelessWidget {
     required this.items,
     required this.itemBuilder,
     required this.page,
+    required this.limit,
     required this.totalPages,
     required this.totalItems,
     required this.isLoading,
@@ -61,23 +63,40 @@ class AppPaginatedList<T> extends StatelessWidget {
     }
 
     // ==========================================================
-    // LISTADO + PAGINACIÓN
+    // MOSTRAR PAGINACIÓN
+    // ==========================================================
+    final bool showPagination = totalItems > limit && totalPages > 1;
+
+    // ==========================================================
+    // LISTADO
     // ==========================================================
     final list = ListView.separated(
       controller: scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
       padding: padding,
-      itemCount: items.length + 1,
-      separatorBuilder: (_, __) => SizedBox(height: separatorHeight),
+
+      itemCount: items.length + (showPagination ? 1 : 0),
+
+      separatorBuilder: (_, __) {
+        return SizedBox(height: separatorHeight);
+      },
+
       itemBuilder: (context, index) {
+        // ======================================================
+        // ITEM
+        // ======================================================
         if (index < items.length) {
           return itemBuilder(context, items[index], index);
         }
 
+        // ======================================================
+        // FOOTER PAGINACIÓN
+        // ======================================================
         return _PaginationFooter(
           page: page,
           totalPages: totalPages,
           totalItems: totalItems,
+          limit: limit,
           isLoading: isLoadingMore,
           onPreviousPage: onPreviousPage,
           onNextPage: onNextPage,
@@ -85,16 +104,27 @@ class AppPaginatedList<T> extends StatelessWidget {
       },
     );
 
+    // ==========================================================
+    // SIN REFRESH
+    // ==========================================================
     if (onRefresh == null) {
       return list;
     }
 
+    // ==========================================================
+    // CON REFRESH
+    // ==========================================================
     return RefreshIndicator(onRefresh: onRefresh!, child: list);
   }
 }
 
+// ==========================================================
+// PAGINATION FOOTER
+// ==========================================================
+
 class _PaginationFooter extends StatelessWidget {
   final int page;
+  final int limit;
   final int totalPages;
   final int totalItems;
 
@@ -105,6 +135,7 @@ class _PaginationFooter extends StatelessWidget {
 
   const _PaginationFooter({
     required this.page,
+    required this.limit,
     required this.totalPages,
     required this.totalItems,
     required this.isLoading,
@@ -118,12 +149,26 @@ class _PaginationFooter extends StatelessWidget {
     final colors = theme.colorScheme;
 
     final bool canGoBack = page > 1;
+
     final bool canGoNext = totalPages > 0 && page < totalPages;
+
+    // ========================================================
+    // RANGO ACTUAL
+    // ========================================================
+
+    final int startItem = totalItems == 0 ? 0 : ((page - 1) * limit) + 1;
+
+    final int calculatedEnd = page * limit;
+
+    final int endItem = calculatedEnd > totalItems ? totalItems : calculatedEnd;
 
     return Padding(
       padding: const EdgeInsets.only(top: 16, bottom: 8),
       child: Column(
         children: [
+          // ==================================================
+          // BOTONES
+          // ==================================================
           Row(
             children: [
               Expanded(
@@ -153,7 +198,7 @@ class _PaginationFooter extends StatelessWidget {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : Text(
-                        totalPages == 0 ? '0 / 0' : '$page / $totalPages',
+                        '$page / $totalPages',
                         style: theme.textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -174,9 +219,12 @@ class _PaginationFooter extends StatelessWidget {
 
           const SizedBox(height: 10),
 
+          // ==================================================
+          // INFORMACIÓN
+          // ==================================================
           Text(
-            '$totalItems registro'
-            '${totalItems == 1 ? '' : 's'} en total',
+            'Mostrando $startItem–$endItem '
+            'de $totalItems registros',
             style: theme.textTheme.bodySmall?.copyWith(
               color: colors.onSurfaceVariant,
             ),

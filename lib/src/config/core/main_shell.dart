@@ -49,6 +49,7 @@ class MainShell extends StatelessWidget {
       // MOVIMIENTOS
       // ======================================================
       case '/movimientos/crear':
+      case '/movimientos/:idMovimiento':
       case '/movimientos/:idMovimiento/editar':
         return true;
 

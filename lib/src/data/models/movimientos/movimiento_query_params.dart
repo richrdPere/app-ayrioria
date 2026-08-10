@@ -55,16 +55,23 @@ class MovimientoQueryParams {
   MovimientoQueryParams copyWith({
     int? page,
     int? limit,
+
     String? search,
+
     int? idPeriodo,
     int? idCategoria,
     int? idSubcategoria,
     int? idCuenta,
+
     String? tipo,
     String? estado,
+
     String? fechaInicio,
     String? fechaFin,
 
+    // ========================================================
+    // FLAGS PARA LIMPIAR
+    // ========================================================
     bool clearSearch = false,
     bool clearIdCategoria = false,
     bool clearIdSubcategoria = false,

@@ -21,8 +21,8 @@ import 'package:app_aryoria/src/presentation/screens/empresa/view/create_empresa
 import 'package:app_aryoria/src/presentation/screens/empresa/view/selected_empresa/empresa_page.dart';
 import 'package:app_aryoria/src/presentation/screens/home/view/home_page.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/view/listado/movimiento_page.dart';
-import 'package:app_aryoria/src/presentation/screens/movimiento/view/movimiento_detalle/movimiento_detalle_page.dart';
-import 'package:app_aryoria/src/presentation/screens/movimiento/view/movimiento_form/movimiento_form_page.dart';
+import 'package:app_aryoria/src/presentation/screens/movimiento/view/detalle/movimiento_detalle_page.dart';
+import 'package:app_aryoria/src/presentation/screens/movimiento/view/form/movimiento_form_page.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/page/periodo_contable_page.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/periodo_contable_detalle/periodo_contable_detalle_page.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/view/periodo_contable_form/periodo_contable_form_page.dart';
@@ -247,16 +247,16 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: ':idMovimiento',
               name: 'movimiento_detalle',
-              builder: (_, state) {
-                final idMovimiento = int.tryParse(
-                  state.pathParameters['idMovimiento'] ?? '',
+              pageBuilder: (context, state) {
+                final idMovimiento = int.parse(
+                  state.pathParameters['idMovimiento']!,
                 );
 
-                if (idMovimiento == null) {
-                  return const Center(child: Text('Movimiento no válido.'));
-                }
-
-                return MovimientoDetailPage(idMovimiento: idMovimiento);
+                return MaterialPage(
+                  key: state.pageKey,
+                  fullscreenDialog: true,
+                  child: MovimientoDetailPage(idMovimiento: idMovimiento),
+                );
               },
               routes: [
                 GoRoute(

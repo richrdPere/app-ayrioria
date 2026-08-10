@@ -7,7 +7,7 @@ import 'package:app_aryoria/src/domain/utils/Resource.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_event.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_state.dart';
-import 'package:app_aryoria/src/presentation/screens/movimiento/view/movimiento_form/movimiento_form_page.dart';
+import 'package:app_aryoria/src/presentation/screens/movimiento/view/form/movimiento_form_page.dart';
 import 'package:app_aryoria/src/presentation/screens/subcategorias/bloc/subcategoria_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/subcategorias/bloc/subcategoria_event.dart';
 import 'package:app_aryoria/src/presentation/screens/subcategorias/bloc/subcategoria_state.dart';

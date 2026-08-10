@@ -1,32 +1,41 @@
 // ==========================================================
 // MOVIMIENTO CARD
 // ==========================================================
+
 import 'package:app_aryoria/src/data/models/movimientos/movimiento_data.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class MovimientoCard extends StatelessWidget {
   final MovimientoData movimiento;
+
+  /// Abre el detalle del movimiento.
   final VoidCallback onTap;
+
+  /// Abre el formulario de edición.
+  final VoidCallback onEdit;
+
+  /// Elimina el movimiento.
   final VoidCallback onDelete;
 
   const MovimientoCard({
     super.key,
     required this.movimiento,
     required this.onTap,
+    required this.onEdit,
     required this.onDelete,
   });
 
   // ==========================================================
   // TIPO
   // ==========================================================
-
-  bool get isIngreso => movimiento.tipo.toUpperCase() == 'INGRESO';
+  bool get isIngreso {
+    return movimiento.tipo.toUpperCase() == 'INGRESO';
+  }
 
   // ==========================================================
   // MONTO
   // ==========================================================
-
   String get montoFormateado {
     final formatter = NumberFormat.currency(
       locale: 'es_PE',
@@ -40,7 +49,6 @@ class MovimientoCard extends StatelessWidget {
   // ==========================================================
   // FECHA
   // ==========================================================
-
   String get fechaFormateada {
     final date = DateTime.tryParse(movimiento.fecha);
 
@@ -54,7 +62,6 @@ class MovimientoCard extends StatelessWidget {
   // ==========================================================
   // ESTADO
   // ==========================================================
-
   Color _estadoColor(BuildContext context) {
     switch (movimiento.estado.toUpperCase()) {
       case 'PAGADO':
@@ -87,6 +94,9 @@ class MovimientoCard extends StatelessWidget {
     }
   }
 
+  // ==========================================================
+  // BUILD
+  // ==========================================================
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -98,18 +108,33 @@ class MovimientoCard extends StatelessWidget {
         movimiento.subcategoria?.nombre ?? 'Sin subcategoría';
 
     final Color tipoColor = isIngreso ? Colors.green : Colors.red;
+
     final Color estadoColor = _estadoColor(context);
 
-    return Material(
-      color: colors.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(18),
+    return Card(
+      // ======================================================
+      // ELEVACIÓN
+      // ======================================================
+      elevation: 2,
+      margin: EdgeInsets.zero,
+      color: colors.surface,
+      // shadowColor: colors.shadow.withValues(alpha: 0.20),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: colors.outlineVariant.withValues(alpha: 0.55)),
+      ),
+
       clipBehavior: Clip.antiAlias,
+
       child: InkWell(
+        // Tocar cualquier parte de la card abre detalle.
         onTap: onTap,
+
         borderRadius: BorderRadius.circular(18),
 
         child: Padding(
           padding: const EdgeInsets.all(16),
+
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -119,7 +144,9 @@ class MovimientoCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ==============================================
                   // ICONO TIPO
+                  // ==============================================
                   Container(
                     width: 50,
                     height: 50,
@@ -138,7 +165,9 @@ class MovimientoCard extends StatelessWidget {
 
                   const SizedBox(width: 14),
 
+                  // ==============================================
                   // DESCRIPCIÓN + CATEGORÍA
+                  // ==============================================
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,15 +198,23 @@ class MovimientoCard extends StatelessWidget {
 
                   const SizedBox(width: 8),
 
+                  // ==============================================
                   // MENÚ
+                  // ==============================================
                   PopupMenuButton<String>(
                     padding: EdgeInsets.zero,
                     tooltip: 'Opciones',
+
                     icon: const Icon(Icons.more_vert),
+
                     onSelected: (value) {
                       switch (value) {
                         case 'detalle':
                           onTap();
+                          break;
+
+                        case 'editar':
+                          onEdit();
                           break;
 
                         case 'eliminar':
@@ -185,25 +222,51 @@ class MovimientoCard extends StatelessWidget {
                           break;
                       }
                     },
-                    itemBuilder: (_) {
-                      return const [
-                        PopupMenuItem<String>(
+
+                    itemBuilder: (context) {
+                      return [
+                        // ==========================================
+                        // DETALLE
+                        // ==========================================
+                        const PopupMenuItem<String>(
                           value: 'detalle',
                           child: Row(
                             children: [
                               Icon(Icons.visibility_outlined),
-                              SizedBox(width: 10),
+                              SizedBox(width: 12),
                               Text('Ver detalle'),
                             ],
                           ),
                         ),
 
+                        // ==========================================
+                        // EDITAR
+                        // ==========================================
                         PopupMenuItem<String>(
+                          value: 'editar',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit_outlined, color: colors.primary),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Editar',
+                                style: TextStyle(color: colors.primary),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const PopupMenuDivider(),
+
+                        // ==========================================
+                        // ELIMINAR
+                        // ==========================================
+                        const PopupMenuItem<String>(
                           value: 'eliminar',
                           child: Row(
                             children: [
                               Icon(Icons.delete_outline, color: Colors.red),
-                              SizedBox(width: 10),
+                              SizedBox(width: 12),
                               Text(
                                 'Eliminar',
                                 style: TextStyle(color: Colors.red),
@@ -242,12 +305,21 @@ class MovimientoCard extends StatelessWidget {
 
               const SizedBox(height: 16),
 
+              Divider(
+                height: 1,
+                color: colors.outlineVariant.withValues(alpha: 0.60),
+              ),
+
+              const SizedBox(height: 14),
+
               // ==================================================
               // FOOTER
               // ==================================================
               Row(
                 children: [
+                  // ==============================================
                   // ESTADO
+                  // ==============================================
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -261,7 +333,9 @@ class MovimientoCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(_estadoIcon, size: 16, color: estadoColor),
+
                         const SizedBox(width: 5),
+
                         Text(
                           movimiento.estado,
                           style: theme.textTheme.labelMedium?.copyWith(
@@ -275,7 +349,9 @@ class MovimientoCard extends StatelessWidget {
 
                   const Spacer(),
 
+                  // ==============================================
                   // MONTO
+                  // ==============================================
                   Text(
                     '${isIngreso ? '+' : '-'} $montoFormateado',
                     style: theme.textTheme.titleMedium?.copyWith(
@@ -296,6 +372,7 @@ class MovimientoCard extends StatelessWidget {
 // ==========================================================
 // INFO SECUNDARIA DE MOVIMIENTO
 // ==========================================================
+
 class _MovimientoInfo extends StatelessWidget {
   final IconData icon;
   final String text;

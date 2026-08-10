@@ -1,4 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+// ==========================================================
+// OPCIÓN DE FILTRO
+// ==========================================================
 
 class AppSearchFilterOption<T> {
   final T? value;
@@ -6,6 +12,10 @@ class AppSearchFilterOption<T> {
 
   const AppSearchFilterOption({required this.value, required this.label});
 }
+
+// ==========================================================
+// SEARCH + FILTER
+// ==========================================================
 
 class AppSearchFilterBar<T> extends StatefulWidget {
   final TextEditingController controller;
@@ -23,6 +33,8 @@ class AppSearchFilterBar<T> extends StatefulWidget {
 
   final EdgeInsetsGeometry padding;
 
+  final Duration debounceDuration;
+
   const AppSearchFilterBar({
     super.key,
     required this.controller,
@@ -33,6 +45,7 @@ class AppSearchFilterBar<T> extends StatefulWidget {
     this.selectedFilter,
     this.filterTooltip = 'Filtrar',
     this.padding = const EdgeInsets.fromLTRB(20, 8, 20, 12),
+    this.debounceDuration = const Duration(milliseconds: 450),
   });
 
   @override
@@ -40,11 +53,92 @@ class AppSearchFilterBar<T> extends StatefulWidget {
 }
 
 class _AppSearchFilterBarState<T> extends State<AppSearchFilterBar<T>> {
+  Timer? _debounce;
+
+  String _lastSearch = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    _lastSearch = widget.controller.text.trim();
+
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant AppSearchFilterBar<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_onControllerChanged);
+
+      widget.controller.addListener(_onControllerChanged);
+
+      _lastSearch = widget.controller.text.trim();
+    }
+  }
+
+  // ==========================================================
+  // SEARCH LISTENER
+  // ==========================================================
+
+  void _onControllerChanged() {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {});
+
+    _debounce?.cancel();
+
+    final String value = widget.controller.text.trim();
+
+    _debounce = Timer(widget.debounceDuration, () {
+      if (!mounted) {
+        return;
+      }
+
+      if (value == _lastSearch) {
+        return;
+      }
+
+      _lastSearch = value;
+
+      widget.onSearch(value);
+    });
+  }
+
+  // ==========================================================
+  // LIMPIAR SEARCH
+  // ==========================================================
+
+  void _clearSearch() {
+    _debounce?.cancel();
+
+    widget.controller.clear();
+
+    _lastSearch = '';
+
+    widget.onSearch('');
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+
+    widget.controller.removeListener(_onControllerChanged);
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
     final bool hasFilter = widget.selectedFilter != null;
+
+    final bool hasSearch = widget.controller.text.trim().isNotEmpty;
 
     return Padding(
       padding: widget.padding,
@@ -57,33 +151,39 @@ class _AppSearchFilterBarState<T> extends State<AppSearchFilterBar<T>> {
             child: TextField(
               controller: widget.controller,
               textInputAction: TextInputAction.search,
-              onSubmitted: widget.onSearch,
-              onChanged: (_) {
-                setState(() {});
+
+              onSubmitted: (value) {
+                _debounce?.cancel();
+
+                final search = value.trim();
+
+                _lastSearch = search;
+
+                widget.onSearch(search);
               },
+
               decoration: InputDecoration(
                 hintText: widget.hintText,
+
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon: widget.controller.text.trim().isEmpty
+
+                suffixIcon: !hasSearch
                     ? null
                     : IconButton(
-                        tooltip: 'Limpiar',
-                        onPressed: () {
-                          widget.controller.clear();
-
-                          setState(() {});
-
-                          widget.onSearch('');
-                        },
+                        tooltip: 'Limpiar búsqueda',
+                        onPressed: _clearSearch,
                         icon: const Icon(Icons.close),
                       ),
+
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
+
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                   borderSide: BorderSide(color: colors.outlineVariant),
                 ),
+
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                   borderSide: BorderSide(color: colors.primary, width: 1.5),
@@ -97,18 +197,39 @@ class _AppSearchFilterBarState<T> extends State<AppSearchFilterBar<T>> {
           // ==================================================
           // FILTRO
           // ==================================================
-          PopupMenuButton<T?>(
+          PopupMenuButton<AppSearchFilterOption<T>>(
             tooltip: widget.filterTooltip,
-            initialValue: widget.selectedFilter,
-            onSelected: widget.onFilterChanged,
+
+            // IMPORTANTE:
+            // El popup ahora devuelve la opción completa.
+            onSelected: (option) {
+              widget.onFilterChanged(option.value);
+            },
+
             itemBuilder: (context) {
               return widget.filterOptions.map((option) {
-                return PopupMenuItem<T?>(
-                  value: option.value,
-                  child: Text(option.label),
+                final bool selected = option.value == widget.selectedFilter;
+
+                return PopupMenuItem<AppSearchFilterOption<T>>(
+                  // Nunca es null.
+                  value: option,
+
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(option.label)),
+
+                      if (selected)
+                        Icon(
+                          Icons.check_rounded,
+                          size: 20,
+                          color: colors.primary,
+                        ),
+                    ],
+                  ),
                 );
               }).toList();
             },
+
             child: Container(
               height: 56,
               width: 56,
