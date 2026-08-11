@@ -14,51 +14,64 @@ class CategoriaSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     final text = total == 1 ? '1 categoría' : '$total categorías';
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
       child: Row(
         children: [
+          // ==================================================
+          // TOTAL CATEGORÍAS
+          // ==================================================
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.08),
+              color: colors.primaryContainer.withValues(alpha: 0.55),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.blue.withOpacity(0.12)),
+              border: Border.all(color: colors.primary.withValues(alpha: 0.20)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.category_outlined,
                   size: 17,
-                  color: Colors.blue,
+                  color: colors.onPrimaryContainer,
                 ),
+
                 const SizedBox(width: 6),
+
                 Text(
                   text,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blue,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: colors.onPrimaryContainer,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
           ),
 
-          // if (isSearching) ...[
-          //   const SizedBox(width: 10),
-          //   Expanded(
-          //     child: Text(
-          //       'Resultados para “${search.trim()}”',
-          //       maxLines: 1,
-          //       overflow: TextOverflow.ellipsis,
-          //       style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-          //     ),
-          //   ),
-          // ],
+          // ==================================================
+          // TEXTO DE BÚSQUEDA
+          // ==================================================
+          if (isSearching && search.trim().isNotEmpty) ...[
+            const SizedBox(width: 10),
+
+            Expanded(
+              child: Text(
+                'Resultados para “${search.trim()}”',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

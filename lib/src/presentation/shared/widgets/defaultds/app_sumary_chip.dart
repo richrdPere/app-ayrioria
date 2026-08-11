@@ -1,15 +1,34 @@
 import 'package:flutter/material.dart';
 
-class SubcategoriaSummary extends StatelessWidget {
+class AppSummaryChip extends StatelessWidget {
   final int total;
+
+  final String singularLabel;
+  final String pluralLabel;
+
+  final IconData icon;
+
   final bool isSearching;
   final String search;
 
-  const SubcategoriaSummary({
+  final EdgeInsetsGeometry padding;
+
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final Color? foregroundColor;
+
+  const AppSummaryChip({
     super.key,
     required this.total,
-    required this.isSearching,
-    required this.search,
+    required this.singularLabel,
+    required this.pluralLabel,
+    required this.icon,
+    this.isSearching = false,
+    this.search = '',
+    this.padding = const EdgeInsets.fromLTRB(20, 0, 20, 8),
+    this.backgroundColor,
+    this.borderColor,
+    this.foregroundColor,
   });
 
   @override
@@ -17,37 +36,42 @@ class SubcategoriaSummary extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    final text = total == 1 ? '1 subcategoría' : '$total subcategorías';
+    final text = total == 1 ? '1 $singularLabel' : '$total $pluralLabel';
+
+    final bgColor =
+        backgroundColor ?? colors.primaryContainer.withValues(alpha: 0.55);
+
+    final effectiveBorderColor =
+        borderColor ?? colors.primary.withValues(alpha: 0.20);
+
+    final effectiveForegroundColor =
+        foregroundColor ?? colors.onPrimaryContainer;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+      padding: padding,
       child: Row(
         children: [
           // ==================================================
-          // TOTAL SUBCATEGORÍAS
+          // RESUMEN
           // ==================================================
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
             decoration: BoxDecoration(
-              color: colors.primaryContainer.withValues(alpha: 0.55),
+              color: bgColor,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: colors.primary.withValues(alpha: 0.20)),
+              border: Border.all(color: effectiveBorderColor),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.account_tree_outlined,
-                  size: 17,
-                  color: colors.onPrimaryContainer,
-                ),
+                Icon(icon, size: 17, color: effectiveForegroundColor),
 
                 const SizedBox(width: 6),
 
                 Text(
                   text,
                   style: theme.textTheme.labelMedium?.copyWith(
-                    color: colors.onPrimaryContainer,
+                    color: effectiveForegroundColor,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -56,7 +80,7 @@ class SubcategoriaSummary extends StatelessWidget {
           ),
 
           // ==================================================
-          // RESULTADO DE BÚSQUEDA
+          // TEXTO DE BÚSQUEDA
           // ==================================================
           if (isSearching && search.trim().isNotEmpty) ...[
             const SizedBox(width: 10),

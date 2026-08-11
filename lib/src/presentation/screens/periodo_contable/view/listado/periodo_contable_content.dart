@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_sumary_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -93,6 +94,18 @@ class _PeriodoContableContentState extends State<PeriodoContableContent> {
             // FILTROS
             // ==================================================
             if (existenPeriodos || _hasFilters) _buildSearch(),
+
+            // ====================================================
+            // CHIP TOTAL DE PERIODOS
+            // ====================================================
+            if (existenPeriodos || _hasFilters)
+              AppSummaryChip(
+                total: state.total,
+                singularLabel: 'período',
+                pluralLabel: 'períodos',
+                icon: Icons.calendar_month_outlined,
+                isSearching: _hasFilters,
+              ),
 
             // ==================================================
             // BODY

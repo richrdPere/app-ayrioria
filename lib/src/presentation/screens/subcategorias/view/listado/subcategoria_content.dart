@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:app_aryoria/src/presentation/screens/subcategorias/view/widgets/subcategoria_sumary.dart';
+// import 'package:app_aryoria/src/presentation/screens/subcategorias/view/widgets/subcategoria_sumary.dart';
+import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_sumary_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -382,11 +383,19 @@ class _SubcategoriaContentState extends State<SubcategoriaContent> {
               // RESUMEN
               // ==============================================
               if (existen || _hasFilters)
-                SubcategoriaSummary(
+                AppSummaryChip(
                   total: state.total,
+                  singularLabel: 'subcategoría',
+                  pluralLabel: 'subcategorías',
+                  icon: Icons.account_tree_outlined,
                   isSearching: _hasFilters,
                   search: _searchController.text.trim(),
                 ),
+              // SubcategoriaSummary(
+              //   total: state.total,
+              //   isSearching: _hasFilters,
+              //   search: _searchController.text.trim(),
+              // ),
 
               // =================================================
               // CONTENT

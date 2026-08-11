@@ -118,26 +118,128 @@ class _ConfiguracionPageState extends State<ConfiguracionPage> {
   // CERRAR SESIÓN
   // ==========================================================
   Future<void> _onLogout() async {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     final bool? confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: true,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Cerrar sesión'),
-          content: const Text('¿Deseas cerrar tu sesión actual?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(false);
-              },
-              child: const Text('Cancelar'),
+          backgroundColor: colors.surface,
+          surfaceTintColor: Colors.transparent,
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+
+          contentPadding: const EdgeInsets.fromLTRB(24, 18, 24, 8),
+
+          actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+
+          // ======================================================
+          // TÍTULO
+          // ======================================================
+          title: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: colors.errorContainer,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Icon(
+                  Icons.logout_rounded,
+                  color: colors.onErrorContainer,
+                  size: 25,
+                ),
+              ),
+
+              const SizedBox(width: 14),
+
+              Expanded(
+                child: Text(
+                  'Cerrar sesión',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: colors.onSurface,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // ======================================================
+          // CONTENIDO
+          // ======================================================
+          content: Text(
+            '¿Deseas salir de tu cuenta? '
+            'Tendrás que iniciar sesión nuevamente para continuar usando Aryoria.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colors.onSurfaceVariant,
+              height: 1.45,
             ),
-            FilledButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(true);
-              },
-              child: const Text('Cerrar sesión'),
+          ),
+
+          // ======================================================
+          // ACCIONES
+          // ======================================================
+     actions: [
+  Row(
+    children: [
+      // ======================================================
+      // CANCELAR
+      // ======================================================
+      Expanded(
+        child: OutlinedButton(
+          onPressed: () {
+            Navigator.of(dialogContext).pop(false);
+          },
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
             ),
-          ],
+          ),
+          child: const Text('Cancelar'),
+        ),
+      ),
+
+      const SizedBox(width: 12),
+
+      // ======================================================
+      // CERRAR SESIÓN
+      // ======================================================
+      Expanded(
+        child: FilledButton.icon(
+          onPressed: () {
+            Navigator.of(dialogContext).pop(true);
+          },
+          style: FilledButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+            backgroundColor: colors.error,
+            foregroundColor: colors.onError,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          icon: const Icon(
+            Icons.logout_rounded,
+            size: 19,
+          ),
+          label: const Text(
+            'Cerrar sesión',
+            maxLines: 1,
+          ),
+        ),
+      ),
+    ],
+  ),
+],
         );
       },
     );

@@ -2,6 +2,7 @@ import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
 import 'package:app_aryoria/src/data/models/empresa/empresa_data.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_event.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,87 +17,168 @@ class EmpresaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     final sessionState = context.watch<SessionBloc>().state;
+
     final empresaActivaId = sessionState.empresaActiva?.idEmpresa;
+
     final isSelected = empresaActivaId == empresa.idEmpresa;
 
-    return GestureDetector(
-      onTap: () => _selectEmpresa(context),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _selectEmpresa(context),
+        borderRadius: BorderRadius.circular(16),
 
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(15),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
 
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? const Color(0xff2563EB) : Colors.transparent,
-            width: 1.4,
+          padding: const EdgeInsets.all(15),
+
+          decoration: BoxDecoration(
+            // ==================================================
+            // FONDO
+            // ==================================================
+            color: isSelected
+                ? colors.primaryContainer.withValues(alpha: 0.30)
+                : colors.surfaceContainerLow,
+
+            borderRadius: BorderRadius.circular(16),
+
+            // ==================================================
+            // BORDE
+            // ==================================================
+            border: Border.all(
+              color: isSelected
+                  ? colors.primary
+                  : colors.outlineVariant.withValues(alpha: 0.55),
+              width: isSelected ? 1.5 : 1,
+            ),
+
+            // ==================================================
+            // SOMBRA
+            // ==================================================
+            boxShadow: [
+              BoxShadow(
+                color: colors.shadow.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
 
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(.1),
-                borderRadius: BorderRadius.circular(12),
+          child: Row(
+            children: [
+              // ==================================================
+              // ICONO EMPRESA
+              // ==================================================
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: isSelected ? colors.primary : colors.primaryContainer,
+
+                  borderRadius: BorderRadius.circular(14),
+                ),
+
+                child: Icon(
+                  Icons.business_rounded,
+                  color: isSelected
+                      ? colors.onPrimary
+                      : colors.onPrimaryContainer,
+                  size: 27,
+                ),
               ),
-              child: const Icon(Icons.business, color: Colors.blue, size: 28),
-            ),
 
-            const SizedBox(width: 12),
+              const SizedBox(width: 12),
 
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    empresa.nombreComercial,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+              // ==================================================
+              // INFORMACIÓN EMPRESA
+              // ==================================================
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      empresa.nombreComercial,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: colors.onSurface,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 4),
+                    const SizedBox(height: 4),
 
-                  Text(
-                    "RUC: ${empresa.ruc}",
-                    style: const TextStyle(color: Colors.grey, fontSize: 13),
-                  ),
+                    Text(
+                      'RUC: ${empresa.ruc}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
 
-                  const SizedBox(height: 2),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
 
-                  Text(
-                    empresa.direccionFiscal,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                ],
+                    const SizedBox(height: 3),
+
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on_outlined,
+                          size: 14,
+                          color: colors.onSurfaceVariant,
+                        ),
+
+                        const SizedBox(width: 4),
+
+                        Expanded(
+                          child: Text(
+                            empresa.direccionFiscal,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            Radio<int>(
-              value: empresa.idEmpresa,
-              groupValue: empresaActivaId,
-              activeColor: const Color(0xff2563EB),
-              onChanged: (_) => _selectEmpresa(context),
-            ),
-          ],
+              const SizedBox(width: 8),
+
+              // ==================================================
+              // SELECCIÓN
+              // ==================================================
+              Radio<int>(
+                value: empresa.idEmpresa,
+                groupValue: empresaActivaId,
+
+                activeColor: colors.primary,
+
+                fillColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return colors.primary;
+                  }
+
+                  return colors.onSurfaceVariant;
+                }),
+
+                onChanged: (_) {
+                  _selectEmpresa(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_sumary_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -23,7 +24,7 @@ import 'package:app_aryoria/src/presentation/screens/categorias/bloc/categoria_s
 import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_card.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_empty_state.dart';
 import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_error_state.dart';
-import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_summary.dart';
+// import 'package:app_aryoria/src/presentation/screens/categorias/view/widgets/categoria_content/categoria_summary.dart';
 
 // Widgets globales
 import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_module_header.dart';
@@ -427,11 +428,19 @@ class _CategoriaContentState extends State<CategoriaContent> {
                 // RESUMEN
                 // ==============================================
                 if (existenCategorias)
-                  CategoriaSummary(
+                  AppSummaryChip(
                     total: state.total,
+                    singularLabel: 'categoría',
+                    pluralLabel: 'categorías',
+                    icon: Icons.category_outlined,
                     isSearching: _hasFilters,
                     search: _searchController.text.trim(),
                   ),
+                // CategoriaSummary(
+                //   total: state.total,
+                //   isSearching: _hasFilters,
+                //   search: _searchController.text.trim(),
+                // ),
 
                 // ==============================================
                 // BODY

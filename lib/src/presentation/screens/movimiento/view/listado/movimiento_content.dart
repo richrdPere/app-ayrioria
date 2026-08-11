@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_sumary_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,14 +15,14 @@ import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_event.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_state.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/view/widgets/movimiento_card.dart';
-import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
+// import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
 
 // Defaults
 import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_context_unavailable.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_empty_state.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_error_state.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_list_loading.dart';
-import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_list_sumary_header.dart';
+// import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_list_sumary_header.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_module_header.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_paginated_list.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_search_filter_option.dart';
@@ -115,10 +116,10 @@ class MovimientoContent extends StatelessWidget {
         final bool mostrarHerramientas =
             existenMovimientos || hayBusquedaActiva;
 
-        final String? periodoNombre = context
-            .select<PeriodoContableBloc, String?>(
-              (bloc) => bloc.state.periodoActivo?.nombre,
-            );
+        // final String? periodoNombre = context
+        //     .select<PeriodoContableBloc, String?>(
+        //       (bloc) => bloc.state.periodoActivo?.nombre,
+        //     );
 
         return Stack(
           children: [
@@ -140,14 +141,13 @@ class MovimientoContent extends StatelessWidget {
                 // ==================================================
                 if (mostrarHerramientas) ...[
                   // _MovimientoHeader(total: state.total),
-                  AppListSummaryHeader(
-                    title: 'Movimientos del período',
-                    total: state.total,
-                    itemSingular: 'movimiento',
-                    itemPlural: 'movimientos',
-                    periodoNombre: periodoNombre,
-                  ),
-
+                  // AppListSummaryHeader(
+                  //   title: 'Movimientos del período',
+                  //   total: state.total,
+                  //   itemSingular: 'movimiento',
+                  //   itemPlural: 'movimientos',
+                  //   periodoNombre: periodoNombre,
+                  // ),
                   AppSearchFilterBar<String>(
                     controller: searchController,
                     hintText: 'Buscar movimiento...',
@@ -195,6 +195,15 @@ class MovimientoContent extends StatelessWidget {
                         label: 'Anulados',
                       ),
                     ],
+                  ),
+
+                  AppSummaryChip(
+                    total: state.total,
+                    singularLabel: 'movimiento',
+                    pluralLabel: 'movimientos',
+                    icon: Icons.receipt_long_outlined,
+                    isSearching: false,
+                    search: '',
                   ),
                 ],
 
