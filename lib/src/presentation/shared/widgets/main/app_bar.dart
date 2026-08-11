@@ -103,6 +103,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
       // ========================================================
       // ACCIONES DERECHA
       // ========================================================
+
       actions: [
         if (isHome)
           Padding(
@@ -113,7 +114,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
                 shape: const CircleBorder(),
                 child: InkWell(
                   onTap: () {
-                    context.pushNamed('configuracion');
+                    context.pushNamed('perfil');
                   },
                   customBorder: const CircleBorder(),
                   child: Container(
@@ -125,7 +126,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
                       shape: BoxShape.circle,
                     ),
                     child: Image.asset(
-                      'assets/img/tag-logo.png',
+                      'assets/img/user_black.png',
                       fit: BoxFit.contain,
                     ),
                   ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_aryoria/src/presentation/screens/subcategorias/view/widgets/subcategoria_sumary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -369,13 +370,23 @@ class _SubcategoriaContentState extends State<SubcategoriaContent> {
                 icon: Icons.account_tree_outlined,
                 title: 'Gestiona tus subcategorías',
                 description:
-                    'Organiza tus categorías en conceptos más específicos para clasificar mejor tus movimientos.',
+                    'Organiza tus categorías en conceptos más específicos para tus movimientos.',
               ),
 
               // =================================================
               // FILTROS
               // =================================================
               if (existen || _hasFilters) _buildFilters(),
+
+              // ==============================================
+              // RESUMEN
+              // ==============================================
+              if (existen || _hasFilters)
+                SubcategoriaSummary(
+                  total: state.total,
+                  isSearching: _hasFilters,
+                  search: _searchController.text.trim(),
+                ),
 
               // =================================================
               // CONTENT
@@ -504,7 +515,7 @@ class _SubcategoriaContentState extends State<SubcategoriaContent> {
           // ====================================================
           // FILTRO CATEGORÍA
           // ====================================================
-          const SizedBox(height: 10),
+          const SizedBox(height: 20),
 
           _buildCategoriaFilter(),
 
@@ -564,41 +575,71 @@ class _SubcategoriaContentState extends State<SubcategoriaContent> {
   // FILTROS ACTIVOS
   // ==========================================================
   Widget _buildActiveFilters() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          if (_tipoSeleccionado != null)
-            InputChip(
-              label: Text(
-                _tipoSeleccionado == 'INGRESO' ? 'Ingresos' : 'Egresos',
-              ),
-              onDeleted: () {
-                _onTipoChanged(null);
-              },
-            ),
+    return BlocBuilder<CategoriaBloc, CategoriaState>(
+      builder: (context, categoriaState) {
+        final categorias = categoriaState.categorias;
 
-          if (_estadoSeleccionado != null)
-            InputChip(
-              label: Text(
-                _estadoSeleccionado == true ? 'Activos' : 'Inactivos',
-              ),
-              onDeleted: () {
-                _onEstadoChanged(null);
-              },
-            ),
+        // ======================================================
+        // CATEGORÍA SELECCIONADA
+        // ======================================================
+        String? nombreCategoriaSeleccionada;
 
-          if (_idCategoriaSeleccionada != null)
-            InputChip(
-              label: const Text('Categoría'),
-              onDeleted: () {
-                _onCategoriaChanged(null);
-              },
-            ),
-        ],
-      ),
+        if (_idCategoriaSeleccionada != null) {
+          for (final categoria in categorias) {
+            if (categoria.idCategoria == _idCategoriaSeleccionada) {
+              nombreCategoriaSeleccionada = categoria.nombre;
+              break;
+            }
+          }
+        }
+
+        return Align(
+          alignment: Alignment.centerLeft,
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              // ==================================================
+              // TIPO
+              // ==================================================
+              if (_tipoSeleccionado != null)
+                InputChip(
+                  label: Text(
+                    _tipoSeleccionado == 'INGRESO' ? 'Ingresos' : 'Egresos',
+                  ),
+                  onDeleted: () {
+                    _onTipoChanged(null);
+                  },
+                ),
+
+              // ==================================================
+              // ESTADO
+              // ==================================================
+              if (_estadoSeleccionado != null)
+                InputChip(
+                  label: Text(
+                    _estadoSeleccionado == true ? 'Activos' : 'Inactivos',
+                  ),
+                  onDeleted: () {
+                    _onEstadoChanged(null);
+                  },
+                ),
+
+              // ==================================================
+              // CATEGORÍA
+              // ==================================================
+              if (_idCategoriaSeleccionada != null)
+                InputChip(
+                  avatar: const Icon(Icons.category_outlined, size: 18),
+                  label: Text(nombreCategoriaSeleccionada ?? 'Categoría'),
+                  onDeleted: () {
+                    _onCategoriaChanged(null);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 

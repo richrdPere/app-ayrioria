@@ -451,11 +451,11 @@ final GoRouter appRouter = GoRouter(
         ),
 
         // ==========================================================
-        // CONFIGURACION
+        // PERFIL
         // ==========================================================
         GoRoute(
-          path: '/configuracion',
-          name: 'configuracion',
+          path: '/perfil',
+          name: 'perfil',
           builder: (_, __) => const ConfiguracionPage(),
         ),
       ],

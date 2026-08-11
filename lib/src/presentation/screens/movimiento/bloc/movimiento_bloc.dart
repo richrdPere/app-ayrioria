@@ -38,59 +38,49 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
     GetMovimientosEvent event,
     Emitter<MovimientoState> emit,
   ) async {
-    final bool isFirstPage = event.queryParams.page == 1 || event.refresh;
+    // ==========================================================
+    // LOADING
+    // ==========================================================
 
     emit(
       state.copyWith(
         idEmpresa: event.idEmpresa,
         queryParams: event.queryParams,
-        isLoading: isFirstPage,
-        isLoadingMore: !isFirstPage,
-        clearMovimientoResponse: isFirstPage,
+        isLoading: true,
+        clearMovimientoResponse: true,
       ),
     );
 
+    // ==========================================================
+    // REQUEST
+    // ==========================================================
     final response = await movimientoUsesCases.getMovimientos.run(
       idEmpresa: event.idEmpresa,
       queryParams: event.queryParams,
     );
 
-    // ========================================================
+    // ==========================================================
     // SUCCESS
-    // ========================================================
+    // ==========================================================
     if (response is Success<ApiResponse<MovimientoPaginated>>) {
-      final apiResponse = response.data;
+      final paginated = response.data.data;
 
-      final MovimientoPaginated? paginated = apiResponse.data;
-
+      // ========================================================
+      // DATA NULL
+      // ========================================================
       if (paginated == null) {
-        // emit(
-        //   state.copyWith(
-        //     movimientoResponse: response,
-        //     movimientos: isFirstPage ? const [] : state.movimientos,
-        //     total: 0,
-        //     totalPages: 0,
-        //     hasMore: false,
-        //     isLoading: false,
-        //     isLoadingMore: false,
-        //   ),
-        // );
-        final pagination = paginated?.pagination;
-
         emit(
           state.copyWith(
             movimientoResponse: response,
-            // movimientos: isFirstPage ? const [] : state.movimientos,
-            movimientos: paginated?.items,
-            queryParams: event.queryParams.copyWith(
-              page: pagination?.page,
-              limit: pagination?.limit,
-            ),
-            total: pagination?.total,
-            totalPages: pagination?.totalPages,
-            hasMore: pagination?.hasNextPage,
+
+            movimientos: const [],
+
+            total: 0,
+            totalPages: 0,
+            hasNextPage: false,
+            hasPreviousPage: false,
+
             isLoading: false,
-            isLoadingMore: false,
           ),
         );
 
@@ -99,42 +89,45 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
 
       final pagination = paginated.pagination;
 
-      final List<MovimientoData> newList = isFirstPage
-          ? paginated.items
-          : [...state.movimientos, ...paginated.items];
-
+      // ========================================================
+      // QUERY REAL DEVUELTA POR EL BACKEND
+      // ========================================================
       final updatedParams = event.queryParams.copyWith(
         page: pagination.page,
         limit: pagination.limit,
       );
 
+      // ========================================================
+      // ACTUALIZAR STATE
+      // ========================================================
       emit(
         state.copyWith(
           movimientoResponse: response,
-          movimientos: newList,
+          movimientos: paginated.items,
           queryParams: updatedParams,
           total: pagination.total,
           totalPages: pagination.totalPages,
-          hasMore: pagination.hasNextPage,
+          hasNextPage: pagination.hasNextPage,
+          hasPreviousPage: pagination.hasPreviousPage,
           isLoading: false,
-          isLoadingMore: false,
         ),
       );
 
       return;
     }
 
-    // ========================================================
+    // ==========================================================
     // ERROR
-    // ========================================================
+    // ==========================================================
+
     emit(
       state.copyWith(
         movimientoResponse:
             response as Resource<ApiResponse<MovimientoPaginated>>?,
-        movimientos: isFirstPage ? const [] : state.movimientos,
+
+        movimientos: const [],
+
         isLoading: false,
-        isLoadingMore: false,
-        hasMore: false,
       ),
     );
   }
@@ -150,7 +143,6 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
       GetMovimientosEvent(
         idEmpresa: event.idEmpresa,
         queryParams: event.queryParams.copyWith(page: 1),
-        refresh: true,
       ),
     );
   }
@@ -166,7 +158,6 @@ class MovimientoBloc extends Bloc<MovimientoEvent, MovimientoState> {
       GetMovimientosEvent(
         idEmpresa: event.idEmpresa,
         queryParams: event.queryParams.copyWith(page: 1),
-        refresh: true,
       ),
     );
   }

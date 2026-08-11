@@ -16,12 +16,9 @@ class MovimientoState extends Equatable {
   final Resource<ApiResponse<MovimientoPaginated>>? movimientoResponse;
 
   /// Respuesta de crear / actualizar / eliminar.
-  ///
-  /// Para eliminar el backend devuelve ApiResponse<void>,
-  /// pero para simplificar el Bloc mantenemos Resource dinámico.
   final Resource? actionResponse;
 
-  /// Respuesta del detalle de un movimiento.
+  /// Respuesta del detalle.
   final Resource<ApiResponse<MovimientoData>>? detailResponse;
 
   // ==========================================================
@@ -30,7 +27,6 @@ class MovimientoState extends Equatable {
 
   final List<MovimientoData> movimientos;
 
-  /// Movimiento cargado para detalle o edición.
   final MovimientoData? movimientoSelected;
 
   // ==========================================================
@@ -47,15 +43,22 @@ class MovimientoState extends Equatable {
   // ==========================================================
 
   final int total;
+
   final int totalPages;
 
-  final bool hasMore;
+  final bool hasNextPage;
+
+  final bool hasPreviousPage;
 
   // ==========================================================
   // LOADING
   // ==========================================================
+
   final bool isLoading;
-  final bool isLoadingMore;
+
+  // ==========================================================
+  // CONSTRUCTOR
+  // ==========================================================
 
   const MovimientoState({
     this.movimientoResponse,
@@ -72,28 +75,50 @@ class MovimientoState extends Equatable {
     this.total = 0,
     this.totalPages = 0,
 
-    this.hasMore = true,
+    this.hasNextPage = false,
+    this.hasPreviousPage = false,
 
     this.isLoading = false,
-    this.isLoadingMore = false,
   });
 
-
+  // ==========================================================
   // HELPERS
+  // ==========================================================
+
   int get page => queryParams.page;
+
   int get limit => queryParams.limit;
+
   int? get idPeriodo => queryParams.idPeriodo;
+
   int? get idCategoria => queryParams.idCategoria;
+
   int? get idSubcategoria => queryParams.idSubcategoria;
+
   int? get idCuenta => queryParams.idCuenta;
+
   String get search => queryParams.search ?? '';
+
   String? get tipo => queryParams.tipo;
+
   String? get estado => queryParams.estado;
+
   String? get fechaInicio => queryParams.fechaInicio;
+
   String? get fechaFin => queryParams.fechaFin;
+
   bool get hasMovimientos => movimientos.isNotEmpty;
+
   bool get hasSearch =>
       queryParams.search != null && queryParams.search!.trim().isNotEmpty;
+
+  // ==========================================================
+  // HELPERS DE PAGINACIÓN
+  // ==========================================================
+
+  bool get canGoPrevious => hasPreviousPage && page > 1;
+
+  bool get canGoNext => hasNextPage && totalPages > 0 && page < totalPages;
 
   // ==========================================================
   // COPY WITH
@@ -101,22 +126,26 @@ class MovimientoState extends Equatable {
 
   MovimientoState copyWith({
     Resource<ApiResponse<MovimientoPaginated>>? movimientoResponse,
+
     Resource? actionResponse,
+
     Resource<ApiResponse<MovimientoData>>? detailResponse,
 
     List<MovimientoData>? movimientos,
+
     MovimientoData? movimientoSelected,
 
     int? idEmpresa,
+
     MovimientoQueryParams? queryParams,
 
     int? total,
     int? totalPages,
 
-    bool? hasMore,
+    bool? hasNextPage,
+    bool? hasPreviousPage,
 
     bool? isLoading,
-    bool? isLoadingMore,
 
     bool clearMovimientoResponse = false,
     bool clearActionResponse = false,
@@ -143,18 +172,27 @@ class MovimientoState extends Equatable {
       movimientoSelected: clearMovimientoSelected
           ? null
           : movimientoSelected ?? this.movimientoSelected,
+
       idEmpresa: clearIdEmpresa ? null : idEmpresa ?? this.idEmpresa,
+
       queryParams: queryParams ?? this.queryParams,
+
       total: total ?? this.total,
+
       totalPages: totalPages ?? this.totalPages,
-      hasMore: hasMore ?? this.hasMore,
+
+      hasNextPage: hasNextPage ?? this.hasNextPage,
+
+      hasPreviousPage: hasPreviousPage ?? this.hasPreviousPage,
+
       isLoading: isLoading ?? this.isLoading,
-      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
     );
   }
 
-
+  // ==========================================================
   // EQUATABLE
+  // ==========================================================
+
   @override
   List<Object?> get props => [
     movimientoResponse,
@@ -170,9 +208,9 @@ class MovimientoState extends Equatable {
     total,
     totalPages,
 
-    hasMore,
+    hasNextPage,
+    hasPreviousPage,
 
     isLoading,
-    isLoadingMore,
   ];
 }

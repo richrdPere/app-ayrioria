@@ -100,8 +100,8 @@ class MovimientoContent extends StatelessWidget {
         return previous.movimientoResponse != current.movimientoResponse ||
             previous.movimientos != current.movimientos ||
             previous.isLoading != current.isLoading ||
-            previous.isLoadingMore != current.isLoadingMore ||
-            previous.hasMore != current.hasMore ||
+            // previous.isLoadingMore != current.isLoadingMore ||
+            // previous.hasMore != current.hasMore ||
             previous.total != current.total ||
             previous.queryParams != current.queryParams ||
             previous.actionResponse != current.actionResponse;
@@ -171,7 +171,6 @@ class MovimientoContent extends StatelessWidget {
                         GetMovimientosEvent(
                           idEmpresa: idEmpresa!,
                           queryParams: updatedParams,
-                          refresh: true,
                         ),
                       );
                     },
@@ -304,24 +303,21 @@ class MovimientoContent extends StatelessWidget {
     // ========================================================
     return AppPaginatedList<MovimientoData>(
       items: state.movimientos,
-
+      limit: state.limit,
       page: state.page,
       totalPages: state.totalPages,
       totalItems: state.total,
-
+      isLoadingMore: false,
       isLoading: state.isLoading,
-      isLoadingMore: state.isLoadingMore,
-
       scrollController: scrollController,
       onRefresh: onRefresh,
-
-      onPreviousPage: state.page > 1
+      onPreviousPage: state.canGoPrevious
           ? () {
               _goToPage(context, state, state.page - 1);
             }
           : null,
 
-      onNextPage: state.page < state.totalPages
+      onNextPage: state.canGoNext
           ? () {
               _goToPage(context, state, state.page + 1);
             }
@@ -330,23 +326,20 @@ class MovimientoContent extends StatelessWidget {
       itemBuilder: (context, movimiento, index) {
         return MovimientoCard(
           movimiento: movimiento,
-          // Tocar card / Ver detalle
+
           onTap: () {
             onMovimientoSelected(movimiento.idMovimiento);
           },
 
-          // Editar
           onEdit: () {
             onEditMovimiento(movimiento.idMovimiento);
           },
 
-          // Eliminar
           onDelete: () {
             onDeleteMovimiento(movimiento.idMovimiento);
           },
         );
       },
-      limit: state.limit,
     );
   }
 
@@ -358,11 +351,7 @@ class MovimientoContent extends StatelessWidget {
     final updatedParams = state.queryParams.copyWith(page: page);
 
     context.read<MovimientoBloc>().add(
-      GetMovimientosEvent(
-        idEmpresa: idEmpresa!,
-        queryParams: updatedParams,
-        refresh: true,
-      ),
+      GetMovimientosEvent(idEmpresa: idEmpresa!, queryParams: updatedParams),
     );
   }
 
@@ -394,11 +383,7 @@ class MovimientoContent extends StatelessWidget {
     // RECARGAR
     // ========================================================
     context.read<MovimientoBloc>().add(
-      GetMovimientosEvent(
-        idEmpresa: empresaId,
-        queryParams: queryParams,
-        refresh: true,
-      ),
+      GetMovimientosEvent(idEmpresa: empresaId, queryParams: queryParams),
     );
   }
 }

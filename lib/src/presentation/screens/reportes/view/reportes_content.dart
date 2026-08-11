@@ -14,6 +14,7 @@ import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/perio
 import 'package:app_aryoria/src/presentation/screens/reportes/bloc/reporte_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/reportes/bloc/reporte_event.dart';
 import 'package:app_aryoria/src/presentation/screens/reportes/bloc/reporte_state.dart';
+import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_module_header.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,6 +32,8 @@ class ReporteContent extends StatefulWidget {
 class _ReporteContentState extends State<ReporteContent> {
   int? _idPeriodoSeleccionado;
   bool _periodoInicialAsignado = false;
+  bool _mostrarTodasCategorias = false;
+  bool _mostrarTodosMovimientos = false;
 
   final NumberFormat _currencyFormat = NumberFormat.currency(
     locale: 'es_PE',
@@ -101,6 +104,18 @@ class _ReporteContentState extends State<ReporteContent> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
                   SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                    sliver: SliverToBoxAdapter(
+                      child: AppModuleHeader(
+                        icon: Icons.bar_chart,
+                        title: 'Reportes financieros',
+                        description:
+                            'Consulta y analiza el comportamiento financiero de tu empresa.',
+                      ),
+                    ),
+                  ),
+
+                  SliverPadding(
                     padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
                     sliver: SliverToBoxAdapter(
                       child: _buildPeriodoSelector(
@@ -120,14 +135,6 @@ class _ReporteContentState extends State<ReporteContent> {
                       hasScrollBody: false,
                       child: _ReporteLoading(),
                     )
-                  // else if (response is ErrorData && reporte == null)
-                  //   SliverFillRemaining(
-                  //     hasScrollBody: false,
-                  //     child: _ReporteError(
-                  //       message: response.,
-                  //       onRetry: _refresh,
-                  //     ),
-                  //   )
                   else if (reporte == null)
                     const SliverFillRemaining(
                       hasScrollBody: false,
@@ -156,8 +163,14 @@ class _ReporteContentState extends State<ReporteContent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Período contable', style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 8),
+        const _SectionTitle(
+          title: 'Período contable',
+          subtitle: 'Consulte ingresos y egresos por el período contable',
+          // icon: Icons.insights_outlined,
+          icon: Icons.calendar_month_outlined,
+        ),
+        const SizedBox(height: 14),
+
         DropdownButtonFormField<int>(
           initialValue:
               periodos.any(
@@ -172,7 +185,7 @@ class _ReporteContentState extends State<ReporteContent> {
                 : periodos.isEmpty
                 ? 'No existen períodos disponibles'
                 : 'Selecciona un período',
-            prefixIcon: const Icon(Icons.calendar_month_outlined),
+            prefixIcon: const Icon(Icons.check),
             suffixIcon: isLoading
                 ? const Padding(
                     padding: EdgeInsets.all(14),
@@ -216,11 +229,10 @@ class _ReporteContentState extends State<ReporteContent> {
       if (isRefreshing)
         const SliverToBoxAdapter(child: LinearProgressIndicator()),
 
-      SliverPadding(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-        sliver: SliverToBoxAdapter(child: _buildPeriodoHeader(reporte)),
-      ),
-
+      // SliverPadding(
+      //   padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      //   sliver: SliverToBoxAdapter(child: _buildPeriodoHeader(reporte)),
+      // ),
       SliverPadding(
         padding: const EdgeInsets.fromLTRB(20, 22, 20, 0),
         sliver: SliverToBoxAdapter(child: _buildResumen(reporte.resumen)),
@@ -245,56 +257,56 @@ class _ReporteContentState extends State<ReporteContent> {
     ];
   }
 
-  Widget _buildPeriodoHeader(ReporteGeneralData reporte) {
-    final periodo = reporte.periodo;
+  // Widget _buildPeriodoHeader(ReporteGeneralData reporte) {
+  //   final periodo = reporte.periodo;
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.primaryContainer.withValues(alpha: 0.45),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(
-              Icons.assessment_outlined,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  periodo.nombre,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${_formatDate(periodo.fechaInicio)} - '
-                  '${_formatDate(periodo.fechaFin)}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          _PeriodoEstadoChip(estado: periodo.estado),
-        ],
-      ),
-    );
-  }
+  //   return Container(
+  //     padding: const EdgeInsets.all(18),
+  //     decoration: BoxDecoration(
+  //       color: Theme.of(
+  //         context,
+  //       ).colorScheme.primaryContainer.withValues(alpha: 0.45),
+  //       borderRadius: BorderRadius.circular(18),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Container(
+  //           width: 46,
+  //           height: 46,
+  //           decoration: BoxDecoration(
+  //             color: Theme.of(context).colorScheme.primary,
+  //             borderRadius: BorderRadius.circular(14),
+  //           ),
+  //           child: Icon(
+  //             Icons.assessment_outlined,
+  //             color: Theme.of(context).colorScheme.onPrimary,
+  //           ),
+  //         ),
+  //         const SizedBox(width: 14),
+  //         Expanded(
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Text(
+  //                 periodo.nombre,
+  //                 style: Theme.of(context).textTheme.titleMedium,
+  //               ),
+  //               const SizedBox(height: 4),
+  //               Text(
+  //                 '${_formatDate(periodo.fechaInicio)} - '
+  //                 '${_formatDate(periodo.fechaFin)}',
+  //                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
+  //                   color: Theme.of(context).colorScheme.onSurfaceVariant,
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         _PeriodoEstadoChip(estado: periodo.estado),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildResumen(ReporteResumenData resumen) {
     return Column(
@@ -404,6 +416,27 @@ class _ReporteContentState extends State<ReporteContent> {
       );
     }
 
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    // ============================================================
+    // CONFIGURACIÓN
+    // ============================================================
+
+    const limiteInicial = 3;
+
+    final tieneMasCategorias = categorias.length > limiteInicial;
+
+    final categoriasVisibles = _mostrarTodasCategorias
+        ? categorias
+        : categorias.take(limiteInicial).toList();
+
+    final cantidadOcultas = categorias.length - limiteInicial;
+
+    // ============================================================
+    // MAYOR MONTO
+    // ============================================================
+
     final maxTotal = categorias.fold<double>(
       0,
       (current, item) => item.total > current ? item.total : current,
@@ -412,87 +445,134 @@ class _ReporteContentState extends State<ReporteContent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // ========================================================
+        // TÍTULO
+        // ========================================================
         const _SectionTitle(
           title: 'Movimientos por categoría',
           subtitle: 'Distribución de ingresos y egresos',
           icon: Icons.donut_large_outlined,
         ),
+
         const SizedBox(height: 14),
 
-        ...categorias.take(8).map((item) {
+        // ========================================================
+        // CATEGORÍAS
+        // ========================================================
+        ...categoriasVisibles.map((item) {
           final progress = maxTotal <= 0
               ? 0.0
               : (item.total / maxTotal).clamp(0.0, 1.0);
 
           final isIngreso = item.tipo.toUpperCase() == 'INGRESO';
 
+          final indicadorColor = isIngreso ? Colors.green : colors.error;
+
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(15),
+
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerLow,
+                color: colors.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(16),
               ),
+
               child: Column(
                 children: [
+                  // =================================================
+                  // INFORMACIÓN PRINCIPAL
+                  // =================================================
                   Row(
                     children: [
                       CircleAvatar(
                         radius: 20,
-                        backgroundColor: isIngreso
-                            ? Colors.green.withValues(alpha: 0.12)
-                            : Colors.red.withValues(alpha: 0.12),
+                        backgroundColor: indicadorColor.withValues(alpha: 0.12),
                         child: Icon(
-                          isIngreso ? Icons.arrow_downward : Icons.arrow_upward,
-                          color: isIngreso ? Colors.green : Colors.red,
+                          isIngreso
+                              ? Icons.arrow_downward_rounded
+                              : Icons.arrow_upward_rounded,
+                          color: indicadorColor,
                         ),
                       ),
+
                       const SizedBox(width: 12),
+
+                      // ---------------------------------------------
+                      // CATEGORÍA
+                      // ---------------------------------------------
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               item.categoria.nombre,
-                              style: Theme.of(context).textTheme.titleSmall,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
+
                             const SizedBox(height: 2),
+
                             Text(
                               '${item.cantidadMovimientos} '
-                              'movimiento${item.cantidadMovimientos == 1 ? '' : 's'}',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
+                              'movimiento'
+                              '${item.cantidadMovimientos == 1 ? '' : 's'}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colors.onSurfaceVariant,
+                              ),
                             ),
                           ],
                         ),
                       ),
+
+                      const SizedBox(width: 12),
+
+                      // ---------------------------------------------
+                      // MONTO
+                      // ---------------------------------------------
                       Text(
                         _currencyFormat.format(item.total),
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 12),
+
+                  // =================================================
+                  // PROGRESO
+                  // =================================================
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: LinearProgressIndicator(
                       value: progress,
                       minHeight: 7,
+
+                      backgroundColor: colors.surfaceContainerHighest,
+
+                      valueColor: AlwaysStoppedAnimation<Color>(indicadorColor),
                     ),
                   ),
+
                   const SizedBox(height: 6),
+
+                  // =================================================
+                  // PORCENTAJE
+                  // =================================================
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
                       '${item.porcentaje.toStringAsFixed(1)}%',
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],
@@ -500,6 +580,38 @@ class _ReporteContentState extends State<ReporteContent> {
             ),
           );
         }),
+
+        // ========================================================
+        // VER MÁS / VER MENOS
+        // ========================================================
+        if (tieneMasCategorias) ...[
+          const SizedBox(height: 2),
+
+          Center(
+            child: TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _mostrarTodasCategorias = !_mostrarTodasCategorias;
+                });
+              },
+
+              iconAlignment: IconAlignment.end,
+
+              icon: AnimatedRotation(
+                turns: _mostrarTodasCategorias ? 0.5 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: const Icon(Icons.keyboard_arrow_down_rounded),
+              ),
+
+              label: Text(
+                _mostrarTodasCategorias
+                    ? 'Ver menos'
+                    : 'Ver $cantidadOcultas '
+                          'categoría${cantidadOcultas == 1 ? '' : 's'} más',
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -583,60 +695,121 @@ class _ReporteContentState extends State<ReporteContent> {
       );
     }
 
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    // ============================================================
+    // CONFIGURACIÓN
+    // ============================================================
+
+    const limiteInicial = 3;
+
+    final tieneMasMovimientos = movimientos.length > limiteInicial;
+
+    final movimientosVisibles = _mostrarTodosMovimientos
+        ? movimientos
+        : movimientos.take(limiteInicial).toList();
+
+    final cantidadOcultos = movimientos.length - limiteInicial;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // ========================================================
+        // TÍTULO
+        // ========================================================
         const _SectionTitle(
           title: 'Últimos movimientos',
           subtitle: 'Operaciones recientes del período',
           icon: Icons.history,
         ),
+
         const SizedBox(height: 14),
 
+        // ========================================================
+        // LISTADO
+        // ========================================================
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerLow,
+            color: colors.surfaceContainerLow,
             borderRadius: BorderRadius.circular(18),
           ),
+          clipBehavior: Clip.antiAlias,
+
           child: ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: movimientos.length,
-            separatorBuilder: (_, __) => const Divider(height: 1, indent: 70),
+
+            itemCount: movimientosVisibles.length,
+
+            separatorBuilder: (_, __) => Divider(
+              height: 1,
+              indent: 70,
+              color: colors.outlineVariant.withValues(alpha: 0.50),
+            ),
+
             itemBuilder: (context, index) {
-              final movimiento = movimientos[index];
+              final movimiento = movimientosVisibles[index];
+
               final isIngreso = movimiento.tipo.toUpperCase() == 'INGRESO';
+
+              final indicadorColor = isIngreso ? Colors.green : colors.error;
 
               return ListTile(
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 6,
                 ),
+
+                // ================================================
+                // ICONO
+                // ================================================
                 leading: CircleAvatar(
-                  backgroundColor: isIngreso
-                      ? Colors.green.withValues(alpha: 0.12)
-                      : Colors.red.withValues(alpha: 0.12),
+                  backgroundColor: indicadorColor.withValues(alpha: 0.12),
                   child: Icon(
-                    isIngreso ? Icons.arrow_downward : Icons.arrow_upward,
-                    color: isIngreso ? Colors.green : Colors.red,
+                    isIngreso
+                        ? Icons.arrow_downward_rounded
+                        : Icons.arrow_upward_rounded,
+                    color: indicadorColor,
                   ),
                 ),
+
+                // ================================================
+                // DESCRIPCIÓN
+                // ================================================
                 title: Text(
                   movimiento.descripcion,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                subtitle: Text(
-                  '${movimiento.categoria?.nombre ?? 'Sin categoría'}'
-                  ' · ${_formatDate(movimiento.fecha)}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+
+                // ================================================
+                // CATEGORÍA / FECHA
+                // ================================================
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 3),
+                  child: Text(
+                    '${movimiento.categoria?.nombre ?? 'Sin categoría'}'
+                    ' · ${_formatDate(movimiento.fecha)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
                 ),
+
+                // ================================================
+                // MONTO
+                // ================================================
                 trailing: Text(
                   '${isIngreso ? '+' : '-'}'
                   '${_currencyFormat.format(movimiento.monto)}',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: isIngreso ? Colors.green : Colors.red,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: indicadorColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -644,6 +817,40 @@ class _ReporteContentState extends State<ReporteContent> {
             },
           ),
         ),
+
+        // ========================================================
+        // VER MÁS / VER MENOS
+        // ========================================================
+        if (tieneMasMovimientos) ...[
+          const SizedBox(height: 8),
+
+          Center(
+            child: TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _mostrarTodosMovimientos = !_mostrarTodosMovimientos;
+                });
+              },
+
+              iconAlignment: IconAlignment.end,
+
+              icon: AnimatedRotation(
+                turns: _mostrarTodosMovimientos ? 0.5 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: const Icon(Icons.keyboard_arrow_down_rounded),
+              ),
+
+              label: Text(
+                _mostrarTodosMovimientos
+                    ? 'Ver menos'
+                    : 'Ver $cantidadOcultos '
+                          'movimiento${cantidadOcultos == 1 ? '' : 's'} más',
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 60),
+        ],
       ],
     );
   }
@@ -938,37 +1145,3 @@ class _ReporteEmpty extends StatelessWidget {
     );
   }
 }
-
-// class _ReporteError extends StatelessWidget {
-//   final String message;
-//   final Future<void> Function() onRetry;
-
-//   const _ReporteError({required this.message, required this.onRetry});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Center(
-//       child: Padding(
-//         padding: const EdgeInsets.all(30),
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             Icon(
-//               Icons.error_outline,
-//               size: 58,
-//               color: Theme.of(context).colorScheme.error,
-//             ),
-//             const SizedBox(height: 14),
-//             Text(message, textAlign: TextAlign.center),
-//             const SizedBox(height: 18),
-//             FilledButton.icon(
-//               onPressed: onRetry,
-//               icon: const Icon(Icons.refresh),
-//               label: const Text('Reintentar'),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

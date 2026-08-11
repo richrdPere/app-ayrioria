@@ -128,8 +128,8 @@ class MainShell extends StatelessWidget {
       // ======================================================
       // CONFIGURACIÓN
       // ======================================================
-      case '/configuracion':
-        return 'Configuración';
+      case '/perfil':
+        return 'Mi Perfil';
 
       // ======================================================
       // UTILS

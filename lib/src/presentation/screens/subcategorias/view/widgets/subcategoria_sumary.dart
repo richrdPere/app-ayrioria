@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class CategoriaSummary extends StatelessWidget {
+class SubcategoriaSummary extends StatelessWidget {
   final int total;
   final bool isSearching;
   final String search;
 
-  const CategoriaSummary({
+  const SubcategoriaSummary({
     super.key,
     required this.total,
     required this.isSearching,
@@ -14,7 +14,7 @@ class CategoriaSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = total == 1 ? '1 categoría' : '$total categorías';
+    final text = total == 1 ? '1 subcategoria' : '$total subcategorias';
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
@@ -31,7 +31,7 @@ class CategoriaSummary extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
-                  Icons.category_outlined,
+                  Icons.account_tree_outlined,
                   size: 17,
                   color: Colors.blue,
                 ),

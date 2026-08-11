@@ -19,18 +19,13 @@ class GetMovimientosEvent extends MovimientoEvent {
   final int idEmpresa;
   final MovimientoQueryParams queryParams;
 
-  /// Indica si se reemplaza la lista actual.
-  /// Útil para refresh, filtros y búsquedas.
-  final bool refresh;
-
   const GetMovimientosEvent({
     required this.idEmpresa,
     required this.queryParams,
-    this.refresh = false,
   });
 
   @override
-  List<Object?> get props => [idEmpresa, queryParams, refresh];
+  List<Object?> get props => [idEmpresa, queryParams];
 }
 
 // ==========================================================

@@ -21,7 +21,13 @@ class SubcategoriasParams {
   // ==========================================================
 
   Map<String, dynamic> toQueryParams() {
-    final Map<String, dynamic> params = {'page': page, 'limit': limit};
+    final Map<String, dynamic> params = {
+      'page': page,
+      'limit': limit,
+      'id_categoria': idCategoria,
+      'tipo': tipo,
+      'estado': estado,
+    };
 
     // ========================================================
     // SEARCH

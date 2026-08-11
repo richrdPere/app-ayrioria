@@ -1,20 +1,27 @@
 import 'dart:async';
-import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_query_params.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+// Core
 import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
+
+// Models
 import 'package:app_aryoria/src/data/models/common/api_response.dart';
 import 'package:app_aryoria/src/data/models/movimientos/movimiento_query_params.dart';
+import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_query_params.dart';
 
+// Resource
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
 
+// Movimiento
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_event.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/bloc/movimiento_state.dart';
 import 'package:app_aryoria/src/presentation/screens/movimiento/view/listado/movimiento_content.dart';
 
+// Periodo Contable
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_event.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_state.dart';
@@ -28,6 +35,7 @@ class MovimientoPage extends StatefulWidget {
 
 class _MovimientoPageState extends State<MovimientoPage> {
   final TextEditingController _searchController = TextEditingController();
+
   final ScrollController _scrollController = ScrollController();
 
   Timer? _searchDebounce;
@@ -49,27 +57,33 @@ class _MovimientoPageState extends State<MovimientoPage> {
     return context.read<PeriodoContableBloc>().state.idPeriodoActivo;
   }
 
+  // ==========================================================
+  // INIT
+  // ==========================================================
+
   @override
   void initState() {
     super.initState();
 
-    _scrollController.addListener(_onScroll);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       _initializeMovimientos();
     });
   }
 
+  // ==========================================================
+  // DISPOSE
+  // ==========================================================
+
   @override
   void dispose() {
     _searchDebounce?.cancel();
-    _searchController.dispose();
 
-    _scrollController
-      ..removeListener(_onScroll)
-      ..dispose();
+    _searchController.dispose();
+    _scrollController.dispose();
 
     super.dispose();
   }
@@ -77,29 +91,38 @@ class _MovimientoPageState extends State<MovimientoPage> {
   // ==========================================================
   // INICIALIZAR MOVIMIENTOS
   // ==========================================================
+
   void _initializeMovimientos() {
     final int? idEmpresa = _idEmpresa;
     final int? idPeriodo = _idPeriodo;
 
     if (idEmpresa == null) {
       _showError('No existe una empresa activa.');
+
       return;
     }
 
-    // El período activo ya se encuentra cargado.
+    // ========================================================
+    // EL PERÍODO YA ESTÁ CARGADO
+    // ========================================================
+
     if (idPeriodo != null) {
       _loadMovimientos(idEmpresa: idEmpresa, idPeriodo: idPeriodo, page: 1);
 
       return;
     }
 
-    // Si aún no está cargado, solicitamos únicamente el período abierto.
+    // ========================================================
+    // BUSCAR PERÍODO ABIERTO
+    // ========================================================
+
     _loadPeriodoActivo(idEmpresa);
   }
 
   // ==========================================================
   // CARGAR PERÍODO ACTIVO
   // ==========================================================
+
   void _loadPeriodoActivo(int idEmpresa) {
     if (_isLoadingPeriodoActivo) {
       return;
@@ -132,6 +155,7 @@ class _MovimientoPageState extends State<MovimientoPage> {
     String? search,
   }) {
     final int? empresaId = idEmpresa ?? _idEmpresa;
+
     final int? periodoId = idPeriodo ?? _idPeriodo;
 
     if (empresaId == null || periodoId == null) {
@@ -151,63 +175,37 @@ class _MovimientoPageState extends State<MovimientoPage> {
   }
 
   // ==========================================================
-  // PAGINACIÓN
-  // ==========================================================
-  void _onScroll() {
-    if (!_scrollController.hasClients) {
-      return;
-    }
-
-    final ScrollPosition position = _scrollController.position;
-
-    if (position.pixels < position.maxScrollExtent - 200) {
-      return;
-    }
-
-    final MovimientoState state = context.read<MovimientoBloc>().state;
-
-    if (state.isLoading ||
-        state.isLoadingMore ||
-        !state.hasMore ||
-        state.idEmpresa == null ||
-        state.idPeriodo == null) {
-      return;
-    }
-
-    final queryParams = MovimientoQueryParams(
-      page: state.page + 1,
-      limit: state.limit,
-      idPeriodo: state.idPeriodo!,
-      search: state.search,
-    );
-
-    context.read<MovimientoBloc>().add(
-      GetMovimientosEvent(
-        idEmpresa: state.idEmpresa!,
-        queryParams: queryParams,
-      ),
-    );
-  }
-
-  // ==========================================================
   // BUSCADOR
   // ==========================================================
   void _onSearchChanged(String value) {
     _searchDebounce?.cancel();
 
     _searchDebounce = Timer(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       final int? idEmpresa = _idEmpresa;
+
       final int? idPeriodo = _idPeriodo;
 
       if (idEmpresa == null || idPeriodo == null) {
         return;
       }
 
-      final queryParams = MovimientoQueryParams(
+      // ====================================================
+      // CONSERVAR FILTROS ACTUALES
+      // ====================================================
+
+      final currentParams = context.read<MovimientoBloc>().state.queryParams;
+
+      final queryParams = currentParams.copyWith(
+        page: 1,
         idPeriodo: idPeriodo,
         search: value.trim(),
+
+        // Si queda vacío, eliminamos search.
+        clearSearch: value.trim().isEmpty,
       );
 
       context.read<MovimientoBloc>().add(
@@ -216,17 +214,27 @@ class _MovimientoPageState extends State<MovimientoPage> {
     });
   }
 
+  // ==========================================================
+  // LIMPIAR BÚSQUEDA
+  // ==========================================================
   void _clearSearch() {
     _searchController.clear();
 
     final int? idEmpresa = _idEmpresa;
+
     final int? idPeriodo = _idPeriodo;
 
     if (idEmpresa == null || idPeriodo == null) {
       return;
     }
 
-    final queryParams = MovimientoQueryParams(idPeriodo: idPeriodo, search: '');
+    final currentParams = context.read<MovimientoBloc>().state.queryParams;
+
+    final queryParams = currentParams.copyWith(
+      page: 1,
+      idPeriodo: idPeriodo,
+      clearSearch: true,
+    );
 
     context.read<MovimientoBloc>().add(
       SearchMovimientosEvent(idEmpresa: idEmpresa, queryParams: queryParams),
@@ -238,6 +246,7 @@ class _MovimientoPageState extends State<MovimientoPage> {
   // ==========================================================
   Future<void> _onRefresh() async {
     final int? idEmpresa = _idEmpresa;
+
     final int? idPeriodo = _idPeriodo;
 
     if (idEmpresa == null || idPeriodo == null) {
@@ -246,13 +255,22 @@ class _MovimientoPageState extends State<MovimientoPage> {
 
     final MovimientoBloc bloc = context.read<MovimientoBloc>();
 
-    final Future<MovimientoState> refreshCompleted = bloc.stream.firstWhere(
-      (state) => !state.isLoading && !state.isLoadingMore,
+    // ========================================================
+    // CONSERVAR FILTROS PERO VOLVER A PAGE 1
+    // ========================================================
+
+    final queryParams = bloc.state.queryParams.copyWith(
+      page: 1,
+      idPeriodo: idPeriodo,
     );
 
-    final queryParams = MovimientoQueryParams(
-      idPeriodo: idPeriodo,
-      search: _searchController.text.trim(),
+    // ========================================================
+    // IMPORTANTE:
+    // Debemos crear el Future antes de emitir el evento.
+    // ========================================================
+
+    final Future<MovimientoState> refreshCompleted = bloc.stream.firstWhere(
+      (state) => !state.isLoading && state.movimientoResponse != null,
     );
 
     bloc.add(
@@ -265,17 +283,21 @@ class _MovimientoPageState extends State<MovimientoPage> {
   // ==========================================================
   // CREAR MOVIMIENTO
   // ==========================================================
+
   Future<void> _onCreateMovimiento() async {
     final int? idEmpresa = _idEmpresa;
+
     final int? idPeriodo = _idPeriodo;
 
     if (idEmpresa == null) {
       _showError('Debes seleccionar una empresa.');
+
       return;
     }
 
     if (idPeriodo == null) {
       _showError('Debes tener un período contable abierto.');
+
       return;
     }
 
@@ -286,24 +308,28 @@ class _MovimientoPageState extends State<MovimientoPage> {
     }
 
     if (result == true) {
-      _loadMovimientos(page: 1);
+      _reloadCurrentList();
     }
   }
 
   // ==========================================================
   // EDITAR MOVIMIENTO
   // ==========================================================
+
   Future<void> _onEditMovimiento(int idMovimiento) async {
     final int? idEmpresa = _idEmpresa;
+
     final int? idPeriodo = _idPeriodo;
 
     if (idEmpresa == null) {
       _showError('Debes seleccionar una empresa.');
+
       return;
     }
 
     if (idPeriodo == null) {
       _showError('Debes tener un período contable abierto.');
+
       return;
     }
 
@@ -317,13 +343,14 @@ class _MovimientoPageState extends State<MovimientoPage> {
     }
 
     if (result == true) {
-      _loadMovimientos(page: 1);
+      _reloadCurrentList();
     }
   }
 
   // ==========================================================
   // VER DETALLE
   // ==========================================================
+
   Future<void> _onMovimientoSelected(int idMovimiento) async {
     final bool? result = await context.push<bool>('/movimientos/$idMovimiento');
 
@@ -332,7 +359,43 @@ class _MovimientoPageState extends State<MovimientoPage> {
     }
 
     if (result == true) {
-      _loadMovimientos(page: 1);
+      _reloadCurrentList();
+    }
+  }
+
+  // ==========================================================
+  // RECARGAR LISTADO ACTUAL
+  // ==========================================================
+
+  void _reloadCurrentList() {
+    final int? idEmpresa = _idEmpresa;
+
+    final int? idPeriodo = _idPeriodo;
+
+    if (idEmpresa == null || idPeriodo == null) {
+      return;
+    }
+
+    final state = context.read<MovimientoBloc>().state;
+
+    // Después de crear/editar, considero más consistente
+    // volver a la primera página.
+    final queryParams = state.queryParams.copyWith(
+      page: 1,
+      idPeriodo: idPeriodo,
+    );
+
+    context.read<MovimientoBloc>().add(
+      GetMovimientosEvent(idEmpresa: idEmpresa, queryParams: queryParams),
+    );
+
+    // Opcionalmente llevar el listado arriba.
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
     }
   }
 
@@ -341,22 +404,31 @@ class _MovimientoPageState extends State<MovimientoPage> {
   // ==========================================================
   Future<void> _onDeleteMovimiento(int idMovimiento) async {
     final int? idEmpresa = _idEmpresa;
+
     final int? idPeriodo = _idPeriodo;
 
     if (idEmpresa == null || idPeriodo == null) {
-      _showError('No existe una empresa o período contable activo.');
+      _showError(
+        'No existe una empresa o período '
+        'contable activo.',
+      );
+
       return;
     }
 
     final bool? confirmed = await showDialog<bool>(
       context: context,
+
       builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Eliminar movimiento'),
+
           content: const Text(
-            '¿Estás seguro de eliminar este movimiento? '
-            'Esta acción no se puede deshacer.',
+            '¿Estás seguro de eliminar este '
+            'movimiento? Esta acción no se '
+            'puede deshacer.',
           ),
+
           actions: [
             TextButton(
               onPressed: () {
@@ -364,11 +436,15 @@ class _MovimientoPageState extends State<MovimientoPage> {
               },
               child: const Text('Cancelar'),
             ),
+
             FilledButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
-              style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.onError,
+              ),
               child: const Text('Eliminar'),
             ),
           ],
@@ -388,25 +464,38 @@ class _MovimientoPageState extends State<MovimientoPage> {
   // ==========================================================
   // MENSAJES
   // ==========================================================
+
   void _showSuccess(String message) {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
+
+    final colors = Theme.of(context).colorScheme;
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.green),
+        SnackBar(content: Text(message), backgroundColor: colors.primary),
       );
   }
 
   void _showError(String message) {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
+
+    final colors = Theme.of(context).colorScheme;
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.red),
+        SnackBar(content: Text(message), backgroundColor: colors.error),
       );
   }
+
+  // ==========================================================
+  // BUILD
+  // ==========================================================
 
   @override
   Widget build(BuildContext context) {
@@ -421,13 +510,14 @@ class _MovimientoPageState extends State<MovimientoPage> {
     return MultiBlocListener(
       listeners: [
         // ======================================================
-        // ESCUCHAR PERÍODO CONTABLE ACTIVO
+        // PERÍODO CONTABLE ACTIVO
         // ======================================================
         BlocListener<PeriodoContableBloc, PeriodoContableState>(
           listenWhen: (previous, current) {
             return previous.response != current.response ||
                 previous.idPeriodoActivo != current.idPeriodoActivo;
           },
+
           listener: (context, state) {
             final Resource? response = state.response;
 
@@ -437,28 +527,39 @@ class _MovimientoPageState extends State<MovimientoPage> {
 
             _isLoadingPeriodoActivo = false;
 
+            // ==================================================
+            // SUCCESS
+            // ==================================================
+
             if (response is Success) {
               final int? empresaId = _idEmpresa;
+
               final int? periodoId = state.idPeriodoActivo;
 
               if (empresaId == null) {
                 _showError('No existe una empresa activa.');
+
                 return;
               }
 
-              // if (periodoId == null) {
-              //   _showError(
-              //     'No existe un período contable abierto para esta empresa.',
-              //   );
-              //   return;
-              // }
+              // Si no existe período abierto,
+              // el Content mostrará su estado vacío/contextual.
+              if (periodoId == null) {
+                return;
+              }
 
               _loadMovimientos(
                 idEmpresa: empresaId,
                 idPeriodo: periodoId,
                 page: 1,
               );
+
+              return;
             }
+
+            // ==================================================
+            // ERROR
+            // ==================================================
 
             if (response is ErrorData) {
               _showError(response.displayMessage);
@@ -467,12 +568,13 @@ class _MovimientoPageState extends State<MovimientoPage> {
         ),
 
         // ======================================================
-        // ESCUCHAR ACCIONES DE MOVIMIENTOS
+        // ACCIONES DE MOVIMIENTOS
         // ======================================================
         BlocListener<MovimientoBloc, MovimientoState>(
           listenWhen: (previous, current) {
             return previous.actionResponse != current.actionResponse;
           },
+
           listener: (context, state) {
             final Resource? response = state.actionResponse;
 
@@ -506,6 +608,7 @@ class _MovimientoPageState extends State<MovimientoPage> {
             // ==================================================
             // ERROR
             // ==================================================
+
             if (response is ErrorData) {
               _showError(response.displayMessage);
 
@@ -516,6 +619,7 @@ class _MovimientoPageState extends State<MovimientoPage> {
           },
         ),
       ],
+
       child: MovimientoContent(
         idEmpresa: idEmpresa,
         idPeriodo: idPeriodo,
@@ -531,7 +635,11 @@ class _MovimientoPageState extends State<MovimientoPage> {
         onRetry: () {
           if (_idPeriodo != null) {
             _loadMovimientos(page: 1);
-          } else if (_idEmpresa != null) {
+
+            return;
+          }
+
+          if (_idEmpresa != null) {
             _loadPeriodoActivo(_idEmpresa!);
           }
         },

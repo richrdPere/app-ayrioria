@@ -172,7 +172,6 @@ class HomePage extends StatelessWidget {
 // ============================================================
 // GRID RESPONSIVO
 // ============================================================
-
 class _DashboardGrid extends StatelessWidget {
   final int crossAxisCount;
   final double spacing;
