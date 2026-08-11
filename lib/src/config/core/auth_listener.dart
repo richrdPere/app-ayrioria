@@ -17,6 +17,8 @@ import 'package:app_aryoria/src/presentation/screens/auth/login/bloc/login_state
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_event.dart';
 import 'package:app_aryoria/src/presentation/screens/empresa/bloc/empresa_state.dart';
+import 'package:app_aryoria/src/presentation/screens/usuarios_perfil/bloc/usuario_bloc.dart';
+import 'package:app_aryoria/src/presentation/screens/usuarios_perfil/bloc/usuario_event.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -162,6 +164,7 @@ class _AuthListenerState extends State<AuthListener>
 
       /// 2. Actualizar estado global.
       context.read<SessionBloc>().logout();
+      context.read<UsuarioBloc>().add(const ClearPerfilUsuarioEvent());
 
       /// NO navegamos manualmente.
       /// GoRouter hará redirect automáticamente
@@ -231,7 +234,7 @@ class _AuthListenerState extends State<AuthListener>
               debugPrint('Usuario deslogueado');
               context.read<SessionBloc>().logout();
               context.read<EmpresaBloc>().add(const EmpresaResetEvent());
-
+              context.read<UsuarioBloc>().add(const ClearPerfilUsuarioEvent());
               // SocketBloc.add(...)
               // EmpresaBloc.add(ClearEmpresa())
               // HomeBloc.add(ClearHome())

@@ -69,7 +69,6 @@ class MainShell extends StatelessWidget {
   // ==========================================================
   // DRAWER
   // ==========================================================
-
   bool get showDrawer {
     return currentFullPath == '/home' && !hasOwnAppBar;
   }
@@ -77,7 +76,6 @@ class MainShell extends StatelessWidget {
   // ==========================================================
   // TITLE
   // ==========================================================
-
   String get title {
     switch (currentFullPath) {
       case '/home':
@@ -131,6 +129,8 @@ class MainShell extends StatelessWidget {
       case '/perfil':
         return 'Mi Perfil';
 
+      case '/perfil_usuario':
+        return 'Detalles del perfil';
       // ======================================================
       // UTILS
       // ======================================================
@@ -175,6 +175,7 @@ class MainShell extends StatelessWidget {
     final persona = auth?.data.usuario.persona;
     final empresaNombre = session.empresaActiva?.nombreComercial ?? '';
     final nombreUsuario = formatNombreUsuario(persona);
+    final foto = persona?.fotoUrl;
 
     return Scaffold(
       key: AppScaffoldKeys.main,
@@ -194,6 +195,7 @@ class MainShell extends StatelessWidget {
               nombreUsuario: nombreUsuario,
               empresaNombre: empresaNombre,
               title: title,
+              fotoUrl: foto,
             ),
 
       // ======================================================

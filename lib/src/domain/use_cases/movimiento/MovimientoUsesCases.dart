@@ -1,8 +1,5 @@
-import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/CreateMovimientoUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/DeleteMovimientoUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/GetMovimientoByIdUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/GetMovimientosUseCase.dart';
-import 'package:app_aryoria/src/domain/use_cases/movimiento/movimiento_use_cases/UpdateMovimientoUseCase.dart';
+
+import 'package:app_aryoria/src/domain/use_cases/index_uses_cases.dart';
 
 class MovimientoUsesCases {
   CreateMovimientoUseCase createMovimiento;

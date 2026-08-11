@@ -105,33 +105,37 @@ class AppDrawer extends StatelessWidget {
 
                 children: [
                   // ============================================
-                  // PRINCIPAL
+                  // ACCESOS RAPIDOS
                   // ============================================
-                  const _DrawerSectionTitle(title: 'Principal'),
+                  const _DrawerSectionTitle(title: 'ACCESOS RÁPIDOS'),
 
                   _destination(context, appMenuItems[0], selectedIndex == 0),
+
+                  // // ============================================
+                  // // PRINCIPAL
+                  // // ============================================
+                  // const _DrawerSectionTitle(title: 'Principal'),
+
+                  // _destination(context, appMenuItems[0], selectedIndex == 0),
 
                   // ============================================
                   // OPERACIONES
                   // ============================================
-                  const _DrawerDivider(),
+                  // const _DrawerDivider(),
 
-                  const _DrawerSectionTitle(title: 'Operaciones'),
-
+                  // const _DrawerSectionTitle(title: 'Operaciones'),
                   _destination(context, appMenuItems[1], selectedIndex == 1),
 
                   _destination(context, appMenuItems[2], selectedIndex == 2),
 
+                  _destination(context, appMenuItems[3], selectedIndex == 3),
+
                   // ============================================
                   // CLASIFICACIÓN
                   // ============================================
-                  const _DrawerDivider(),
+                  // const _DrawerDivider(),
 
-                  const _DrawerSectionTitle(title: 'Clasificación'),
-
-                  _destination(context, appMenuItems[3], selectedIndex == 3),
-
-                  _destination(context, appMenuItems[4], selectedIndex == 4),
+                  // const _DrawerSectionTitle(title: 'Clasificación'),
 
                   // ============================================
                   // FINANZAS
@@ -140,20 +144,22 @@ class AppDrawer extends StatelessWidget {
 
                   const _DrawerSectionTitle(title: 'Finanzas'),
 
+                  _destination(context, appMenuItems[4], selectedIndex == 4),
+
                   _destination(context, appMenuItems[5], selectedIndex == 5),
 
-                  _destination(context, appMenuItems[6], selectedIndex == 6),
+                  // _destination(context, appMenuItems[6], selectedIndex == 6),
 
                   // ============================================
                   // ADMINISTRACIÓN
                   // ============================================
-                  const _DrawerDivider(),
+                  // const _DrawerDivider(),
 
-                  const _DrawerSectionTitle(title: 'Administración'),
+                  // const _DrawerSectionTitle(title: 'Administración'),
 
-                  _destination(context, appMenuItems[7], selectedIndex == 7),
+                  // _destination(context, appMenuItems[7], selectedIndex == 7),
 
-                  _destination(context, appMenuItems[8], selectedIndex == 8),
+                  // _destination(context, appMenuItems[8], selectedIndex == 8),
 
                   const SizedBox(height: 16),
                 ],
@@ -196,7 +202,6 @@ class AppDrawer extends StatelessWidget {
   // ============================================================
   // DESTINATION
   // ============================================================
-
   Widget _destination(BuildContext context, MenuItem item, bool selected) {
     final colors = Theme.of(context).colorScheme;
 
@@ -218,7 +223,6 @@ class AppDrawer extends StatelessWidget {
 // ============================================================
 // HEADER DEL USUARIO
 // ============================================================
-
 class _UserHeader extends StatelessWidget {
   final String nombre;
   final String rol;

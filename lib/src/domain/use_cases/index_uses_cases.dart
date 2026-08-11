@@ -64,3 +64,10 @@ export 'package:app_aryoria/src/domain/use_cases/flujo_contable/flujo_contable_u
 export 'package:app_aryoria/src/domain/use_cases/flujo_contable/flujo_contable_uses_cases/GetFlujoContableMensualUC.dart';
 export 'package:app_aryoria/src/domain/use_cases/flujo_contable/flujo_contable_uses_cases/GetFlujoProyectadoUC.dart';
 export 'package:app_aryoria/src/domain/use_cases/flujo_contable/FlujoContableUsesCases.dart';
+
+// USUARIOS - PERFIL
+export 'package:app_aryoria/src/domain/use_cases/usuarios/usuarios_uses_cases/GetPerfilUsuarioUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/usuarios/usuarios_uses_cases/UpdateFotoUsuarioUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/usuarios/usuarios_uses_cases/UpdatePasswordUsuarioUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/usuarios/usuarios_uses_cases/UpdatePerfilUsuarioUC.dart';
+export 'package:app_aryoria/src/domain/use_cases/usuarios/UsuariosUsesCases.dart';

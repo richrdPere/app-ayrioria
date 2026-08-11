@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/presentation/screens/usuarios_perfil/bloc/usuario_bloc.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/theme/bloc/theme_bloc.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/theme/bloc/theme_event.dart';
 import 'package:flutter/material.dart';
@@ -127,5 +128,13 @@ List<BlocProvider> blocProviders = [
   BlocProvider<FlujoContableBloc>(
     create: (BuildContext context) =>
         FlujoContableBloc(locator<FlujoContableUsesCases>()),
+  ),
+
+  // ======================================================
+  // USUARIOS - PERFIL
+  // ======================================================
+  BlocProvider<UsuarioBloc>(
+    create: (BuildContext context) =>
+        UsuarioBloc(locator<UsuariosUsesCases>()),
   ),
 ];

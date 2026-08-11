@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/data/datasources/remote/services/usuarios_service.dart';
 import 'package:injectable/injectable.dart';
 import 'package:app_aryoria/src/data/datasources/local/preferences/app_pref.dart';
 import 'package:app_aryoria/src/data/datasources/local/preferences/sharefPref.dart';
@@ -46,6 +47,9 @@ abstract class AppModule {
 
   @injectable
   FlujoContableService get flujoContableService => FlujoContableService();
+
+  @injectable
+  UsuariosService get usuariosService => UsuariosService();
 
   // ==========================================================
   // 2. REPOSITORY
@@ -98,6 +102,12 @@ abstract class AppModule {
         flujoContableService: flujoContableService,
         authRepository: authRepository,
       );
+
+  @injectable
+  UsuarioRepository get usuarioRepository => UsuarioRepositoryImpl(
+    usuariosService: usuariosService,
+    authRepository: authRepository,
+  );
 
   // ==========================================================
   // 3. USES CASES
@@ -181,5 +191,13 @@ abstract class AppModule {
     getFlujoContableAnual: GetFlujoContableAnualUC(flujoContableRepository),
     getFlujoContableMensual: GetFlujoContableMensualUC(flujoContableRepository),
     getFlujoProyectado: GetFlujoProyectadoUC(flujoContableRepository),
+  );
+
+  @injectable
+  UsuariosUsesCases get usuariosUseCases => UsuariosUsesCases(
+    getPerfilUsuario: GetPerfilUsuarioUC(usuarioRepository),
+    updateFotoUsuario: UpdateFotoUsuarioUC(usuarioRepository),
+    updatePasswordUsuario: UpdatePasswordUsuarioUC(usuarioRepository),
+    updatePerfilUsuario: UpdatePerfilUsuarioUC(usuarioRepository),
   );
 }

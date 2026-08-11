@@ -15,6 +15,8 @@ import 'package:app_aryoria/src/data/datasources/local/preferences/app_pref.dart
     as _i1005;
 import 'package:app_aryoria/src/data/datasources/local/preferences/sharefPref.dart'
     as _i645;
+import 'package:app_aryoria/src/data/datasources/remote/services/usuarios_service.dart'
+    as _i851;
 import 'package:app_aryoria/src/di/AppModule.dart' as _i847;
 import 'package:app_aryoria/src/domain/repositories/index_repository.dart'
     as _i897;
@@ -51,6 +53,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i313.FlujoContableService>(
       () => appModule.flujoContableService,
     );
+    gh.factory<_i851.UsuariosService>(() => appModule.usuariosService);
     gh.factory<_i897.AuthRepository>(() => appModule.authRepository);
     gh.factory<_i897.EmpresaRepository>(() => appModule.empresaRepository);
     gh.factory<_i897.MovimientoRepository>(
@@ -67,6 +70,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i897.FlujoContableRepository>(
       () => appModule.flujoContableRepository,
     );
+    gh.factory<_i897.UsuarioRepository>(() => appModule.usuarioRepository);
     gh.factory<_i1052.AuthUsesCases>(() => appModule.authUsesCases);
     gh.factory<_i1052.EmpresaUseCases>(() => appModule.empresaUseCases);
     gh.factory<_i1052.MovimientoUsesCases>(() => appModule.movimientoUseCases);
@@ -81,6 +85,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1052.FlujoContableUsesCases>(
       () => appModule.flujoContableUseCases,
     );
+    gh.factory<_i1052.UsuariosUsesCases>(() => appModule.usuariosUseCases);
     gh.factory<_i43.LoadingBloc>(
       () => _i43.LoadingBloc(gh<_i1037.AuthUsesCases>()),
     );

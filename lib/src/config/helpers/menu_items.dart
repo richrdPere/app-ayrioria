@@ -19,7 +19,8 @@ const appMenuItems = <MenuItem>[
     title: 'Movimientos',
     subTitle: 'Registra y consulta ingresos y egresos',
     link: '/movimientos',
-    icon: Icons.swap_horiz_rounded,
+    // icon: Icons.swap_horiz_rounded,
+    icon: Icons.receipt_long_outlined
   ),
 
   MenuItem(

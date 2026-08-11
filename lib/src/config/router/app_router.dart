@@ -7,6 +7,7 @@ import 'package:app_aryoria/src/presentation/screens/flujo_contable/view/flujo_c
 import 'package:app_aryoria/src/presentation/screens/subcategorias/view/detalle/subcategoria_detail_page.dart';
 import 'package:app_aryoria/src/presentation/screens/subcategorias/view/form/subcategoria_form_page.dart';
 import 'package:app_aryoria/src/presentation/screens/subcategorias/view/listado/subcategoria_page.dart';
+import 'package:app_aryoria/src/presentation/screens/usuarios_perfil/view/perfil_page.dart';
 import 'package:app_aryoria/src/presentation/shared/screens/theme/view/theme_changer_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
@@ -457,6 +458,17 @@ final GoRouter appRouter = GoRouter(
           path: '/perfil',
           name: 'perfil',
           builder: (_, __) => const ConfiguracionPage(),
+          // builder: (_, __) => const PerfilPage(),
+        ),
+
+        // ==========================================================
+        // CONFIGURACION
+        // ==========================================================
+        GoRoute(
+          path: '/perfil_usuario',
+          name: 'perfil_usuario',
+          // builder: (_, __) => const ConfiguracionPage(),
+          builder: (_, __) => const PerfilPage(),
         ),
       ],
     ),
