@@ -120,7 +120,7 @@ class ConfiguracionContent extends StatelessWidget {
                           icon: Icons.business_outlined,
                           title: 'Empresa activa',
                           subtitle: 'Seleccionar empresa',
-                          onTap: onEmpresa,
+                          // onTap: onEmpresa,
                         ),
 
                         const AppSettingDivider(),
@@ -147,7 +147,7 @@ class ConfiguracionContent extends StatelessWidget {
                           icon: Icons.language_outlined,
                           title: 'Idioma',
                           subtitle: 'Español',
-                          onTap: onIdioma,
+                          // onTap: onIdioma,
                         ),
                       ],
                     ),
@@ -202,7 +202,7 @@ class ConfiguracionContent extends StatelessWidget {
                           icon: Icons.info_outline,
                           title: 'Acerca de Aryoria',
                           subtitle: 'Versión 1.0.0',
-                          onTap: onAcercaDe,
+                          // onTap: onAcercaDe,
                         ),
 
                         const AppSettingDivider(),

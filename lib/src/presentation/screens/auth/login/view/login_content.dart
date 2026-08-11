@@ -33,7 +33,7 @@ class LoginContent extends StatelessWidget {
                   // ========================================================
                   // LOGO
                   // ========================================================
-                  const Logo(titulo: 'ARYORIA'),
+                  const Logo(titulo: 'Iniciar Sesión', logoSize: 220),
 
                   // ========================================================
                   // FORM
@@ -99,7 +99,7 @@ class _FormState extends State<_Form> {
     final bloc = context.read<LoginBloc>();
 
     return Container(
-      margin: const EdgeInsets.only(top: 40),
+      margin: const EdgeInsets.only(top: 20),
       padding: const EdgeInsets.symmetric(horizontal: 30),
 
       child: Form(

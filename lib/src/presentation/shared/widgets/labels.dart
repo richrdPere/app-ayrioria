@@ -43,6 +43,7 @@ class Labels extends StatelessWidget {
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: colors.primary,
+                // color: Colors.blue,
                 fontWeight: FontWeight.bold,
               ),
             ),

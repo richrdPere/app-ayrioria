@@ -19,6 +19,7 @@ import 'package:app_aryoria/src/data/models/periodo_contable/periodo_contable_da
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_event.dart';
 import 'package:app_aryoria/src/presentation/screens/periodo_contable/bloc/periodo_contable_state.dart';
+import 'package:go_router/go_router.dart';
 
 class FlujoContablePage extends StatefulWidget {
   const FlujoContablePage({super.key});
@@ -278,37 +279,92 @@ class _FlujoContablePageState extends State<FlujoContablePage> {
   // SIN PERIODOS
   // ============================================================
   Widget _buildSinPeriodos() {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.calendar_month_outlined, size: 52),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // ==================================================
+              // ICONO
+              // ==================================================
+              Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  color: colors.primaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.calendar_month_outlined,
+                  size: 48,
+                  color: colors.onPrimaryContainer,
+                ),
+              ),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
-            const Text(
-              'No hay períodos contables disponibles.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
+              // ==================================================
+              // TÍTULO
+              // ==================================================
+              Text(
+                'No hay períodos contables',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: colors.onSurface,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
 
-            const SizedBox(height: 8),
+              const SizedBox(height: 10),
 
-            const Text(
-              'Debes registrar al menos un período contable para consultar el flujo.',
-              textAlign: TextAlign.center,
-            ),
+              // ==================================================
+              // DESCRIPCIÓN
+              // ==================================================
+              Text(
+                'Debes registrar al menos un período contable '
+                'para consultar el flujo de ingresos y egresos '
+                'de tu empresa.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colors.onSurfaceVariant,
+                  height: 1.45,
+                ),
+              ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 28),
 
-            FilledButton.icon(
-              onPressed: _loadInitialData,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Actualizar'),
-            ),
-          ],
+              // ==================================================
+              // IR A PERÍODOS CONTABLES
+              // ==================================================
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () {
+                    context.pushNamed('periodos_contables');
+                  },
+                  icon: const Icon(Icons.calendar_month_outlined),
+                  label: const Text('Ir a períodos contables'),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // ==================================================
+              // ACTUALIZAR
+              // ==================================================
+              // TextButton.icon(
+              //   onPressed: _loadInitialData,
+              //   icon: const Icon(Icons.refresh_rounded, size: 20),
+              //   label: const Text('Actualizar'),
+              // ),
+            ],
+          ),
         ),
       ),
     );

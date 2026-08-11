@@ -1,4 +1,5 @@
 import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
+import 'package:app_aryoria/src/presentation/shared/widgets/logo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +16,7 @@ class SplashPage extends StatelessWidget {
       listener: (context, state) {
         if (state is SplashAuthenticated) {
           context.read<SessionBloc>().updateSession(state.session);
+
           context.go('/loading');
         }
 
@@ -23,14 +25,20 @@ class SplashPage extends StatelessWidget {
         }
 
         if (state is SplashFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
+          final colors = Theme.of(context).colorScheme;
+
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: colors.error,
+              ),
+            );
 
           context.go('/login');
         }
       },
-
       child: const _SplashView(),
     );
   }
@@ -41,53 +49,66 @@ class _SplashView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      // ========================================================
+      // BACKGROUND ADAPTABLE
+      // ========================================================
+      backgroundColor: colors.surface,
 
       body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-
               children: [
-                /// Logo
-                Image.asset('assets/img/tag-logo.png', width: 170, height: 170),
+                // ==================================================
+                // LOGO
+                // ==================================================
+                const Logo(titulo: 'Bienvenido', logoSize: 220),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 10),
 
-                const Text(
-                  "ARYORIA",
-                  style: TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
+                // ==================================================
+                // SUBTÍTULO
+                // ==================================================
+                Text(
+                  'Sistema de Gestión Financiera',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: colors.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 48),
 
+                // ==================================================
+                // LOADING
+                // ==================================================
+                SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: colors.primary,
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // ==================================================
+                // ESTADO
+                // ==================================================
                 Text(
-                  "Sistema de Gestión Financiera",
+                  'Inicializando aplicación...',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
-                ),
-
-                const SizedBox(height: 50),
-
-                const SizedBox(
-                  width: 35,
-                  height: 35,
-                  child: CircularProgressIndicator(strokeWidth: 3),
-                ),
-
-                const SizedBox(height: 25),
-
-                Text(
-                  "Inicializando aplicación...",
-                  style: TextStyle(color: Colors.grey.shade600),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -95,13 +116,21 @@ class _SplashView extends StatelessWidget {
         ),
       ),
 
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 25),
-
-        child: Text(
-          "Versión 1.0.0",
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey.shade500),
+      // ==========================================================
+      // VERSION
+      // ==========================================================
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 24),
+          child: Text(
+            'Versión 1.0.0',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colors.onSurfaceVariant.withValues(alpha: 0.70),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
       ),
     );

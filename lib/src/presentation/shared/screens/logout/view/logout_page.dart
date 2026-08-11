@@ -2,6 +2,7 @@ import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
 import 'package:app_aryoria/src/config/core/session/session_state.dart';
 
 import 'package:app_aryoria/src/presentation/shared/screens/logout/bloc/logout_event.dart';
+import 'package:app_aryoria/src/presentation/shared/widgets/logo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -143,22 +144,23 @@ class _LogoutLoadingView extends StatelessWidget {
             // =========================================================
             // LOGO
             // =========================================================
-            Container(
-              width: 150,
-              height: 150,
+            // Container(
+            //   width: 150,
+            //   height: 150,
 
-              padding: const EdgeInsets.all(18),
+            //   padding: const EdgeInsets.all(18),
 
-              decoration: BoxDecoration(
-                color: colors.primaryContainer,
-                shape: BoxShape.circle,
-              ),
+            //   decoration: BoxDecoration(
+            //     color: colors.primaryContainer,
+            //     shape: BoxShape.circle,
+            //   ),
 
-              child: Image.asset(
-                'assets/img/tag-logo.png',
-                fit: BoxFit.contain,
-              ),
-            ),
+            //   child: Image.asset(
+            //     'assets/img/tag-logo.png',
+            //     fit: BoxFit.contain,
+            //   ),
+            // ),
+             const Logo(titulo: '', logoSize: 220),
 
             const SizedBox(height: 34),
 

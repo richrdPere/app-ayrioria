@@ -19,6 +19,7 @@ import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_module
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 
 class ReporteContent extends StatefulWidget {
   final int idEmpresa;
@@ -1106,12 +1107,81 @@ class _ReporteSinPeriodo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(30),
-        child: Text(
-          'Selecciona un período contable para consultar el reporte.',
-          textAlign: TextAlign.center,
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // ==================================================
+              // ICONO
+              // ==================================================
+              Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  color: colors.primaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.calendar_month_outlined,
+                  size: 48,
+                  color: colors.onPrimaryContainer,
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // ==================================================
+              // TÍTULO
+              // ==================================================
+              Text(
+                'No hay períodos contables',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: colors.onSurface,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // ==================================================
+              // DESCRIPCIÓN
+              // ==================================================
+              Text(
+                'Debes registrar al menos un período contable '
+                'para consultar los reportes financieros '
+                'de tu empresa.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colors.onSurfaceVariant,
+                  height: 1.45,
+                ),
+              ),
+
+              const SizedBox(height: 28),
+
+              // ==================================================
+              // IR A PERÍODOS CONTABLES
+              // ==================================================
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () {
+                    context.pushNamed('periodos_contables');
+                  },
+                  icon: const Icon(Icons.calendar_month_outlined),
+                  label: const Text('Ir a períodos contables'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

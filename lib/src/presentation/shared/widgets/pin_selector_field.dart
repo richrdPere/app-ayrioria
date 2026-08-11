@@ -25,9 +25,7 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
   // ABRIR BOTTOM SHEET
   // ============================================================
 
-  Future<void> _openPinBottomSheet(
-    FormFieldState<String> field,
-  ) async {
+  Future<void> _openPinBottomSheet(FormFieldState<String> field) async {
     final tempController = TextEditingController();
 
     FocusManager.instance.primaryFocus?.unfocus();
@@ -46,9 +44,7 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
           alignment: Alignment.bottomCenter,
 
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 500,
-            ),
+            constraints: const BoxConstraints(maxWidth: 500),
 
             child: Container(
               padding: EdgeInsets.only(
@@ -56,8 +52,7 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
                 right: 24,
                 top: 18,
                 bottom:
-                    MediaQuery.of(bottomSheetContext).viewInsets.bottom +
-                    24,
+                    MediaQuery.of(bottomSheetContext).viewInsets.bottom + 24,
               ),
 
               decoration: BoxDecoration(
@@ -69,9 +64,7 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
 
                 border: Border(
                   top: BorderSide(
-                    color: colors.outlineVariant.withValues(
-                      alpha: 0.5,
-                    ),
+                    color: colors.outlineVariant.withValues(alpha: 0.5),
                   ),
                 ),
               ),
@@ -82,7 +75,6 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
                   // ============================================
                   // INDICADOR SUPERIOR
                   // ============================================
-
                   Container(
                     width: 42,
                     height: 4,
@@ -98,16 +90,13 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
                   // ============================================
                   // RANDOM PIN
                   // ============================================
-
                   RandomPinInput(
                     controller: tempController,
                     length: widget.length,
                     title: 'Contraseña',
 
                     onCompleted: (pin) {
-                      Navigator.of(
-                        bottomSheetContext,
-                      ).pop(pin);
+                      Navigator.of(bottomSheetContext).pop(pin);
                     },
                   ),
 
@@ -175,8 +164,7 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
       },
 
       builder: (field) {
-        final hasPassword =
-            widget.controller.text.length == widget.length;
+        final hasPassword = widget.controller.text.length == widget.length;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,11 +173,8 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
             // ==================================================
             // CAMPO CONTRASEÑA
             // ==================================================
-
             Container(
-              margin: EdgeInsets.only(
-                bottom: field.hasError ? 5 : 18,
-              ),
+              margin: EdgeInsets.only(bottom: field.hasError ? 5 : 18),
 
               decoration: BoxDecoration(
                 color: colors.surfaceContainerLow,
@@ -199,17 +184,13 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
                 border: Border.all(
                   color: field.hasError
                       ? colors.error
-                      : colors.outlineVariant.withValues(
-                          alpha: 0.6,
-                        ),
+                      : colors.outlineVariant.withValues(alpha: 0.6),
                   width: field.hasError ? 1.2 : 1,
                 ),
 
                 boxShadow: [
                   BoxShadow(
-                    color: colors.shadow.withValues(
-                      alpha: 0.05,
-                    ),
+                    color: colors.shadow.withValues(alpha: 0.05),
                     offset: const Offset(0, 4),
                     blurRadius: 10,
                   ),
@@ -228,33 +209,31 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
 
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 12,
+                      vertical: 18,
+                      horizontal: 18,
                     ),
 
                     child: Row(
                       children: [
-                        // ========================================
-                        // ICONO IZQUIERDO
-                        // ========================================
-
+                        // ======================================================
+                        // ICONO - MISMAS DIMENSIONES QUE CustomInput
+                        // ======================================================
                         SizedBox(
-                          width: 40,
-
-                          child: Icon(
-                            widget.icon,
-                            color: field.hasError
-                                ? colors.error
-                                : colors.primary,
+                          width: 38,
+                          height: 24,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Icon(
+                              widget.icon,
+                              color: colors.primary,
+                              size: 18,
+                            ),
                           ),
                         ),
 
-                        const SizedBox(width: 2),
-
-                        // ========================================
-                        // TEXTO
-                        // ========================================
-
+                        // ======================================================
+                        // PLACEHOLDER / PIN
+                        // ======================================================
                         Expanded(
                           child: Text(
                             hasPassword
@@ -264,36 +243,31 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
                                   ).join(' ')
                                 : widget.placeholder,
 
-                            style:
-                                theme.textTheme.bodyLarge?.copyWith(
-                              color: hasPassword
-                                  ? colors.onSurface
-                                  : colors.onSurfaceVariant,
-
-                              fontWeight: hasPassword
-                                  ? FontWeight.w500
-                                  : FontWeight.w400,
-
-                              letterSpacing:
-                                  hasPassword ? 2 : 0,
-                            ),
+                            style: hasPassword
+                                ? theme.textTheme.bodyLarge?.copyWith(
+                                    color: colors.onSurface,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 2,
+                                  )
+                                : theme.textTheme.bodyMedium?.copyWith(
+                                    color: colors.onSurfaceVariant,
+                                  ),
                           ),
                         ),
 
                         const SizedBox(width: 8),
 
-                        // ========================================
-                        // ICONO DERECHO
-                        // ========================================
-
+                        // ======================================================
+                        // ESTADO
+                        // ======================================================
                         Icon(
                           hasPassword
                               ? Icons.check_circle_outline
                               : Icons.keyboard_arrow_up_rounded,
-
                           color: hasPassword
                               ? colors.primary
                               : colors.onSurfaceVariant,
+                          size: 24,
                         ),
                       ],
                     ),
@@ -305,13 +279,9 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
             // ==================================================
             // ERROR
             // ==================================================
-
             if (field.hasError)
               Padding(
-                padding: const EdgeInsets.only(
-                  left: 18,
-                  bottom: 15,
-                ),
+                padding: const EdgeInsets.only(left: 18, bottom: 15),
 
                 child: Text(
                   field.errorText!,

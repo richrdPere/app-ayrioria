@@ -189,20 +189,31 @@ class _LoginPinSelectorFieldState extends State<LoginPinSelectorField> {
 
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 12,
+                      vertical: 18,
+                      horizontal: 18,
                     ),
 
                     child: Row(
                       children: [
+                        // ======================================================
+                        // ICONO - MISMAS DIMENSIONES QUE CustomInput
+                        // ======================================================
                         SizedBox(
-                          width: 40,
-
-                          child: Icon(widget.icon, color: colors.primary),
+                          width: 38,
+                          height: 24,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Icon(
+                              widget.icon,
+                              color: colors.primary,
+                              size: 18,
+                            ),
+                          ),
                         ),
 
-                        const SizedBox(width: 2),
-
+                        // ======================================================
+                        // PLACEHOLDER / PIN
+                        // ======================================================
                         Expanded(
                           child: Text(
                             hasPassword
@@ -212,30 +223,31 @@ class _LoginPinSelectorFieldState extends State<LoginPinSelectorField> {
                                   ).join(' ')
                                 : widget.placeholder,
 
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: hasPassword
-                                  ? colors.onSurface
-                                  : colors.onSurfaceVariant,
-
-                              fontWeight: hasPassword
-                                  ? FontWeight.w500
-                                  : FontWeight.w400,
-
-                              letterSpacing: hasPassword ? 2 : 0,
-                            ),
+                            style: hasPassword
+                                ? theme.textTheme.bodyLarge?.copyWith(
+                                    color: colors.onSurface,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 2,
+                                  )
+                                : theme.textTheme.bodyMedium?.copyWith(
+                                    color: colors.onSurfaceVariant,
+                                  ),
                           ),
                         ),
 
                         const SizedBox(width: 8),
 
+                        // ======================================================
+                        // ESTADO
+                        // ======================================================
                         Icon(
                           hasPassword
                               ? Icons.check_circle_outline
                               : Icons.keyboard_arrow_up_rounded,
-
                           color: hasPassword
                               ? colors.primary
                               : colors.onSurfaceVariant,
+                          size: 24,
                         ),
                       ],
                     ),

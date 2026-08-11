@@ -35,89 +35,117 @@ class _EmpresaContentState extends State<EmpresaContent> {
   void initState() {
     super.initState();
 
-    searchCtrl.addListener(() {
-      setState(() {});
-    });
+    searchCtrl.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    if (!mounted) return;
+
+    setState(() {});
   }
 
   @override
   void dispose() {
+    searchCtrl.removeListener(_onSearchChanged);
+
     searchCtrl.dispose();
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xffF5F7FA),
+      // ========================================================
+      // BACKGROUND
+      // ========================================================
+      backgroundColor: colors.surface,
 
-      body: Column(
-        children: [
-          // Header siempre visible
-          buildHeader(context),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // ==================================================
+            // HEADER
+            // ==================================================
+            buildHeader(context),
 
-          Expanded(
-            child: BlocBuilder<EmpresaBloc, EmpresaState>(
-              builder: (context, state) {
-                // ==========================================================
-                // LOADING
-                // ==========================================================
-                if (state.isLoading && state.empresasResponse == null) {
-                  return const EmpresaLoading();
-                }
+            // ==================================================
+            // CONTENT
+            // ==================================================
+            Expanded(
+              child: BlocBuilder<EmpresaBloc, EmpresaState>(
+                builder: (context, state) {
+                  // ============================================
+                  // LOADING
+                  // ============================================
+                  if (state.isLoading && state.empresasResponse == null) {
+                    return const EmpresaLoading();
+                  }
 
-                final response = state.empresasResponse;
+                  final response = state.empresasResponse;
 
-                // ==========================================================
-                // ERROR
-                // ==========================================================
-                if (response is ErrorData<ApiResponse<EmpresaPaginated>>) {
-                  return EmpresaErrorState(
-                    message: response.displayMessage,
-                    onRetry: () {
-                      context.read<EmpresaBloc>().add(const GetEmpresasEvent());
-                    },
-                  );
-                }
+                  // ============================================
+                  // ERROR
+                  // ============================================
+                  if (response is ErrorData<ApiResponse<EmpresaPaginated>>) {
+                    return EmpresaErrorState(
+                      message: response.displayMessage,
 
-                // ==========================================================
-                // EMPRESAS
-                // ==========================================================
-                final empresas =
-                    response is Success<ApiResponse<EmpresaPaginated>>
-                    ? response.data.data?.data ?? <EmpresaData>[]
-                    : <EmpresaData>[];
+                      onRetry: () {
+                        context.read<EmpresaBloc>().add(
+                          const GetEmpresasEvent(),
+                        );
+                      },
+                    );
+                  }
 
-                // ==========================================================
-                // SIN EMPRESAS
-                // ==========================================================
-                if (empresas.isEmpty) {
-                  return EmpresaEmptyState(
-                    onCreate: () {
-                      context.pushNamed('crear_empresa');
-                    },
-                  );
-                }
+                  // ============================================
+                  // EMPRESAS
+                  // ============================================
+                  final empresas =
+                      response is Success<ApiResponse<EmpresaPaginated>>
+                      ? response.data.data?.data ?? <EmpresaData>[]
+                      : <EmpresaData>[];
 
-                // ==========================================================
-                // CON EMPRESAS
-                // ==========================================================
-                return Column(
-                  children: [
-                    EmpresaSearch(controller: searchCtrl),
+                  // ============================================
+                  // EMPTY
+                  // ============================================
+                  if (empresas.isEmpty) {
+                    return EmpresaEmptyState(
+                      onCreate: () {
+                        context.pushNamed('crear_empresa');
+                      },
+                    );
+                  }
 
-                    Expanded(
-                      child: EmpresaList(
-                        empresas: empresas,
-                        searchCtrl: searchCtrl,
-                      ),
+                  // ============================================
+                  // DATA
+                  // ============================================
+                  return ColoredBox(
+                    color: colors.surface,
+
+                    child: Column(
+                      children: [
+                        EmpresaSearch(controller: searchCtrl),
+
+                        Expanded(
+                          child: EmpresaList(
+                            empresas: empresas,
+
+                            searchCtrl: searchCtrl,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

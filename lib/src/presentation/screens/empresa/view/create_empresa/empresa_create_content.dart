@@ -1,5 +1,6 @@
 import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
 import 'package:app_aryoria/src/data/models/empresa/empresa_request.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,14 +24,14 @@ class _EmpresaCreateContentState extends State<EmpresaCreateContent> {
   final direccionFiscalCtrl = TextEditingController();
   final telefonoCtrl = TextEditingController();
 
-  String tipoEmpresa = "PRIVADA";
+  String tipoEmpresa = 'PRIVADA';
 
   final tiposEmpresa = const [
-    "PRIVADA",
-    "PUBLICA",
-    "ONG",
-    "INDEPENDIENTE",
-    "OTRA",
+    'PRIVADA',
+    'PUBLICA',
+    'ONG',
+    'INDEPENDIENTE',
+    'OTRA',
   ];
 
   @override
@@ -41,29 +42,45 @@ class _EmpresaCreateContentState extends State<EmpresaCreateContent> {
     emailCtrl.dispose();
     direccionFiscalCtrl.dispose();
     telefonoCtrl.dispose();
+
     super.dispose();
   }
 
+  // ==========================================================
+  // CREAR EMPRESA
+  // ==========================================================
   void _crearEmpresa() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
-    // Obtener usuario de la sesión
     final sessionState = context.read<SessionBloc>().state;
+
     final usuario = sessionState.user;
 
-    if (usuario == null) return;
+    if (usuario == null) {
+      return;
+    }
 
     final request = EmpresaRequest(
       idUsuario: usuario.data.usuario.idUsuario,
+
       razonSocial: razonSocialCtrl.text.trim(),
+
       nombreComercial: nombreComercialCtrl.text.trim(),
+
       ruc: rucCtrl.text.trim(),
+
       tipoEmpresa: tipoEmpresa,
+
       direccionFiscal: direccionFiscalCtrl.text.trim(),
+
       telefono: telefonoCtrl.text.trim(),
+
       email: emailCtrl.text.trim(),
-      paginaWeb: "",
-      logoUrl: "",
+
+      paginaWeb: '',
+      logoUrl: '',
     );
 
     context.read<EmpresaBloc>().add(CreateEmpresaEvent(request));
@@ -71,91 +88,131 @@ class _EmpresaCreateContentState extends State<EmpresaCreateContent> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xffF5F7FA),
+      backgroundColor: colors.surface,
+
       appBar: AppBar(
-        backgroundColor: const Color(0xffF5F7FA),
         elevation: 0,
-        foregroundColor: Colors.black,
-        // title: const Text(
-        //   "Crear empresa",
-        //   style: TextStyle(fontWeight: FontWeight.bold),
-        // ),
+
+        backgroundColor: colors.surface,
+
+        foregroundColor: colors.onSurface,
+
+        surfaceTintColor: Colors.transparent,
       ),
 
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
 
           child: Form(
             key: _formKey,
 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
-                const Text(
-                  "Registra tu primera empresa",
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                // ==================================================
+                // HEADER
+                // ==================================================
+                Text(
+                  'Registra tu primera empresa',
+
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    color: colors.onSurface,
+
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
 
                 const SizedBox(height: 8),
 
                 Text(
-                  "Completa los datos principales para comenzar a usar Ayroria.",
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 15,
+                  'Completa los datos principales para comenzar a usar Aryoria.',
+
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colors.onSurfaceVariant,
+
                     height: 1.4,
                   ),
                 ),
 
                 const SizedBox(height: 28),
 
+                // ==================================================
+                // TIPO EMPRESA
+                // ==================================================
                 _buildTipoEmpresaDropdown(),
 
                 const SizedBox(height: 16),
 
+                // ==================================================
+                // RAZÓN SOCIAL
+                // ==================================================
                 _buildInput(
                   controller: razonSocialCtrl,
-                  label: "Razón social",
+
+                  label: 'Razón social',
+
                   icon: Icons.apartment_rounded,
+
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "La razón social es obligatoria";
+                      return 'La razón social es obligatoria';
                     }
+
                     return null;
                   },
                 ),
 
                 const SizedBox(height: 16),
 
+                // ==================================================
+                // NOMBRE COMERCIAL
+                // ==================================================
                 _buildInput(
                   controller: nombreComercialCtrl,
-                  label: "Nombre comercial",
+
+                  label: 'Nombre comercial',
+
                   icon: Icons.business_rounded,
+
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "El nombre comercial es obligatorio";
+                      return 'El nombre comercial es obligatorio';
                     }
+
                     return null;
                   },
                 ),
 
                 const SizedBox(height: 16),
 
+                // ==================================================
+                // RUC
+                // ==================================================
                 _buildInput(
                   controller: rucCtrl,
-                  label: "RUC",
+
+                  label: 'RUC',
+
                   icon: Icons.badge_outlined,
+
                   keyboardType: TextInputType.number,
+
                   maxLength: 11,
+
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "El RUC es obligatorio";
+                      return 'El RUC es obligatorio';
                     }
 
                     if (value.trim().length != 11) {
-                      return "El RUC debe tener 11 dígitos";
+                      return 'El RUC debe tener 11 dígitos';
                     }
 
                     return null;
@@ -164,71 +221,99 @@ class _EmpresaCreateContentState extends State<EmpresaCreateContent> {
 
                 const SizedBox(height: 16),
 
+                // ==================================================
+                // EMAIL
+                // ==================================================
                 _buildInput(
                   controller: emailCtrl,
-                  label: "Email",
-                  icon: Icons.email,
+
+                  label: 'Email',
+
+                  icon: Icons.email_outlined,
+
                   keyboardType: TextInputType.emailAddress,
+
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "El email es obligatorio";
+                      return 'El email es obligatorio';
                     }
+
                     return null;
                   },
                 ),
 
                 const SizedBox(height: 16),
 
+                // ==================================================
+                // TELÉFONO
+                // ==================================================
                 _buildInput(
                   controller: telefonoCtrl,
-                  label: "Teléfono",
+
+                  label: 'Teléfono',
+
                   icon: Icons.phone_outlined,
+
                   keyboardType: TextInputType.phone,
+
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "El teléfono es obligatorio";
+                      return 'El teléfono es obligatorio';
                     }
 
                     if (value.trim().length < 6) {
-                      return "Ingrese un teléfono válido";
+                      return 'Ingrese un teléfono válido';
                     }
 
                     return null;
                   },
                 ),
+
                 const SizedBox(height: 16),
 
+                // ==================================================
+                // DIRECCIÓN
+                // ==================================================
                 _buildInput(
                   controller: direccionFiscalCtrl,
-                  label: "Dirección fiscal",
+
+                  label: 'Dirección fiscal',
+
                   icon: Icons.location_on_outlined,
+
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "La dirección fiscal es obligatoria";
+                      return 'La dirección fiscal es obligatoria';
                     }
+
                     return null;
                   },
                 ),
 
                 const SizedBox(height: 35),
 
+                // ==================================================
+                // BOTÓN
+                // ==================================================
                 SizedBox(
                   width: double.infinity,
+
                   height: 54,
-                  child: ElevatedButton.icon(
+
+                  child: FilledButton.icon(
                     onPressed: _crearEmpresa,
+
                     icon: const Icon(Icons.add_business),
-                    label: const Text(
-                      "Crear empresa",
-                      style: TextStyle(
+
+                    label: const Text('Crear empresa'),
+
+                    style: FilledButton.styleFrom(
+                      textStyle: theme.textTheme.labelLarge?.copyWith(
                         fontSize: 16,
+
                         fontWeight: FontWeight.w600,
                       ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff2563EB),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
+
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
@@ -243,16 +328,31 @@ class _EmpresaCreateContentState extends State<EmpresaCreateContent> {
     );
   }
 
+  // ==========================================================
+  // DROPDOWN TIPO EMPRESA
+  // ==========================================================
   Widget _buildTipoEmpresaDropdown() {
+    final theme = Theme.of(context);
+
+    final colors = theme.colorScheme;
+
     return DropdownButtonFormField<String>(
-      value: tipoEmpresa,
+      initialValue: tipoEmpresa,
+
+      isExpanded: true,
+
+      dropdownColor: colors.surfaceContainer,
+
+      style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface),
 
       items: tiposEmpresa.map((tipo) {
         return DropdownMenuItem<String>(value: tipo, child: Text(tipo));
       }).toList(),
 
       onChanged: (value) {
-        if (value == null) return;
+        if (value == null) {
+          return;
+        }
 
         setState(() {
           tipoEmpresa = value;
@@ -261,82 +361,120 @@ class _EmpresaCreateContentState extends State<EmpresaCreateContent> {
 
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return "El tipo de empresa es obligatorio";
+          return 'El tipo de empresa es obligatorio';
         }
 
         return null;
       },
 
-      decoration: InputDecoration(
-        labelText: "Tipo de empresa",
-        prefixIcon: const Icon(Icons.category_outlined),
-        filled: true,
-        fillColor: Colors.white,
+      decoration: _inputDecoration(
+        label: 'Tipo de empresa',
 
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xff2563EB), width: 1.4),
-        ),
-
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.redAccent),
-        ),
+        icon: Icons.category_outlined,
       ),
     );
   }
 
+  // ==========================================================
+  // INPUT
+  // ==========================================================
   Widget _buildInput({
     required TextEditingController controller,
     required String label,
     required IconData icon,
+
     String? Function(String?)? validator,
+
     TextInputType keyboardType = TextInputType.text,
+
     int? maxLength,
   }) {
+    final theme = Theme.of(context);
+
+    final colors = theme.colorScheme;
+
     return TextFormField(
       controller: controller,
+
       validator: validator,
+
       keyboardType: keyboardType,
+
       maxLength: maxLength,
 
-      decoration: InputDecoration(
-        counterText: "",
-        labelText: label,
-        prefixIcon: Icon(icon),
-        filled: true,
-        fillColor: Colors.white,
+      style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface),
 
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
+      cursorColor: colors.primary,
 
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
+      decoration: _inputDecoration(label: label, icon: icon, hideCounter: true),
+    );
+  }
 
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xff2563EB), width: 1.4),
-        ),
+  // ==========================================================
+  // INPUT DECORATION
+  // ==========================================================
+  InputDecoration _inputDecoration({
+    required String label,
+    required IconData icon,
 
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.redAccent),
+    bool hideCounter = false,
+  }) {
+    final theme = Theme.of(context);
+
+    final colors = theme.colorScheme;
+
+    final borderRadius = BorderRadius.circular(16);
+
+    return InputDecoration(
+      counterText: hideCounter ? '' : null,
+
+      labelText: label,
+
+      labelStyle: theme.textTheme.bodyMedium?.copyWith(
+        color: colors.onSurfaceVariant,
+      ),
+
+      prefixIcon: Icon(icon, color: colors.primary),
+
+      filled: true,
+
+      fillColor: colors.surfaceContainerLow,
+
+      border: OutlineInputBorder(
+        borderRadius: borderRadius,
+
+        borderSide: BorderSide(color: colors.outlineVariant),
+      ),
+
+      enabledBorder: OutlineInputBorder(
+        borderRadius: borderRadius,
+
+        borderSide: BorderSide(
+          color: colors.outlineVariant.withValues(alpha: 0.6),
         ),
       ),
+
+      focusedBorder: OutlineInputBorder(
+        borderRadius: borderRadius,
+
+        borderSide: BorderSide(color: colors.primary, width: 1.5),
+      ),
+
+      errorBorder: OutlineInputBorder(
+        borderRadius: borderRadius,
+
+        borderSide: BorderSide(color: colors.error),
+      ),
+
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: borderRadius,
+
+        borderSide: BorderSide(color: colors.error, width: 1.5),
+      ),
+
+      errorStyle: theme.textTheme.bodySmall?.copyWith(color: colors.error),
+
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
     );
   }
 }

@@ -8,7 +8,7 @@ import 'package:app_aryoria/src/presentation/screens/auth/register/bloc/register
 
 // Widgets
 import 'package:app_aryoria/src/presentation/shared/widgets/custom_input.dart';
-import 'package:app_aryoria/src/presentation/shared/widgets/logo.dart';
+// import 'package:app_aryoria/src/presentation/shared/widgets/logo.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/boton_azul.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/labels.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/pin_selector_field.dart';
@@ -39,7 +39,6 @@ class _RegisterFormState extends State<RegisterForm> {
   // =========================================================
   // SUBMIT
   // =========================================================
-
   void _submit() {
     final bloc = context.read<RegisterBloc>();
 
@@ -72,7 +71,6 @@ class _RegisterFormState extends State<RegisterForm> {
   // =========================================================
   // DISPOSE
   // =========================================================
-
   @override
   void dispose() {
     nombresCtrl.dispose();
@@ -89,7 +87,6 @@ class _RegisterFormState extends State<RegisterForm> {
   // =========================================================
   // BUILD
   // =========================================================
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -113,9 +110,24 @@ class _RegisterFormState extends State<RegisterForm> {
                 // =====================================================
                 // HEADER
                 // =====================================================
-                _buildHeader(),
-
+                // _buildHeader(),
+             
                 const SizedBox(height: 30),
+
+                Text(
+                  "Crea tu cuenta en Aryoria",
+                  textAlign: TextAlign.start,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    color: colors.primary,
+                    fontWeight: FontWeight.w800,
+                    height: 1.10,
+                    letterSpacing: 0.1,
+                  ),
+                ),
+
+                const SizedBox(height: 50),
 
                 // =====================================================
                 // FORM
@@ -149,9 +161,9 @@ class _RegisterFormState extends State<RegisterForm> {
   // HEADER
   // =========================================================
 
-  Widget _buildHeader() {
-    return const Logo(titulo: 'Registro');
-  }
+  // Widget _buildHeader() {
+  //   return const Logo(titulo: 'REGISTRO - ARYORIA');
+  // }
 
   // =========================================================
   // FORM

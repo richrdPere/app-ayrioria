@@ -16,6 +16,10 @@ class AppSettingTile extends StatelessWidget {
   final Color? iconColor;
   final Color? titleColor;
 
+  /// Mensaje personalizado cuando la opción todavía
+  /// no tiene una acción implementada.
+  final String? comingSoonMessage;
+
   const AppSettingTile({
     super.key,
     required this.icon,
@@ -28,7 +32,95 @@ class AppSettingTile extends StatelessWidget {
     this.iconBackgroundColor,
     this.iconColor,
     this.titleColor,
+    this.comingSoonMessage,
   });
+
+  // ==========================================================
+  // ON TAP
+  // ==========================================================
+  void _handleTap(BuildContext context) {
+    // ========================================================
+    // FUNCIÓN IMPLEMENTADA
+    // ========================================================
+    if (onTap != null) {
+      onTap!.call();
+      return;
+    }
+
+    // ========================================================
+    // FUNCIÓN PENDIENTE
+    // ========================================================
+    final colors = Theme.of(context).colorScheme;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+
+          margin: const EdgeInsets.all(16),
+
+          backgroundColor: colors.inverseSurface,
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+
+          content: Row(
+            children: [
+              // ==================================================
+              // ICONO
+              // ==================================================
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: 0.16),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.construction_rounded,
+                  size: 20,
+                  color: colors.primary,
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              // ==================================================
+              // MENSAJE
+              // ==================================================
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Próximamente',
+                      style: TextStyle(
+                        color: colors.onInverseSurface,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+
+                    const SizedBox(height: 2),
+
+                    Text(
+                      comingSoonMessage ??
+                          '$title estará disponible en una próxima actualización.',
+                      style: TextStyle(
+                        color: colors.onInverseSurface.withValues(alpha: 0.80),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +146,7 @@ class AppSettingTile extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: () => _handleTap(context),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
           child: ListTile(
@@ -108,12 +200,14 @@ class AppSettingTile extends StatelessWidget {
                 trailing ??
                 (showChevron
                     ? Icon(
-                        Icons.chevron_right_rounded,
+                        onTap != null
+                            ? Icons.chevron_right_rounded
+                            : Icons.schedule_rounded,
                         color: colors.onSurfaceVariant,
                       )
                     : null),
 
-            onTap: onTap,
+            onTap: () => _handleTap(context),
           ),
         ),
       ),
