@@ -277,7 +277,6 @@ class _FlujoContablePageState extends State<FlujoContablePage> {
   // ============================================================
   // SIN PERIODOS
   // ============================================================
-
   Widget _buildSinPeriodos() {
     return Center(
       child: Padding(

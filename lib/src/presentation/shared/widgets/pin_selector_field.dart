@@ -22,11 +22,14 @@ class PinSelectorField extends StatefulWidget {
 
 class _PinSelectorFieldState extends State<PinSelectorField> {
   // ============================================================
-  // ABRIR BOTTOM SHEET PARA CREAR CONTRASEÑA
+  // ABRIR BOTTOM SHEET
   // ============================================================
 
-  Future<void> _openPinBottomSheet(FormFieldState<String> field) async {
+  Future<void> _openPinBottomSheet(
+    FormFieldState<String> field,
+  ) async {
     final tempController = TextEditingController();
+
     FocusManager.instance.primaryFocus?.unfocus();
 
     final result = await showModalBottomSheet<String>(
@@ -34,12 +37,18 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
+
       builder: (bottomSheetContext) {
+        final theme = Theme.of(bottomSheetContext);
+        final colors = theme.colorScheme;
+
         return Align(
           alignment: Alignment.bottomCenter,
 
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500),
+            constraints: const BoxConstraints(
+              maxWidth: 500,
+            ),
 
             child: Container(
               padding: EdgeInsets.only(
@@ -47,29 +56,39 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
                 right: 24,
                 top: 18,
                 bottom:
-                    MediaQuery.of(bottomSheetContext).viewInsets.bottom + 24,
+                    MediaQuery.of(bottomSheetContext).viewInsets.bottom +
+                    24,
               ),
 
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              decoration: BoxDecoration(
+                color: colors.surface,
 
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(28),
+                ),
+
+                border: Border(
+                  top: BorderSide(
+                    color: colors.outlineVariant.withValues(
+                      alpha: 0.5,
+                    ),
+                  ),
+                ),
               ),
 
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-
                 children: [
                   // ============================================
                   // INDICADOR SUPERIOR
                   // ============================================
+
                   Container(
                     width: 42,
                     height: 4,
 
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-
+                      color: colors.outlineVariant,
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
@@ -77,86 +96,18 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
                   const SizedBox(height: 18),
 
                   // ============================================
-                  // HEADER
-                  // ============================================
-                  // Row(
-                  //   children: [
-                  //     Container(
-                  //       width: 42,
-                  //       height: 42,
-
-                  //       decoration: BoxDecoration(
-                  //         color: Theme.of(
-                  //           context,
-                  //         ).colorScheme.primary.withOpacity(0.10),
-
-                  //         shape: BoxShape.circle,
-                  //       ),
-
-                  //       child: Icon(
-                  //         Icons.lock_outline,
-
-                  //         color: Theme.of(context).colorScheme.primary,
-                  //       ),
-                  //     ),
-
-                  //     const SizedBox(width: 12),
-
-                  //     Expanded(
-                  //       child: Column(
-                  //         crossAxisAlignment: CrossAxisAlignment.start,
-
-                  //         children: [
-                  //           Text(
-                  //             'Crear contraseña',
-
-                  //             style: Theme.of(context).textTheme.titleLarge
-                  //                 ?.copyWith(fontWeight: FontWeight.bold),
-                  //           ),
-
-                  //           const SizedBox(height: 2),
-
-                  //           Text(
-                  //             'Selecciona ${widget.length} números',
-
-                  //             style: TextStyle(
-                  //               fontSize: 13,
-                  //               color: Colors.grey.shade600,
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ),
-
-                  //     IconButton(
-                  //       tooltip: 'Cerrar',
-
-                  //       onPressed: () {
-                  //         Navigator.of(bottomSheetContext).pop();
-                  //       },
-
-                  //       icon: const Icon(Icons.close),
-                  //     ),
-                  //   ],
-                  // ),
-
-                  // ============================================
                   // RANDOM PIN
                   // ============================================
+
                   RandomPinInput(
                     controller: tempController,
-
                     length: widget.length,
-
                     title: 'Contraseña',
 
-                    // ==========================================
-                    // AL COMPLETAR 6 DÍGITOS:
-                    // 1. Devuelve el PIN
-                    // 2. Cierra el BottomSheet
-                    // ==========================================
                     onCompleted: (pin) {
-                      Navigator.of(bottomSheetContext).pop(pin);
+                      Navigator.of(
+                        bottomSheetContext,
+                      ).pop(pin);
                     },
                   ),
 
@@ -170,8 +121,9 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
     );
 
     // ==========================================================
-    // RESULTADO DEL BOTTOM SHEET
+    // RESULTADO
     // ==========================================================
+
     if (!mounted) {
       tempController.dispose();
       return;
@@ -182,14 +134,13 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
         widget.controller.text = result;
       });
 
-      // Actualizar FormField
       field.didChange(result);
 
-      // Volver a validar.
       field.validate();
     }
 
     FocusManager.instance.primaryFocus?.unfocus();
+
     tempController.dispose();
   }
 
@@ -199,6 +150,9 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return FormField<String>(
       initialValue: widget.controller.text,
 
@@ -221,7 +175,8 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
       },
 
       builder: (field) {
-        final hasPassword = widget.controller.text.length == widget.length;
+        final hasPassword =
+            widget.controller.text.length == widget.length;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,21 +185,33 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
             // ==================================================
             // CAMPO CONTRASEÑA
             // ==================================================
+
             Container(
-              margin: EdgeInsets.only(bottom: field.hasError ? 5 : 20),
+              margin: EdgeInsets.only(
+                bottom: field.hasError ? 5 : 18,
+              ),
 
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: colors.surfaceContainerLow,
 
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(18),
+
+                border: Border.all(
+                  color: field.hasError
+                      ? colors.error
+                      : colors.outlineVariant.withValues(
+                          alpha: 0.6,
+                        ),
+                  width: field.hasError ? 1.2 : 1,
+                ),
 
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-
-                    offset: const Offset(0, 5),
-
-                    blurRadius: 5,
+                    color: colors.shadow.withValues(
+                      alpha: 0.05,
+                    ),
+                    offset: const Offset(0, 4),
+                    blurRadius: 10,
                   ),
                 ],
               ),
@@ -253,14 +220,16 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
                 color: Colors.transparent,
 
                 child: InkWell(
-                  onTap: () => _openPinBottomSheet(field),
+                  onTap: () {
+                    _openPinBottomSheet(field);
+                  },
 
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(18),
 
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 10,
+                      vertical: 16,
+                      horizontal: 12,
                     ),
 
                     child: Row(
@@ -268,15 +237,24 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
                         // ========================================
                         // ICONO IZQUIERDO
                         // ========================================
+
                         SizedBox(
                           width: 40,
 
-                          child: Icon(widget.icon, color: Colors.grey.shade700),
+                          child: Icon(
+                            widget.icon,
+                            color: field.hasError
+                                ? colors.error
+                                : colors.primary,
+                          ),
                         ),
+
+                        const SizedBox(width: 2),
 
                         // ========================================
                         // TEXTO
                         // ========================================
+
                         Expanded(
                           child: Text(
                             hasPassword
@@ -286,37 +264,36 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
                                   ).join(' ')
                                 : widget.placeholder,
 
-                            style: TextStyle(
-                              fontSize: 16,
-
+                            style:
+                                theme.textTheme.bodyLarge?.copyWith(
                               color: hasPassword
-                                  ? Colors.black87
-                                  : Colors.grey.shade600,
+                                  ? colors.onSurface
+                                  : colors.onSurfaceVariant,
 
                               fontWeight: hasPassword
                                   ? FontWeight.w500
-                                  : FontWeight.normal,
+                                  : FontWeight.w400,
 
-                              letterSpacing: hasPassword ? 2 : 0,
+                              letterSpacing:
+                                  hasPassword ? 2 : 0,
                             ),
                           ),
                         ),
 
+                        const SizedBox(width: 8),
+
                         // ========================================
                         // ICONO DERECHO
                         // ========================================
-                        Padding(
-                          padding: const EdgeInsets.only(right: 12),
 
-                          child: Icon(
-                            hasPassword
-                                ? Icons.check_circle_outline
-                                : Icons.keyboard_arrow_up,
+                        Icon(
+                          hasPassword
+                              ? Icons.check_circle_outline
+                              : Icons.keyboard_arrow_up_rounded,
 
-                            color: hasPassword
-                                ? Theme.of(context).colorScheme.primary
-                                : Colors.grey.shade500,
-                          ),
+                          color: hasPassword
+                              ? colors.primary
+                              : colors.onSurfaceVariant,
                         ),
                       ],
                     ),
@@ -326,23 +303,24 @@ class _PinSelectorFieldState extends State<PinSelectorField> {
             ),
 
             // ==================================================
-            // ERROR VALIDACIÓN
+            // ERROR
             // ==================================================
-            if (field.hasError) ...[
+
+            if (field.hasError)
               Padding(
-                padding: const EdgeInsets.only(left: 20, bottom: 15),
+                padding: const EdgeInsets.only(
+                  left: 18,
+                  bottom: 15,
+                ),
 
                 child: Text(
                   field.errorText!,
 
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-
-                    fontSize: 12,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colors.error,
                   ),
                 ),
               ),
-            ],
           ],
         );
       },

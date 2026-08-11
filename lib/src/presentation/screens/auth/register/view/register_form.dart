@@ -1,8 +1,8 @@
 import 'package:app_aryoria/src/data/models/register/register_request.dart';
 import 'package:app_aryoria/src/presentation/screens/auth/register/bloc/register_event.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:app_aryoria/src/presentation/screens/auth/register/bloc/register_bloc.dart';
 import 'package:app_aryoria/src/presentation/screens/auth/register/bloc/register_state.dart';
 
@@ -31,15 +31,21 @@ class _RegisterFormState extends State<RegisterForm> {
 
   DateTime? fechaNacimiento;
 
-  String genero = "M";
-  String tipoDocumento = "DNI";
+  String genero = 'M';
+  String tipoDocumento = 'DNI';
 
   final formKey = GlobalKey<FormState>();
+
+  // =========================================================
+  // SUBMIT
+  // =========================================================
 
   void _submit() {
     final bloc = context.read<RegisterBloc>();
 
-    if (!formKey.currentState!.validate()) return;
+    if (!(formKey.currentState?.validate() ?? false)) {
+      return;
+    }
 
     final request = RegisterRequest(
       persona: PersonaRequest(
@@ -63,33 +69,74 @@ class _RegisterFormState extends State<RegisterForm> {
     bloc.add(RegisterSubmitEvent(request: request));
   }
 
+  // =========================================================
+  // DISPOSE
+  // =========================================================
+
+  @override
+  void dispose() {
+    nombresCtrl.dispose();
+    apellidosCtrl.dispose();
+    emailCtrl.dispose();
+    documentoCtrl.dispose();
+    celularCtrl.dispose();
+    direccionCtrl.dispose();
+    passwordCtrl.dispose();
+
+    super.dispose();
+  }
+
+  // =========================================================
+  // BUILD
+  // =========================================================
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xffF2F2F2),
+      backgroundColor: colors.surface,
+
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+
+          padding: const EdgeInsets.fromLTRB(32, 20, 32, 32),
+
           child: Form(
             key: formKey,
+
             child: Column(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // =====================================================
+                // HEADER
+                // =====================================================
                 _buildHeader(),
 
                 const SizedBox(height: 30),
 
+                // =====================================================
+                // FORM
+                // =====================================================
                 _buildForm(),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 12),
 
+                // =====================================================
+                // BUTTON
+                // =====================================================
                 _buildButton(),
 
-                const SizedBox(height: 35),
+                const SizedBox(height: 34),
 
-                _buildFooter(),
+                // =====================================================
+                // FOOTER
+                // =====================================================
+                _buildFooter(context),
+
+                const SizedBox(height: 16),
               ],
             ),
           ),
@@ -98,9 +145,17 @@ class _RegisterFormState extends State<RegisterForm> {
     );
   }
 
+  // =========================================================
+  // HEADER
+  // =========================================================
+
   Widget _buildHeader() {
-    return const Logo(titulo: "Registro");
+    return const Logo(titulo: 'Registro');
   }
+
+  // =========================================================
+  // FORM
+  // =========================================================
 
   Widget _buildForm() {
     return Column(
@@ -118,8 +173,8 @@ class _RegisterFormState extends State<RegisterForm> {
 
   Widget _buildNombresField() {
     return CustomInput(
-      icon: Icons.person,
-      placeholder: "Nombres",
+      icon: Icons.person_outline,
+      placeholder: 'Nombres',
       textController: nombresCtrl,
       keyboardType: TextInputType.name,
       isPassword: false,
@@ -128,8 +183,8 @@ class _RegisterFormState extends State<RegisterForm> {
 
   Widget _buildApellidosField() {
     return CustomInput(
-      icon: Icons.person_outline,
-      placeholder: "Apellidos",
+      icon: Icons.badge_outlined,
+      placeholder: 'Apellidos',
       textController: apellidosCtrl,
       keyboardType: TextInputType.name,
       isPassword: false,
@@ -139,7 +194,7 @@ class _RegisterFormState extends State<RegisterForm> {
   Widget _buildEmailField() {
     return CustomInput(
       icon: Icons.email_outlined,
-      placeholder: "Correo",
+      placeholder: 'Correo',
       textController: emailCtrl,
       keyboardType: TextInputType.emailAddress,
       isPassword: false,
@@ -148,8 +203,8 @@ class _RegisterFormState extends State<RegisterForm> {
 
   Widget _buildDocumentoField() {
     return CustomInput(
-      icon: Icons.badge_outlined,
-      placeholder: "Número Documento",
+      icon: Icons.credit_card_outlined,
+      placeholder: 'Número de documento',
       textController: documentoCtrl,
       keyboardType: TextInputType.number,
       isPassword: false,
@@ -158,8 +213,8 @@ class _RegisterFormState extends State<RegisterForm> {
 
   Widget _buildCelularField() {
     return CustomInput(
-      icon: Icons.phone_android,
-      placeholder: "Celular",
+      icon: Icons.phone_android_outlined,
+      placeholder: 'Celular',
       textController: celularCtrl,
       keyboardType: TextInputType.phone,
       isPassword: false,
@@ -169,7 +224,7 @@ class _RegisterFormState extends State<RegisterForm> {
   Widget _buildDireccionField() {
     return CustomInput(
       icon: Icons.home_outlined,
-      placeholder: "Dirección",
+      placeholder: 'Dirección',
       textController: direccionCtrl,
       keyboardType: TextInputType.streetAddress,
       isPassword: false,
@@ -183,63 +238,46 @@ class _RegisterFormState extends State<RegisterForm> {
       icon: Icons.lock_outline,
       length: 6,
     );
-    
   }
 
-  // Widget _buildPasswordField() {
-  //   return RandomPinInput(
-  //     controller: passwordCtrl,
-  //     length: 6,
-  //     title: 'Contraseña',
-
-  //     validator: (value) {
-  //       if (value == null || value.isEmpty) {
-  //         return 'Ingresa tu contraseña.';
-  //       }
-
-  //       if (value.length != 6) {
-  //         return 'La contraseña debe tener 6 dígitos.';
-  //       }
-
-  //       if (!RegExp(r'^\d{6}$').hasMatch(value)) {
-  //         return 'La contraseña solo puede contener números.';
-  //       }
-
-  //       return null;
-  //     },
-  //   );
-  // }
-
+  // =========================================================
+  // BUTTON
+  // =========================================================
   Widget _buildButton() {
     return BlocBuilder<RegisterBloc, RegisterState>(
-      builder: (_, state) {
+      builder: (context, state) {
         return BotonAzul(
-          text: state.isLoading ? "Registrando..." : "Registrarse",
+          text: state.isLoading ? 'Registrando...' : 'Registrarse',
           onPressed: state.isLoading ? null : _submit,
         );
       },
     );
   }
 
-  Widget _buildFooter() {
+  // =========================================================
+  // FOOTER
+  // =========================================================
+  Widget _buildFooter(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Column(
-      children: const [
-        Labels(
-          ruta: "login",
-          titulo: "¿Ya tienes una cuenta?",
-          subTitulo: "Ingresa ahora!",
+      children: [
+        const Labels(
+          ruta: 'login',
+          titulo: '¿Ya tienes una cuenta?',
+          subTitulo: '¡Ingresa ahora!',
         ),
 
-        SizedBox(height: 10),
+        const SizedBox(height: 14),
 
         Text(
-          "Términos y condiciones de uso",
-          style: TextStyle(
-            fontWeight: FontWeight.w300,
-            fontSize: 12,
-            color: Colors.black54,
-          ),
+          'Términos y condiciones de uso',
           textAlign: TextAlign.center,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: colors.onSurfaceVariant,
+            fontWeight: FontWeight.w400,
+          ),
         ),
       ],
     );

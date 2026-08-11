@@ -12,7 +12,7 @@ class Logo extends StatelessWidget {
         width: 170,
         child: Column(
           children: [
-            Image(image: AssetImage('assets/img/tag-logo.png')),
+            Image(image: AssetImage('assets/img/aryoria_logo.png')),
 
             SizedBox(height: 20),
 

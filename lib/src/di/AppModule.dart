@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
-import 'package:app_aryoria/src/data/datasources/local/sharefPref.dart';
+import 'package:app_aryoria/src/data/datasources/local/preferences/app_pref.dart';
+import 'package:app_aryoria/src/data/datasources/local/preferences/sharefPref.dart';
 
 // SERVICES
 import 'package:app_aryoria/src/data/datasources/index_datasource.dart';
@@ -15,6 +16,9 @@ import 'package:app_aryoria/src/domain/use_cases/index_uses_cases.dart';
 abstract class AppModule {
   @injectable
   SharefPref get sharedPref => SharefPref();
+
+  @injectable
+  AppPreferences get appPref => AppPreferences();
 
   // ==========================================================
   // 1. SERVICES

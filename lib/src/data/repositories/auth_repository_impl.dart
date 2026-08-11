@@ -1,4 +1,4 @@
-import 'package:app_aryoria/src/data/datasources/local/sharefPref.dart';
+import 'package:app_aryoria/src/data/datasources/local/preferences/sharefPref.dart';
 import 'package:app_aryoria/src/data/datasources/remote/services/auth_service.dart';
 import 'package:app_aryoria/src/data/models/login/auth_response.dart';
 import 'package:app_aryoria/src/data/models/register/register_request.dart';

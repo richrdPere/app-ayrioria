@@ -15,31 +15,38 @@ class Labels extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Column(
       children: [
         Text(
           titulo,
-          style: TextStyle(
-            color: Colors.black54,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: colors.onSurfaceVariant,
+            fontWeight: FontWeight.w400,
           ),
         ),
-    
-        SizedBox(height: 10),
-    
-        GestureDetector(
-          child: Text(
-            subTitulo,
-            style: TextStyle(
-              color: Colors.blue[600],
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+
+        const SizedBox(height: 10),
+
+        InkWell(
+          borderRadius: BorderRadius.circular(8),
           onTap: () {
             context.goNamed(ruta);
           },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Text(
+              subTitulo,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: colors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
         ),
       ],
     );

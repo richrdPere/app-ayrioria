@@ -11,34 +11,61 @@ import 'package:app_aryoria/src/presentation/shared/widgets/labels.dart';
 import 'package:app_aryoria/src/presentation/shared/widgets/logo.dart';
 
 class LoginContent extends StatelessWidget {
-  // Instancias
-  // LoginBloc? bloc;
-  // LoginState state;
-
   const LoginContent({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.9,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Logo(titulo: 'Login'),
-              _Form(),
-              Labels(
-                ruta: 'register',
-                titulo: '¿No tienes cuenta?',
-                subTitulo: 'Crea una ahora!',
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return ColoredBox(
+      color: colors.surface,
+      child: SafeArea(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.9,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // ========================================================
+                  // LOGO
+                  // ========================================================
+                  const Logo(titulo: 'ARYORIA'),
+
+                  // ========================================================
+                  // FORM
+                  // ========================================================
+                  _Form(),
+
+                  // ========================================================
+                  // REGISTER
+                  // ========================================================
+                  const Labels(
+                    ruta: 'register',
+                    titulo: '¿No tienes cuenta?',
+                    subTitulo: '¡Crea una ahora!',
+                  ),
+
+                  // ========================================================
+                  // TERMS
+                  // ========================================================
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text(
+                      'Términos y condiciones de uso',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                'Terminos y condiciones de uso',
-                style: TextStyle(fontWeight: FontWeight.w200),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -47,8 +74,7 @@ class LoginContent extends StatelessWidget {
 }
 
 class _Form extends StatefulWidget {
-  // LoginBloc? bloc;
-  // LoginState state;
+  const _Form();
 
   @override
   State<_Form> createState() => _FormState();
@@ -61,29 +87,44 @@ class _FormState extends State<_Form> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void dispose() {
+    emailCtrl.dispose();
+    passCtrl.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bloc = context.read<LoginBloc>();
 
     return Container(
-      margin: EdgeInsets.only(top: 40),
-      padding: EdgeInsets.symmetric(horizontal: 50),
+      margin: const EdgeInsets.only(top: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+
       child: Form(
         key: _formKey,
+
         child: Column(
           children: [
-            // Correo
+            // ============================================================
+            // USERNAME
+            // ============================================================
             CustomInput(
               icon: Icons.person_outline,
               placeholder: 'Username',
               textController: emailCtrl,
               keyboardType: TextInputType.number,
               isPassword: false,
+
               onChanged: (value) {
                 bloc.add(UsernameChanged(username: BlocFormItem(value: value)));
               },
             ),
 
-            // Password
+            // ============================================================
+            // PASSWORD / PIN
+            // ============================================================
             LoginPinSelectorField(
               controller: passCtrl,
               length: 6,
@@ -95,19 +136,24 @@ class _FormState extends State<_Form> {
               },
             ),
 
-            // Button,
+            const SizedBox(height: 8),
+
+            // ============================================================
+            // LOGIN
+            // ============================================================
             BotonAzul(
-              text: 'Ingrese',
+              text: 'Ingresar',
               onPressed: () {
-                if (_formKey.currentState!.validate()) {
+                if (_formKey.currentState?.validate() ?? false) {
                   bloc.add(LoginSubmit());
-                  // context.go('/dashboard/home');
-                } else {
-                  Fluttertoast.showToast(
-                    msg: 'El formulario no es valido',
-                    toastLength: Toast.LENGTH_SHORT,
-                  );
+
+                  return;
                 }
+
+                Fluttertoast.showToast(
+                  msg: 'El formulario no es válido',
+                  toastLength: Toast.LENGTH_SHORT,
+                );
               },
             ),
           ],

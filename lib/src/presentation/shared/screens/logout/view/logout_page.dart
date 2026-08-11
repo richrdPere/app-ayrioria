@@ -1,5 +1,6 @@
 import 'package:app_aryoria/src/config/core/session/session_bloc.dart';
 import 'package:app_aryoria/src/config/core/session/session_state.dart';
+
 import 'package:app_aryoria/src/presentation/shared/screens/logout/bloc/logout_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,9 +30,13 @@ class _LogoutLoadingPageState extends State<LogoutLoadingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return MultiBlocListener(
       listeners: [
+        // =========================================================
         // LOGOUT
+        // =========================================================
         BlocListener<LogoutBloc, LogoutState>(
           listener: (context, state) {
             if (state is LogoutSuccess) {
@@ -44,18 +49,19 @@ class _LogoutLoadingPageState extends State<LogoutLoadingPage> {
                 ..showSnackBar(
                   SnackBar(
                     content: Text(state.message),
-                    backgroundColor: Colors.red,
+                    backgroundColor: colors.errorContainer,
                   ),
                 );
             }
           },
         ),
 
+        // =========================================================
         // SESSION
+        // =========================================================
         BlocListener<SessionBloc, SessionState>(
           listenWhen: (previous, current) =>
               previous.isAuthenticated != current.isAuthenticated,
-
           listener: (context, state) {
             if (!state.isAuthenticated) {
               context.goNamed('login');
@@ -69,13 +75,21 @@ class _LogoutLoadingPageState extends State<LogoutLoadingPage> {
   }
 }
 
+// ============================================================================
+// LOGOUT VIEW
+// ============================================================================
+
 class _LogoutView extends StatelessWidget {
   const _LogoutView();
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.surface,
+
       body: SafeArea(
         child: BlocBuilder<LogoutBloc, LogoutState>(
           builder: (context, state) {
@@ -87,59 +101,130 @@ class _LogoutView extends StatelessWidget {
           },
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 25),
-        child: Text(
-          'ARYORIA',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey.shade500),
+
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 24),
+          child: Text(
+            'ARYORIA',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: colors.onSurfaceVariant,
+              letterSpacing: 1.5,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
+// ============================================================================
+// LOGOUT LOADING
+// ============================================================================
+
 class _LogoutLoadingView extends StatelessWidget {
   const _LogoutLoadingView();
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset('assets/img/tag-logo.png', width: 150, height: 150),
-          const SizedBox(height: 35),
-          const Text(
-            'Cerrando sesión',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.5,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 30),
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // =========================================================
+            // LOGO
+            // =========================================================
+            Container(
+              width: 150,
+              height: 150,
+
+              padding: const EdgeInsets.all(18),
+
+              decoration: BoxDecoration(
+                color: colors.primaryContainer,
+                shape: BoxShape.circle,
+              ),
+
+              child: Image.asset(
+                'assets/img/tag-logo.png',
+                fit: BoxFit.contain,
+              ),
             ),
-          ),
-          const SizedBox(height: 15),
-          Text(
-            'Finalizando la sesión de forma segura',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
-          ),
-          const SizedBox(height: 40),
-          const SizedBox(
-            width: 35,
-            height: 35,
-            child: CircularProgressIndicator(strokeWidth: 3),
-          ),
-          const SizedBox(height: 25),
-          Text(
-            'Espere un momento...',
-            style: TextStyle(color: Colors.grey.shade600),
-          ),
-        ],
+
+            const SizedBox(height: 34),
+
+            // =========================================================
+            // TITLE
+            // =========================================================
+            Text(
+              'Cerrando sesión',
+              textAlign: TextAlign.center,
+
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colors.onSurface,
+                letterSpacing: 0.5,
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // =========================================================
+            // SUBTITLE
+            // =========================================================
+            Text(
+              'Finalizando tu sesión de forma segura.',
+              textAlign: TextAlign.center,
+
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+
+            const SizedBox(height: 36),
+
+            // =========================================================
+            // PROGRESS
+            // =========================================================
+            SizedBox(
+              width: 38,
+              height: 38,
+
+              child: CircularProgressIndicator(
+                strokeWidth: 3.2,
+                color: colors.primary,
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            Text(
+              'Espera un momento...',
+              textAlign: TextAlign.center,
+
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
+// ============================================================================
+// FAILURE VIEW
+// ============================================================================
 
 class _LogoutFailureView extends StatelessWidget {
   final String message;
@@ -148,35 +233,76 @@ class _LogoutFailureView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
+
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline_rounded,
-              size: 70,
-              color: Colors.red,
+            // =========================================================
+            // ERROR ICON
+            // =========================================================
+            Container(
+              width: 92,
+              height: 92,
+
+              decoration: BoxDecoration(
+                color: colors.errorContainer,
+                shape: BoxShape.circle,
+              ),
+
+              child: Icon(
+                Icons.error_outline_rounded,
+                size: 50,
+                color: colors.onErrorContainer,
+              ),
             ),
-            const SizedBox(height: 20),
-            const Text(
+
+            const SizedBox(height: 24),
+
+            // =========================================================
+            // TITLE
+            // =========================================================
+            Text(
               'No se pudo cerrar la sesión',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colors.onSurface,
+              ),
             ),
+
             const SizedBox(height: 12),
+
+            // =========================================================
+            // MESSAGE
+            // =========================================================
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade700),
+
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
             ),
-            const SizedBox(height: 28),
+
+            const SizedBox(height: 30),
+
+            // =========================================================
+            // RETRY
+            // =========================================================
             FilledButton.icon(
               onPressed: () {
                 context.read<LogoutBloc>().add(const LogoutRequested());
               },
+
               icon: const Icon(Icons.refresh_rounded),
+
               label: const Text('Reintentar'),
             ),
           ],

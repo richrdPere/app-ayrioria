@@ -25,14 +25,21 @@ class LoginPinSelectorField extends StatefulWidget {
 class _LoginPinSelectorFieldState extends State<LoginPinSelectorField> {
   Future<void> _openPinBottomSheet(FormFieldState<String> field) async {
     final tempController = TextEditingController(text: widget.controller.text);
+
     FocusManager.instance.primaryFocus?.unfocus();
 
     final result = await showModalBottomSheet<String>(
       context: context,
+
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       useSafeArea: true,
+
+      backgroundColor: Colors.transparent,
+
       builder: (bottomSheetContext) {
+        final theme = Theme.of(bottomSheetContext);
+        final colors = theme.colorScheme;
+
         return Container(
           constraints: const BoxConstraints(maxWidth: 500),
 
@@ -43,15 +50,20 @@ class _LoginPinSelectorFieldState extends State<LoginPinSelectorField> {
             bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom + 24,
           ),
 
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: colors.surface,
 
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+
+            border: Border(
+              top: BorderSide(
+                color: colors.outlineVariant.withValues(alpha: 0.5),
+              ),
+            ),
           ),
 
           child: Column(
             mainAxisSize: MainAxisSize.min,
-
             children: [
               // ==================================================
               // INDICADOR SUPERIOR
@@ -61,58 +73,12 @@ class _LoginPinSelectorFieldState extends State<LoginPinSelectorField> {
                 height: 4,
 
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: colors.outlineVariant,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
 
               const SizedBox(height: 20),
-
-              // ==================================================
-              // TITULO
-              // ==================================================
-              // Row(
-              //   children: [
-              //     Icon(
-              //       Icons.lock_outline,
-              //       color: Theme.of(context).colorScheme.primary,
-              //     ),
-
-              //     const SizedBox(width: 10),
-
-              //     Expanded(
-              //       child: Text(
-              //         'Ingresa tu contraseña',
-
-              //         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              //           fontWeight: FontWeight.bold,
-              //         ),
-              //       ),
-              //     ),
-
-              //     IconButton(
-              //       onPressed: () {
-              //         Navigator.of(bottomSheetContext).pop();
-              //       },
-
-              //       icon: const Icon(Icons.close),
-              //     ),
-              //   ],
-              // ),
-
-              // const SizedBox(height: 8),
-
-              // Align(
-              //   alignment: Alignment.centerLeft,
-
-              //   child: Text(
-              //     'Selecciona los ${widget.length} dígitos de tu contraseña.',
-
-              //     style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-              //   ),
-              // ),
-
-              // const SizedBox(height: 20),
 
               // ==================================================
               // TECLADO RANDOM
@@ -127,42 +93,7 @@ class _LoginPinSelectorFieldState extends State<LoginPinSelectorField> {
                 },
               ),
 
-              const SizedBox(height: 50),
-
-              // ==================================================
-              // BOTON CONFIRMAR
-              // ==================================================
-              // SizedBox(
-              //   width: double.infinity,
-
-              //   child: FilledButton(
-              //     onPressed: () {
-              //       if (tempController.text.length != widget.length) {
-              //         ScaffoldMessenger.of(bottomSheetContext).showSnackBar(
-              //           SnackBar(
-              //             content: Text(
-              //               'La contraseña debe tener ${widget.length} dígitos.',
-              //             ),
-              //           ),
-              //         );
-
-              //         return;
-              //       }
-
-              //       Navigator.of(bottomSheetContext).pop(tempController.text);
-              //     },
-
-              //     style: FilledButton.styleFrom(
-              //       minimumSize: const Size.fromHeight(52),
-
-              //       shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(26),
-              //       ),
-              //     ),
-
-              //     child: const Text('Continuar'),
-              //   ),
-              // ),
+              const SizedBox(height: 40),
             ],
           ),
         );
@@ -178,17 +109,24 @@ class _LoginPinSelectorFieldState extends State<LoginPinSelectorField> {
       setState(() {
         widget.controller.text = result;
       });
+
       field.didChange(result);
+
       widget.onChanged?.call(result);
+
       field.validate();
     }
 
     FocusManager.instance.primaryFocus?.unfocus();
+
     tempController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return FormField<String>(
       initialValue: widget.controller.text,
 
@@ -215,23 +153,26 @@ class _LoginPinSelectorFieldState extends State<LoginPinSelectorField> {
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-
           children: [
             Container(
-              margin: EdgeInsets.only(bottom: field.hasError ? 5 : 20),
+              margin: EdgeInsets.only(bottom: field.hasError ? 5 : 18),
 
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: colors.surfaceContainerLow,
 
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(18),
+
+                border: Border.all(
+                  color: field.hasError
+                      ? colors.error
+                      : colors.outlineVariant.withValues(alpha: 0.6),
+                ),
 
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-
-                    offset: const Offset(0, 5),
-
-                    blurRadius: 5,
+                    color: colors.shadow.withValues(alpha: 0.05),
+                    offset: const Offset(0, 4),
+                    blurRadius: 10,
                   ),
                 ],
               ),
@@ -240,14 +181,16 @@ class _LoginPinSelectorFieldState extends State<LoginPinSelectorField> {
                 color: Colors.transparent,
 
                 child: InkWell(
-                  onTap: () => _openPinBottomSheet(field),
+                  onTap: () {
+                    _openPinBottomSheet(field);
+                  },
 
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(18),
 
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 10,
+                      vertical: 16,
+                      horizontal: 12,
                     ),
 
                     child: Row(
@@ -255,37 +198,44 @@ class _LoginPinSelectorFieldState extends State<LoginPinSelectorField> {
                         SizedBox(
                           width: 40,
 
-                          child: Icon(widget.icon, color: Colors.grey.shade700),
+                          child: Icon(widget.icon, color: colors.primary),
                         ),
+
+                        const SizedBox(width: 2),
 
                         Expanded(
                           child: Text(
-                            hasPassword ? '● ● ● ● ● ●' : widget.placeholder,
+                            hasPassword
+                                ? List.generate(
+                                    widget.length,
+                                    (_) => '●',
+                                  ).join(' ')
+                                : widget.placeholder,
 
-                            style: TextStyle(
-                              fontSize: 16,
-
+                            style: theme.textTheme.bodyLarge?.copyWith(
                               color: hasPassword
-                                  ? Colors.black87
-                                  : Colors.grey.shade600,
+                                  ? colors.onSurface
+                                  : colors.onSurfaceVariant,
+
+                              fontWeight: hasPassword
+                                  ? FontWeight.w500
+                                  : FontWeight.w400,
 
                               letterSpacing: hasPassword ? 2 : 0,
                             ),
                           ),
                         ),
 
-                        Padding(
-                          padding: const EdgeInsets.only(right: 12),
+                        const SizedBox(width: 8),
 
-                          child: Icon(
-                            hasPassword
-                                ? Icons.check_circle_outline
-                                : Icons.keyboard_arrow_up,
+                        Icon(
+                          hasPassword
+                              ? Icons.check_circle_outline
+                              : Icons.keyboard_arrow_up_rounded,
 
-                            color: hasPassword
-                                ? Theme.of(context).colorScheme.primary
-                                : Colors.grey.shade500,
-                          ),
+                          color: hasPassword
+                              ? colors.primary
+                              : colors.onSurfaceVariant,
                         ),
                       ],
                     ),
@@ -294,21 +244,18 @@ class _LoginPinSelectorFieldState extends State<LoginPinSelectorField> {
               ),
             ),
 
-            if (field.hasError) ...[
+            if (field.hasError)
               Padding(
-                padding: const EdgeInsets.only(left: 20, bottom: 15),
+                padding: const EdgeInsets.only(left: 18, bottom: 15),
 
                 child: Text(
                   field.errorText!,
 
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-
-                    fontSize: 12,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colors.error,
                   ),
                 ),
               ),
-            ],
           ],
         );
       },

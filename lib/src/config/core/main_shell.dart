@@ -131,6 +131,14 @@ class MainShell extends StatelessWidget {
       case '/configuracion':
         return 'Configuración';
 
+      // ======================================================
+      // UTILS
+      // ======================================================
+
+      // - Theme
+      case '/theme':
+        return 'Apariencia';
+
       default:
         return '';
     }

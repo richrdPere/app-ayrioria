@@ -6,7 +6,8 @@ class CustomInput extends StatelessWidget {
   final TextEditingController textController;
   final TextInputType keyboardType;
   final bool isPassword;
-  final Function(String)? onChanged;
+
+  final ValueChanged<String>? onChanged;
 
   const CustomInput({
     super.key,
@@ -20,45 +21,78 @@ class CustomInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 18),
+
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
+        color: colors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(18),
+
+        border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
+
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            offset: const Offset(0, 5),
-            blurRadius: 5,
+            color: colors.shadow.withValues(alpha: 0.05),
+            offset: const Offset(0, 4),
+            blurRadius: 10,
           ),
         ],
       ),
+
       child: TextFormField(
         controller: textController,
+
         autocorrect: false,
         keyboardType: keyboardType,
         obscureText: isPassword,
         onChanged: onChanged,
+
+        style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface),
+
+        cursorColor: colors.primary,
+
         validator: (value) {
-          if (value == null || value.isEmpty) {
+          if (value == null || value.trim().isEmpty) {
             return 'Campo requerido';
           }
+
           return null;
         },
+
         textAlignVertical: TextAlignVertical.center,
+
         decoration: InputDecoration(
           hintText: placeholder,
-          border: InputBorder.none,
-          prefixIcon: Icon(icon),
-          prefixIconConstraints: const BoxConstraints(
-            minWidth: 50,
-            minHeight: 50,
+
+          hintStyle: theme.textTheme.bodyMedium?.copyWith(
+            color: colors.onSurfaceVariant,
           ),
+
+          prefixIcon: Icon(icon, color: colors.primary),
+
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 52,
+            minHeight: 52,
+          ),
+
+          border: InputBorder.none,
+          // enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+
+          errorBorder: InputBorder.none,
+          focusedErrorBorder: InputBorder.none,
+
           isDense: true,
+
           contentPadding: const EdgeInsets.symmetric(
             vertical: 18,
-            horizontal: 10,
+            horizontal: 12,
           ),
+
+          errorStyle: theme.textTheme.bodySmall?.copyWith(color: colors.error),
         ),
       ),
     );

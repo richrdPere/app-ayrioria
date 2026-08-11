@@ -11,8 +11,10 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:app_aryoria/src/data/datasources/index_datasource.dart'
     as _i313;
-import 'package:app_aryoria/src/data/datasources/local/sharefPref.dart'
-    as _i969;
+import 'package:app_aryoria/src/data/datasources/local/preferences/app_pref.dart'
+    as _i1005;
+import 'package:app_aryoria/src/data/datasources/local/preferences/sharefPref.dart'
+    as _i645;
 import 'package:app_aryoria/src/di/AppModule.dart' as _i847;
 import 'package:app_aryoria/src/domain/repositories/index_repository.dart'
     as _i897;
@@ -24,6 +26,8 @@ import 'package:app_aryoria/src/presentation/shared/screens/loading/bloc/loading
     as _i43;
 import 'package:app_aryoria/src/presentation/shared/screens/splash/bloc/splash_bloc.dart'
     as _i425;
+import 'package:app_aryoria/src/presentation/shared/screens/theme/bloc/theme_bloc.dart'
+    as _i15;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -35,7 +39,8 @@ extension GetItInjectableX on _i174.GetIt {
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final appModule = _$AppModule();
-    gh.factory<_i969.SharefPref>(() => appModule.sharedPref);
+    gh.factory<_i645.SharefPref>(() => appModule.sharedPref);
+    gh.factory<_i1005.AppPreferences>(() => appModule.appPref);
     gh.factory<_i313.AuthService>(() => appModule.authService);
     gh.factory<_i313.EmpresaService>(() => appModule.empresaService);
     gh.factory<_i313.MovimientoService>(() => appModule.movimientoService);
@@ -81,6 +86,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i425.SplashBloc>(
       () => _i425.SplashBloc(gh<_i1037.AuthUsesCases>()),
+    );
+    gh.factory<_i15.ThemeBloc>(
+      () => _i15.ThemeBloc(gh<_i1005.AppPreferences>()),
     );
     return this;
   }

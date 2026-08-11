@@ -1,4 +1,5 @@
 import 'package:app_aryoria/src/presentation/shared/screens/theme/bloc/theme_bloc.dart';
+import 'package:app_aryoria/src/presentation/shared/screens/theme/bloc/theme_event.dart';
 import 'package:flutter/material.dart';
 import 'package:app_aryoria/injection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -48,7 +49,9 @@ List<BlocProvider> blocProviders = [
         SplashBloc(locator<AuthUsesCases>())..add(const SplashStarted()),
   ),
 
-  BlocProvider<ThemeBloc>(create: (_) => ThemeBloc()),
+  BlocProvider<ThemeBloc>(
+    create: (_) => locator<ThemeBloc>()..add(const LoadThemeEvent()),
+  ),
 
   // ======================================================
   // LOADING Y LOGOUT

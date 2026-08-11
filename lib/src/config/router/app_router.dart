@@ -450,6 +450,9 @@ final GoRouter appRouter = GoRouter(
           builder: (_, __) => const ReportePage(),
         ),
 
+        // ==========================================================
+        // CONFIGURACION
+        // ==========================================================
         GoRoute(
           path: '/configuracion',
           name: 'configuracion',
