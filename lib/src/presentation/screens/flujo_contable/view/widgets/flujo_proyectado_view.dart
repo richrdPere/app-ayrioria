@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+// Modelo
 import 'package:app_aryoria/src/data/models/flujo_contable/flujo_proyectado.dart';
+
+// Graficas
+import 'package:app_aryoria/src/presentation/screens/flujo_contable/view/graficas/FC_proyectado_mensual/chart_pagados_pendientes.dart';
+import 'package:app_aryoria/src/presentation/screens/flujo_contable/view/graficas/FC_proyectado_mensual/chart_real_proyectado.dart';
 
 class FlujoProyectadoView extends StatelessWidget {
   final FlujoProyectadoData data;
@@ -90,6 +95,27 @@ class FlujoProyectadoView extends StatelessWidget {
             ),
           ),
         ),
+
+        const SizedBox(height: 28),
+
+        // ============================================================
+        // PAGADOS VS PENDIENTES
+        // ============================================================
+        ChartPagadosPendientes(ingresos: data.ingresos, egresos: data.egresos),
+
+        const SizedBox(height: 24),
+
+        // ============================================================
+        // REAL VS PROYECTADO
+        // ============================================================
+        ChartRealProyectado(
+          flujoReal: data.flujoReal,
+          flujoProyectado: data.flujoProyectado,
+          saldoFinalReal: data.saldoFinalReal,
+          saldoFinalProyectado: data.saldoFinalProyectado,
+        ),
+
+        const SizedBox(height: 24),
       ],
     );
   }

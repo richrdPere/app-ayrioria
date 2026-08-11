@@ -5,9 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:app_aryoria/src/data/models/flujo_contable/flujo_contable_anual.dart';
 
 // Graficas
-import 'package:app_aryoria/src/presentation/screens/flujo_contable/view/graficas/chart_curvas.dart';
-import 'package:app_aryoria/src/presentation/screens/flujo_contable/view/graficas/chart_flujo_neto.dart';
-import 'package:app_aryoria/src/presentation/screens/flujo_contable/view/graficas/chart_ingresos_egresos.dart';
+import 'package:app_aryoria/src/presentation/screens/flujo_contable/view/graficas/FC_anual/chart_curvas.dart';
+import 'package:app_aryoria/src/presentation/screens/flujo_contable/view/graficas/FC_anual/chart_flujo_neto.dart';
+import 'package:app_aryoria/src/presentation/screens/flujo_contable/view/graficas/FC_anual/chart_ingresos_egresos.dart';
 
 class FlujoAnualView extends StatelessWidget {
   final FlujoAnualData data;

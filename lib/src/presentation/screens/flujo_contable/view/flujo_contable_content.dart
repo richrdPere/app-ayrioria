@@ -1,3 +1,4 @@
+import 'package:app_aryoria/src/presentation/shared/widgets/defaultds/app_module_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_aryoria/src/domain/utils/Resource.dart';
@@ -179,41 +180,18 @@ class _FlujoContableContentState extends State<FlujoContableContent> {
   // ============================================================
   // HEADER
   // ============================================================
+  // ============================================================
+  // HEADER
+  // ============================================================
   Widget _buildHeader() {
-    return Row(
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Icon(
-            Icons.account_balance_wallet_outlined,
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-          ),
-        ),
+    return AppModuleHeader(
+      icon: Icons.account_balance_wallet_outlined,
+      title: 'Control del flujo contable',
+      description: 'Analiza ingresos, egresos, saldos y proyecciones.',
 
-        const SizedBox(width: 14),
-
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Flujo contable',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 3),
-              Text(
-                'Analiza ingresos, egresos, saldos y proyecciones.',
-                style: TextStyle(fontSize: 13, color: Colors.grey),
-              ),
-            ],
-          ),
-        ),
-      ],
+      // Como tu Content ya maneja padding externo,
+      // evitamos duplicar márgenes.
+      margin: EdgeInsets.zero,
     );
   }
 

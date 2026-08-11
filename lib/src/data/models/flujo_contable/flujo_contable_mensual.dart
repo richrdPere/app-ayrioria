@@ -117,8 +117,8 @@ class FlujoResumen {
 // Flujo Seccion
 // ===========================================
 class FlujoSeccion {
-  final List<dynamic> categorias;
-  final List<dynamic> detalle;
+  final List<FlujoCategoria> categorias;
+  final List<FlujoDetalle> detalle;
   final double total;
   final int cantidadMovimientos;
 
@@ -137,8 +137,154 @@ class FlujoSeccion {
     }
 
     return FlujoSeccion(
-      categorias: List<dynamic>.from(json['categorias'] ?? []),
-      detalle: List<dynamic>.from(json['detalle'] ?? []),
+      categorias: (json['categorias'] as List? ?? [])
+          .map((item) => FlujoCategoria.fromJson(item as Map<String, dynamic>))
+          .toList(),
+
+      detalle: (json['detalle'] as List? ?? [])
+          .map((item) => FlujoDetalle.fromJson(item as Map<String, dynamic>))
+          .toList(),
+
+      total: toDouble(json['total']),
+      cantidadMovimientos: json['cantidad_movimientos'] ?? 0,
+    );
+  }
+}
+
+// ===========================================
+// Flujo Categoria
+// ===========================================
+class FlujoCategoria {
+  final int idCategoria;
+  final String categoria;
+  final String tipo;
+  final String color;
+  final String icono;
+  final double total;
+  final int cantidadMovimientos;
+  final List<FlujoSubcategoria> subcategorias;
+
+  FlujoCategoria({
+    required this.idCategoria,
+    required this.categoria,
+    required this.tipo,
+    required this.color,
+    required this.icono,
+    required this.total,
+    required this.cantidadMovimientos,
+    required this.subcategorias,
+  });
+
+  factory FlujoCategoria.fromJson(Map<String, dynamic> json) {
+    double toDouble(dynamic value) {
+      if (value == null) return 0;
+      if (value is num) return value.toDouble();
+      return double.tryParse(value.toString()) ?? 0;
+    }
+
+    return FlujoCategoria(
+      idCategoria: json['id_categoria'] ?? 0,
+      categoria: json['categoria'] ?? '',
+      tipo: json['tipo'] ?? '',
+      color: json['color'] ?? '',
+      icono: json['icono'] ?? '',
+      total: toDouble(json['total']),
+      cantidadMovimientos: json['cantidad_movimientos'] ?? 0,
+
+      subcategorias: (json['subcategorias'] as List? ?? [])
+          .map(
+            (item) => FlujoSubcategoria.fromJson(item as Map<String, dynamic>),
+          )
+          .toList(),
+    );
+  }
+}
+
+// ===========================================
+// Flujo Subcategoria
+// ===========================================
+class FlujoSubcategoria {
+  final int idSubcategoria;
+  final String nombre;
+  final int orden;
+  final bool esPredeterminada;
+  final double total;
+  final int cantidadMovimientos;
+
+  FlujoSubcategoria({
+    required this.idSubcategoria,
+    required this.nombre,
+    required this.orden,
+    required this.esPredeterminada,
+    required this.total,
+    required this.cantidadMovimientos,
+  });
+
+  factory FlujoSubcategoria.fromJson(Map<String, dynamic> json) {
+    double toDouble(dynamic value) {
+      if (value == null) return 0;
+      if (value is num) return value.toDouble();
+      return double.tryParse(value.toString()) ?? 0;
+    }
+
+    return FlujoSubcategoria(
+      idSubcategoria: json['id_subcategoria'] ?? 0,
+      nombre: json['nombre'] ?? '',
+      orden: json['orden'] ?? 0,
+      esPredeterminada: json['es_predeterminada'] ?? false,
+      total: toDouble(json['total']),
+      cantidadMovimientos: json['cantidad_movimientos'] ?? 0,
+    );
+  }
+}
+
+// ===========================================
+// Flujo Detalle
+// ===========================================
+class FlujoDetalle {
+  final int idCategoria;
+  final String categoria;
+  final String tipo;
+  final String color;
+  final String icono;
+  final int idSubcategoria;
+  final String subcategoria;
+  final int orden;
+  final bool esPredeterminada;
+  final double total;
+  final int cantidadMovimientos;
+
+  FlujoDetalle({
+    required this.idCategoria,
+    required this.categoria,
+    required this.tipo,
+    required this.color,
+    required this.icono,
+    required this.idSubcategoria,
+    required this.subcategoria,
+    required this.orden,
+    required this.esPredeterminada,
+    required this.total,
+    required this.cantidadMovimientos,
+  });
+
+  factory FlujoDetalle.fromJson(Map<String, dynamic> json) {
+    double toDouble(dynamic value) {
+      if (value == null) return 0;
+      if (value is num) return value.toDouble();
+      return double.tryParse(value.toString()) ?? 0;
+    }
+
+    return FlujoDetalle(
+      idCategoria: json['id_categoria'] ?? 0,
+      categoria: json['categoria'] ?? '',
+      tipo: json['tipo'] ?? '',
+      color: json['color'] ?? '',
+      icono: json['icono'] ?? '',
+      idSubcategoria: json['id_subcategoria'] ?? 0,
+      subcategoria: json['subcategoria'] ?? '',
+      orden: json['orden'] ?? 0,
+      esPredeterminada: json['es_predeterminada'] ?? false,
       total: toDouble(json['total']),
       cantidadMovimientos: json['cantidad_movimientos'] ?? 0,
     );

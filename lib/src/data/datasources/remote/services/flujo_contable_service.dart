@@ -1,7 +1,6 @@
 // ignore_for_file: non_constant_identifier_names, unnecessary_this
 
 // Environment
-import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'package:app_aryoria/src/config/constants/environment.dart'
     as url_backend;
@@ -43,8 +42,6 @@ class FlujoContableService {
       );
 
       final body = HttpServiceHelper.decodeResponse(response);
-
-      debugPrint("FC Mensual body: ${body}");
 
       if (HttpServiceHelper.isSuccess(response.statusCode)) {
         final apiResponse = ApiResponse<FlujoContableMensualData>.fromJson(
