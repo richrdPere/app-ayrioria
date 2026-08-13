@@ -1,6 +1,12 @@
 // import 'dart:io';
 
 class Environment {
+  static const String serverUrl = 'http://104.248.224.12';
+
+  static const String mainUrl = '$serverUrl/api';
+
+  static const String socketUrl = serverUrl;
+
   // ApiKeys
 
   // Backend
@@ -29,8 +35,8 @@ class Environment {
   // - Producción
 
   // - Digital Ocean
-  static String mainUrl = 'http://104.248.224.12/api';
-  static String socketUrl = 'http://104.248.224.12';
+  // static String mainUrl = 'http://104.248.224.12/api';
+  // static String socketUrl = 'http://104.248.224.12';
 
   // - Server 4 You
   // static String mainUrl = 'http://173.224.122.202:4100/api';
